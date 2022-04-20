@@ -10,6 +10,8 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class StockMutasiTable extends DataTableComponent
 {
+    use DatatablesTraits;
+
     public $jenis_mutasi;
     protected string $pageName = 'stockMutasi';
     protected string $tableName = 'stockMutasiList';
@@ -25,24 +27,20 @@ class StockMutasiTable extends DataTableComponent
         return [
             Column::make('ID', 'kode')
                 ->sortable()
-                ->searchable()
                 ->addClass('hidden md:table-cell')
                 ->selected(),
-            Column::make('Gudang Asal', 'gudangAsal.nama')
+            Column::make('Gudang Asal', 'gudang_asal_id')
                 ->sortable()
                 ->searchable(),
-            Column::make('Gudang Tujuan', 'gudangTujuan.nama')
+            Column::make('Gudang Tujuan', 'gudang_tujuan_id')
                 ->sortable()
                 ->searchable(),
-            Column::make('Pembuat', 'users.nama')
+            Column::make('Pembuat', 'user_id')
                 ->sortable()
                 ->searchable(),
             Column::make('Tgl Mutasi', 'tgl_mutasi')
-                ->sortable()
-                ->searchable(),
-            Column::make('Action', 'actions')
-                ->sortable()
-                ->searchable(),      
+                ->sortable(),
+            Column::make('Action', 'actions')   
             ];
     }
 
@@ -50,8 +48,7 @@ class StockMutasiTable extends DataTableComponent
     {
         $stockMutasi = StockMutasi::query()
             ->with(['gudangAsal', 'gudangTujuan', 'users'])
-            ->where('active_cash', session('ClosedCash'))
-            ->latest('kode');
+            ->where('active_cash', session('ClosedCash'));
 
         if ($this->jenis_mutasi){
             return $stockMutasi->where('jenis_mutasi', $this->jenis_mutasi);
