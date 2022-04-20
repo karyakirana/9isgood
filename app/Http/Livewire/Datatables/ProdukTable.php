@@ -33,8 +33,7 @@ class ProdukTable extends DataTableComponent
 
     public function query(): Builder
     {
-        return Produk::query()
-            ->latest('id');
+        return Produk::query();
     }
 
     public function rowView(): string

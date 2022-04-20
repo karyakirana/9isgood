@@ -30,13 +30,13 @@ class StockOpnameTable extends DataTableComponent
                 ->searchable()
                 ->addClass('hidden md:table-cell')
                 ->selected(),
-            Column::make('Gudang', 'gudang.nama')
+            Column::make('Gudang', 'gudang_id')
                 ->sortable()
                 ->searchable(),
-            Column::make('Pegawai', 'pegawai.nama')
+            Column::make('Pegawai', 'pegawai_id')
                 ->sortable()
                 ->searchable(),
-            Column::make('Pembuat', 'users.nama')
+            Column::make('Pembuat', 'user_id')
                 ->sortable()
                 ->searchable(),
             Column::make('Tgl Input', 'tgl_input')
@@ -52,8 +52,7 @@ class StockOpnameTable extends DataTableComponent
     {
         $stockMasuk = StockOpname::query()
         ->with(['gudang', 'pegawai', 'users'])
-        ->where('active_cash', session('ClosedCash'))
-        ->latest('kode');
+        ->where('active_cash', session('ClosedCash'));
 
         if ($this->jenis){
         return $stockMasuk->where('jenis', $this->kondisi);

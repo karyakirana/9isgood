@@ -15,8 +15,12 @@ class PegawaiTable extends DataTableComponent
     public function columns(): array
     {
         return [
-            Column::make('Kode', 'id'),
-            Column::make('Nama'),
+            Column::make('Kode', 'id')
+                ->sortable()
+                ->searchable(),
+            Column::make('Nama') 
+                ->sortable()
+                ->searchable(),
             Column::make('Alamat'),
             Column::make(''),
         ];
@@ -24,8 +28,7 @@ class PegawaiTable extends DataTableComponent
 
     public function query(): Builder
     {
-        return Pegawai::query()
-            ->latest();
+        return Pegawai::query();
     }
 
     public function rowView(): string

@@ -16,9 +16,11 @@ class CustomerTable extends DataTableComponent
     {
         return [
             Column::make('ID', 'kode')
-                ->searchable(),
+                ->searchable()
+                ->sortable(),
             Column::make('Nama')
-                ->searchable(),
+                ->searchable()
+                ->sortable(),
             Column::make('Diskon')
                 ->searchable(),
             Column::make('Telepon'),
@@ -30,7 +32,7 @@ class CustomerTable extends DataTableComponent
 
     public function query(): Builder
     {
-        return Customer::query()->latest('id');
+        return Customer::query();
     }
 
     public function rowView(): string
