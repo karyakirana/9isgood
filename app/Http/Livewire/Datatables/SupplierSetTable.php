@@ -27,7 +27,8 @@ class SupplierSetTable extends DataTableComponent
 
     public function query(): Builder
     {
-        return Supplier::query();
+        return Supplier::query()
+        ->latest();
     }
 
     public function rowView(): string

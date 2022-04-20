@@ -5,8 +5,8 @@
                 <form>
                     <div class="row mb-6">
                         <div class="col-6">
-                            <x-atoms.input.group-horizontal label="Supplier" name="supplier_id" required="required">
-                                <x-atoms.input.text name="supplier_id" wire:model.defer="supplier_nama" readonly="" data-bs-toggle="modal" data-bs-target="#supplier_modal"/>
+                            <x-atoms.input.group-horizontal label="Supplier" name="supplier_id">
+                                <x-atoms.input.text wire:model.defer="supplier_nama" data-bs-toggle="modal" data-bs-target="#modal_supplier" readonly/>
                             </x-atoms.input.group-horizontal>
                         </div>
                         <div class="col-6">
@@ -57,7 +57,7 @@
                             <th width="10%"></th>
                         </tr>
                     </x-slot>
-                    {{-- @forelse($data_detail as $row)
+                    @forelse($data_detail as $row)
                         <tr class="align-middle">
                             <td class="text-center">{{$row['kode_lokal']}}</td>
                             <td>{{$row['nama_produk']}}</td>
@@ -71,7 +71,7 @@
                         <tr>
                             <td colspan="7" class="text-center">Tidak Ada Data</td>
                         </tr>
-                    @endforelse --}}
+                    @endforelse
                 </x-atoms.table>
             </div>
             <div class="col-4 border">
@@ -103,9 +103,18 @@
                 </div>
             </div>
         </div>
+        <x-slot name="footer">
+            <div class="d-flex justify-content-end">
+                @if($mode == 'update')
+                    <x-atoms.button.btn-primary wire:click="update">Update All</x-atoms.button.btn-primary>
+                @else
+                    <x-atoms.button.btn-primary wire:click="store">Save All</x-atoms.button.btn-primary>
+                @endif
+            </div>
+        </x-slot>
     </x-molecules.card>
 
-    <x-molecules.modal title="Daftar Supplier" id="supplier_modal" size="xl" wire:ignore.self>
+    <x-molecules.modal title="Daftar Supplier" id="modal_supplier" size="xl" wire:ignore.self>
         <livewire:datatables.supplier-set-table />
         <x-slot name="footer"></x-slot>
     </x-molecules.modal>
@@ -117,12 +126,12 @@
 
     @push('custom-scripts')
     <script>
-        let modal_supplier = document.getElementById('supplier_modal');
-        let supplierModal = new bootstrap.Modal(modal_supplier);
-
-        Livewire.on('set_supplier', function (){
-            supplierModal.hide();
-        })
+      
+            let supplierModal = new bootstrap.Modal(document.getElementById('modal_supplier'));
+           
+            Livewire.on('set_supplier', function (){
+                supplierModal.hide();
+            })
 
         let modal_produk = document.getElementById('produk_modal');
         let produkModal = new bootstrap.Modal(modal_produk);

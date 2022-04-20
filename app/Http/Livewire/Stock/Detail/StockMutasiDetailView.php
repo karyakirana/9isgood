@@ -13,6 +13,8 @@ class StockMutasiDetailView extends Component
     protected $listeners = [
         'showStockDetail'=>'show'
     ];
+    
+    public $stock_data, $stock_detail_data;
 
     public function render()
     {

@@ -14,6 +14,8 @@ class StockKeluarDetailView extends Component
         'showStockDetail'=>'show'
     ];
 
+    public $stock_data, $stock_detail_data;
+
     public function render()
     {
         return view('livewire.stock.detail.stock-keluar-detail-view');

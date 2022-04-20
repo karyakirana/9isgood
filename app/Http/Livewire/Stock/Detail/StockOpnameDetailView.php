@@ -10,11 +10,13 @@ class StockOpnameDetailView extends Component
 {
     use ResetFormTraits;
 
-    public $resetForm = ['stock_data', 'stock_detail_data'];
-
+    
+    public $stock_data, $stock_detail_data;
+    
     protected $listeners = [
         'showStockDetail'=>'show'
     ];
+
 
     public function render()
     {

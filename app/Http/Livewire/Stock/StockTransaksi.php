@@ -13,7 +13,7 @@ class StockTransaksi extends Component
     use SetProdukTraits, SetSupplierTraits;
 
     protected $listeners = [
-        'set_produk',
+        'set_produk'=>'setProduk',
         'set_supplier'=>'setSupplier',
         'set_pegawai'
     ];

@@ -102,7 +102,7 @@
     </x-molecules.card>
 
     <x-molecules.modal title="Daftar Pegawai" id="pegawai_modal" size="xl" wire:ignore.self>
-        {{-- <livewire:datatables.pegawai-set-table /> --}}
+        <livewire:datatables.pegawai-set-table />
         <x-slot name="footer"></x-slot>
     </x-molecules.modal>
 
