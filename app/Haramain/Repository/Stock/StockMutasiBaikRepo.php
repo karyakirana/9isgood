@@ -130,7 +130,7 @@ class StockMutasiBaikRepo
                     'sub_total'=>$row->harga * $row->jumlah,
                 ]);
                 // update stock keluar
-                (new PersediaanRepository())->store($persediaanKeluar, $row, 'stock_keluar');
+                (new PersediaanRepository())->storeObject($persediaanKeluar, $row, 'stock_keluar');
                 // persediaan masuk detail
                 $persediaanMasuk->persediaan_transaksi_detail()->create([
                     'produk_id'=>$row->produk_id,
@@ -139,7 +139,7 @@ class StockMutasiBaikRepo
                     'sub_total'=>$row->harga * $row->jumlah,
                 ]);
                 // update stock masuk
-                (new PersediaanRepository())->store($persediaanMasuk, $row, 'stock_masuk');
+                (new PersediaanRepository())->storeObject($persediaanMasuk, $row, 'stock_masuk');
             }
         }
         // jurnal transaksi
