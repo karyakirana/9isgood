@@ -127,4 +127,18 @@ class StockMutasiBaikRepo
         }
         return $stockMutasi;
     }
+
+    public function update($data)
+    {
+        // initiate
+        $stockInventoryRepo = new StockInventoryRepo();
+        $stockMutasi = StockMutasi::query()->find($data->mutasi_id);
+        $stockKeluar = $stockMutasi->stockKeluarMorph();
+        $stockMasuk = $stockMutasi->stockMasukMorph();
+
+        // rollback stock masuk
+        foreach ($stockKeluar->stockKeluarDetail as $item) {
+            //
+        }
+    }
 }
