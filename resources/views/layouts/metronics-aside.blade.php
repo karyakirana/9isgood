@@ -731,6 +731,14 @@
                                         <span class="menu-title">Piutang Penjualan Lama</span>
                                     </a>
                                 </div>
+                                <div class="menu-item">
+                                    <a class="menu-link {{request()->is('keuangan/penjualan/piutangretur') ? 'active' : ''}}" href="{{route('penjualan.piutangretur')}}">
+														<span class="menu-bullet">
+															<span class="bullet bullet-dot"></span>
+														</span>
+                                        <span class="menu-title">Piutang Penjualan Retur</span>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         <div data-kt-menu-trigger="click" class="menu-item {{request()->is('keuangan/jurnal/*') ? 'here show' : ''}} menu-accordion mb-1">
