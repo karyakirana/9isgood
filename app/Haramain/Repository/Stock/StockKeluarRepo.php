@@ -4,7 +4,7 @@ use App\Models\Stock\StockKeluar;
 
 class StockKeluarRepo
 {
-    public function kode()
+    public function kode($kondisi= 'baik')
     {
         // query
         $query = StockKeluar::query()
