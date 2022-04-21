@@ -143,7 +143,7 @@ class StockMutasiBaikRepo
             }
         }
         // jurnal transaksi
-        $jurnalTransaksi = $jurnalPersediaanMutasi->jurnal_transaksi();
+        $jurnalTransaksi = $jurnalPersediaanMutasi->jurnalTransaksi();
         $akunDebet = ($data->gudang_tujuan_id == '1') ? $data->persediaan_baik_kalimas : $data->persediaan_baik_perak;
         $akunKredit = ($data->gudang_asal_id == '1') ? $data->persediaan_baik_kalimas : $data->persediaan_baik_perak;
         // jurnal transaksi debet
