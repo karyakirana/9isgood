@@ -55,7 +55,7 @@ class StockMutasiBaikRepo
             'gudang_id'=>$data->gudang_tujuan_id,
             'tgl_masuk'=>tanggalan_database_format($data->tgl_mutasi, 'd-M-Y'),
             'user_id'=>\Auth::id(),
-            'nomor_surat_jalan'=>$data->nomor_surat_jalan,
+            'nomor_surat_jalan'=>$kodeStockMutasi,
             'keterangan'=>$data->keterangan,
         ]);
         // jurnal persediaan mutasi
