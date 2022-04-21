@@ -831,6 +831,31 @@
                                 </div>
                             </div>
                         </div>
+                        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('keuangan/tester/*') ? 'here show' : ''}} menu-accordion mb-1">
+                            <span class="menu-link">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Tester</span>
+                                <span class="menu-arrow"></span>
+                            </span>
+                            <div class="menu-sub menu-sub-accordion">
+                                <div class="menu-item">
+                                    <a class="menu-link {{request()->is('keuangan/tester/index') ? 'active' : ''}}" href="{{route('keuangan.persediaan')}}">
+														<span class="menu-bullet">
+															<span class="bullet bullet-dot"></span>
+														</span>
+                                        <span class="menu-title">Persediaan Tester</span>
+                                    </a>
+                                    <a class="menu-link {{request()->is('keuangan/tester/transaksi') ? 'active' : ''}}" href="{{route('keuangan.persediaan.transaksi')}}">
+														<span class="menu-bullet">
+															<span class="bullet bullet-dot"></span>
+														</span>
+                                        <span class="menu-title">Persediaan Tester Baru</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div data-kt-menu-trigger="click" class="menu-item menu-accordion">

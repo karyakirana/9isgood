@@ -3,23 +3,36 @@
 namespace App\Http\Livewire\Datatables\Keuangan;
 
 use App\Haramain\Traits\LivewireTraits\DatatablesTraits;
-use App\Models\Keuangan\PersediaanPerpetual;
+use App\Models\Keuangan\Persediaan;
+use App\Models\Master\Produk;
+use App\Haramain\Traits\ModelTraits\ProdukTraits;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class PersediaanTable extends DataTableComponent
 {
-    use DatatablesTraits;
+    use DatatablesTraits, ProdukTraits;
     public function columns(): array
     {
         return [
-            Column::make('ID', 'produk.kode_lokal'),
-            Column::make('Jenis'),
-            Column::make('Kondisi'),
-            Column::make('Gudang'),
-            Column::make('Produk', 'produk.nama'),
-            Column::make('Harga'),
+            Column::make('ID', 'produk_id')
+                ->searchable()  
+                ->sortable(),
+            Column::make('Jenis', 'jenis')
+                ->searchable()
+                ->sortable(),
+            Column::make('Gudang', 'gudang_id')
+                ->searchable()
+                ->sortable(),
+            Column::make('Produk', 'produk.nama')
+                ->searchable()
+                ->sortable(function(Builder $query, $direction) {
+                    return $query->orderBy(Produk::query()->select('nama')->whereColumn('produk.id', 'persediaan.produk_id'), $direction);
+                }),
+            Column::make('Harga', 'harga')
+                ->searchable()
+                ->sortable(),
             Column::make('Jumlah'),
             Column::make('Total'),
         ];
@@ -27,7 +40,8 @@ class PersediaanTable extends DataTableComponent
 
     public function query(): Builder
     {
-        return PersediaanPerpetual::query();
+        return Persediaan::query()
+        ->where('active_cash', session('ClosedCash'));
     }
 
     public function rowView(): string

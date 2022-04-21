@@ -5,9 +5,6 @@
     {{$row->jenis}}
 </x-atoms.table.td>
 <x-atoms.table.td align="center" width="10%">
-    {{$row->kondisi}}
-</x-atoms.table.td>
-<x-atoms.table.td align="center" width="10%">
     {{$row->gudang->nama}}
 </x-atoms.table.td>
 <x-atoms.table.td width="25%">
