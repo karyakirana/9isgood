@@ -30,7 +30,7 @@
                                 </x-atoms.input.select>
                             </x-atoms.input.group-horizontal>
                         </div>
-                    </div>     
+                    </div>
                     <div class="row">
                         <div class="col-6 mb-5">
                             <x-atoms.input.group-horizontal label="Tgl Mutasi" name="tgl_mutasi">
@@ -123,7 +123,7 @@
 
     <!-- begin:modal_produk -->
     <x-molecules.modal title="Daftar Produk" id="modal_produk" size="xl" wire:ignore.self>
-        <livewire:datatables.produk-set-table />
+        <livewire:datatable.produk-from-stock-inventory />
         <x-slot name="footer"></x-slot>
     </x-molecules.modal>
     <!-- end:modal_produk -->

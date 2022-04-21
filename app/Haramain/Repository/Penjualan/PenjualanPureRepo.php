@@ -6,7 +6,7 @@ use App\Models\Penjualan\Penjualan;
 
 class PenjualanPureRepo
 {
-    public string $closedCash;
+    public $closedCash;
 
     public function __construct()
     {
@@ -31,6 +31,7 @@ class PenjualanPureRepo
             ->where('active_cash', session('ClosedCash'))
             ->get();
     }
+
 
     public function kode(): string
     {
@@ -57,7 +58,7 @@ class PenjualanPureRepo
             'gudang_id'=>$data->gudang_id,
             'user_id'=>\Auth::id(),
             'tgl_nota'=>tanggalan_database_format($data->tgl_nota, 'd-M-Y'),
-            'tgl_tempo'=>($data->jenis_bayar == 'Tempo') ? tanggalan_database_format($data->tgl_tempo, 'd-M-Y') : null,
+            'tgl_tempo'=>($data->jenis_bayar == 'tempo') ? tanggalan_database_format($data->tgl_tempo, 'd-M-Y') : null,
             'jenis_bayar'=>$data->jenis_bayar,
             'status_bayar'=>'belum',
             'total_barang'=>$data->total_barang,
