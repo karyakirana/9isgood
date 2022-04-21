@@ -5,14 +5,14 @@ use App\Models\Stock\StockMutasi;
 
 class StockMutasiBaikRepo
 {
-    public function kode($kondisi = 'baik')
+    public function kode($kondisi = 'baik_baik')
     {
         $query = StockMutasi::query()
             ->where('active_cash', session('ClosedCash'))
-            ->where('kondisi', $kondisi)
+            ->where('jenis_mutasi', $kondisi)
             ->latest('kode');
 
-        $kodeKondisi = ($kondisi == 'baik') ? 'MB' : 'MBR';
+        $kodeKondisi = ($kondisi == 'baik') ? 'MBB' : 'MBR';
 
         // check last num
         if ($query->doesntExist()){
