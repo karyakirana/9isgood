@@ -131,7 +131,7 @@ class StockMutasiBaikBaikForm extends Component
             'keterangan'=>'nullable',
             'persediaan_baik_kalimas'=>'required',
             'persediaan_baik_perak'=>'required',
-            'data-detail'=>'required'
+            'data_detail'=>'required'
         ]);
     }
 
