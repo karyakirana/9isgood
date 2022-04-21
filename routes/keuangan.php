@@ -71,8 +71,8 @@ Route::middleware('auth')->group(function (){
     Route::get('keuangan/neraca/saldo/awal', \App\Http\Livewire\Keuangan\Kasir\NeracaSaldoAwal::class)->name('keuangan.neraca.saldoawal');
 
     // persediaan
-    Route::get('keuangan/persediaan', \App\Http\Livewire\Keuangan\Persediaan\PersediaanIndex::class)->name('keuangan.persediaan');
-    Route::get('keuangan/persediaan/transaksi', \App\Http\Livewire\Keuangan\Persediaan\PersediaanTransaksiIndex::class)->name('keuangan.persediaan.transaksi');
+    Route::get('keuangan/tester/index', \App\Http\Livewire\Keuangan\Persediaan\PersediaanIndex::class)->name('keuangan.persediaan');
+    Route::get('keuangan/tester/transaksi', \App\Http\Livewire\Keuangan\Persediaan\PersediaanTransaksiIndex::class)->name('keuangan.persediaan.transaksi');
 
     // persediaan awal temporary
     Route::get('keuangan/persediaan/awal/temp', \App\Http\Livewire\Keuangan\PersediaanTempIndex::class);
