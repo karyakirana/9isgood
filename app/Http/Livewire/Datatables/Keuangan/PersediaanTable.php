@@ -16,9 +16,6 @@ class PersediaanTable extends DataTableComponent
     public function columns(): array
     {
         return [
-            Column::make('ID', 'produk_id')
-                ->searchable()  
-                ->sortable(),
             Column::make('Jenis', 'jenis')
                 ->searchable()
                 ->sortable(),
@@ -33,8 +30,18 @@ class PersediaanTable extends DataTableComponent
             Column::make('Harga', 'harga')
                 ->searchable()
                 ->sortable(),
-            Column::make('Jumlah'),
-            Column::make('Total'),
+            Column::make(' Opname','stock_opname')
+                ->searchable()  
+                ->sortable(),
+            Column::make(' Masuk','stock_masuk')
+                ->searchable()
+                ->sortable(),
+            Column::make(' Keluar','stock_keluar')
+                ->searchable()
+                ->sortable(),
+            Column::make(' Saldo','stock_saldo')
+                ->searchable()
+                ->sortable(),
         ];
     }
 
