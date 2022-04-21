@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Z;
 
+use App\Haramain\Repository\Persediaan\PersediaanRepository;
 use App\Models\Keuangan\Persediaan;
 use App\Models\Penjualan\Penjualan;
 use App\Models\Penjualan\PenjualanRetur;
@@ -20,10 +21,7 @@ class Tester extends Component
 
     public function queryMe()
     {
-        return Persediaan::query()
-            ->where('produk_id', 1)
-            ->where('active_cash', session('ClosedCash'))
-            ->where('gudang_id', 1)->get();
+        return (new PersediaanRepository())->getProdukForKeluar(378, 1, 4000);
     }
 
     public function render()

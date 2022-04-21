@@ -48,7 +48,7 @@ class PiutangPenjualanRepo
         $biayaLain = 0;
         $ppn = 0;
         $jurnalSetPiutang = JurnalSetPiutangAwal::query()->find($data->setPiutangId);
-        $saldoPiutangPenjualan = (new SaldoPiutangPenjualanrepo())->find($data->customer_id);
+        $saldoPiutangPenjualan = (new SaldoPiutangPenjualanrepo())->find($jurnalSetPiutang->customer_id);
         $jurnalTransaksi = $jurnalSetPiutang->jurnal_transaksi();
 
         // rollback
@@ -70,6 +70,7 @@ class PiutangPenjualanRepo
 
         // update begin
         // update jurnal set piutang
+        $saldoPiutangPenjualan = (new SaldoPiutangPenjualanrepo())->find($data->customer_id);
         $jurnalSetPiutang->update([
             'tgl_jurnal'=>tanggalan_database_format($data->tgl_jurnal, 'd-M-Y'),
             'customer_id'=>$data->customer_id,

@@ -44,6 +44,11 @@ Route::middleware('auth')->group(function (){
     Route::get('keuangan/penjualan/piutanglama/trans', \App\Http\Livewire\Keuangan\PiutangPenjualanLamaForm::class)->name('penjualan.piutanglama.trans');
     Route::get('keuangan/penjualan/piutanglama/trans/{piutangLamaId}', \App\Http\Livewire\Keuangan\PiutangPenjualanLamaForm::class)->name('penjualan.piutanglama.trans.piutangLamaId');
 
+    // hutang penjualan retur
+    Route::get('keuangan/penjualan/piutangretur', \App\Http\Livewire\Keuangan\JurnalSetPiutangReturIndex::class)->name('penjualan.piutangretur');
+    Route::get('keuangan/penjualan/piutangretur/trans', \App\Http\Livewire\Keuangan\JurnalSetPiutangReturForm::class)->name('penjualan.piutangretur.trans');
+    Route::get('keuangan/penjualan/piutangretur/trans/{jurnalSetPiutangRetur}', \App\Http\Livewire\Keuangan\JurnalSetPiutangReturForm::class)->name('penjualan.piutangretur.trans.edit');
+
     // penerimaan
     Route::get('keuangan/jurnal/penerimaan')->name('keuangan.jurnal.penerimaan');
     Route::get('keuangan/jurnal/penerimaan/trans')->name('keuangan.jurnal.penerimaan.trans');

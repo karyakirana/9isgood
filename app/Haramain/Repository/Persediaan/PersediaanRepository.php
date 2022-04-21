@@ -59,6 +59,94 @@ class PersediaanRepository
         return $data;
     }
 
+    public function getProdukForKeluar($produk_id, $gudang_id, $jumlah, $kondisi = 'baik'): array
+    {
+        // initiate
+        $query = Persediaan::query()
+            ->where('gudang_id', $gudang_id)
+            ->where('produk_id', $produk_id)
+            ->where('active_cash', session('ClosedCash'))
+            ->where('jenis', $kondisi);
+
+        $hasil = [];
+
+        // check exist
+        if ($query->doesntExist()){
+            $hasil[] = (object)[
+                'produk_id'=>'kosong',
+                'harga'=>'kosong',
+                'jumlah'=>'kosong',
+                'keterangan'=>'yoman'
+            ];
+            return $hasil;
+        }
+
+        $sumStockOpname = $query->sum('stock_opname');
+        $sumStockMasuk = $query->sum('stock_masuk');
+        $jumlahStockAll = $sumStockOpname + $sumStockMasuk;
+        //dd($jumlahStockAll);
+        $count = $query->count() - 1;
+
+        $dataPersediaanTersedia = $query->oldest()->get();
+
+        if ($jumlahStockAll < $jumlah){
+            // exception
+            //dd($jumlahStockAll);
+            foreach ($dataPersediaanTersedia as $item) {
+                $hasil [] = (object)[
+                    'produk_id'=>$item->produk_id,
+                    'harga'=>$item->harga,
+                    'jumlah'=>$item->stock_opname + $item->stock_masuk,
+                    'keterangan'=>'yoman'
+                ];
+                $jumlah -= ($item->stock_opname + $item->stock_masuk);
+            }
+            // hasil dari stock sisa
+            $hasil [] = (object)[
+                'produk_id'=>$dataPersediaanTersedia[$count]->produk_id,
+                'harga'=>$dataPersediaanTersedia[$count]->harga,
+                'jumlah'=>$jumlah,
+                'keterangan'=>'yoman1'
+            ];
+            return $hasil;
+        } else {
+            //dd($jumlah);
+            // keadaan normal
+            // ketika $jumlahStockAll > $jumlah
+            $j=$count;
+            for ($i = $jumlah;  $i >= 0 ;$i -= $stockSaldo){
+
+                $stockSaldo = (int) $dataPersediaanTersedia[$j]->stock_opname + (int) $dataPersediaanTersedia[$j]->stock_masuk;
+
+                if ($stockSaldo <= 0){
+                    $j--;
+                    continue;
+                }
+
+                $hasil [] = (object)[
+                    'produk_id'=>$dataPersediaanTersedia[$j]->produk_id,
+                    'harga'=>$dataPersediaanTersedia[$j]->harga,
+                    'jumlah'=>$stockSaldo,
+                    'keterangan'=>'yoman$i--2'
+                ];
+
+                if ($stockSaldo > $i){
+                    $hasil [] = (object)[
+                        'produk_id'=>$dataPersediaanTersedia[$j]->produk_id,
+                        'harga'=>$dataPersediaanTersedia[$j]->harga,
+                        'jumlah'=>$i,
+                        'keterangan'=>'yoman$i'
+                    ];
+                    //dd($jumlahStockAll);
+                    break;
+                }
+
+                $j--;
+            }
+            return $hasil;
+        }
+    }
+
     public function store(object $dataMaster, array $dataDetail, $field)
     {
         $persediaan = Persediaan::query()->create([

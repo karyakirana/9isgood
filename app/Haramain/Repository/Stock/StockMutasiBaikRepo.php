@@ -117,7 +117,7 @@ class StockMutasiBaikRepo
             // stock inventory keluar
             (new StockInventoryRepo())->incrementArrayData($item, $stockMasuk->gudang_id, 'baik', 'stock_masuk');
             // get persediaan repo
-            $persediaanRepo = (new PersediaanRepository())->getProdukForMutasi($item['produk_id'], $data->gudang_asal_id, $item['jumlah']);
+            $persediaanRepo = (new PersediaanRepository())->getProdukForKeluar($item['produk_id'], $data->gudang_asal_id, $item['jumlah']);
 
             foreach ($persediaanRepo as $row){
                 // tambah nilai total
