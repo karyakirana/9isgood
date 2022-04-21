@@ -43,7 +43,7 @@ class StockMutasiBaikRepo
             'active_cash'=>session('ClosedCash'),
             'kondisi'=>'baik',
             'gudang_id'=>$data->gudang_asal_id,
-            'tgl_keluar'=>$data->tgl_mutasi,
+            'tgl_keluar'=>tanggalan_database_format($data->tgl_mutasi, 'd-M-Y'),
             'user_id'=>\Auth::id(),
             'keterangan'=>$data->keterangan,
         ]);
