@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Stock;
 
 use App\Haramain\Traits\LivewireTraits\SetProdukTraits;
+use App\Models\KonfigurasiJurnal;
 use App\Models\Stock\StockMutasi;
 use App\Models\Master\Gudang;
 use App\Models\Master\Produk;
@@ -16,6 +17,7 @@ class StockMutasiBaikBaikForm extends Component
 
      // first initiate properties
      public $mode = 'create', $update = false;
+     public $mutasi_id;
 
      // for mounting
      public $gudang_data = [];
@@ -31,6 +33,8 @@ class StockMutasiBaikBaikForm extends Component
     public $tgl_mutasi, $user_id, $keterangan;
     public $gudang_id, $stock_id;
 
+    // var transaksi
+    public $persediaan_baik_kalimas, $persediaan_baik_perak;
 
     protected $listeners = [
         'set_produk'=>'setProduk',
@@ -42,33 +46,14 @@ class StockMutasiBaikBaikForm extends Component
         $this->gudang_data = Gudang::all();
         $this->tgl_mutasi = tanggalan_format(now('ASIA/JAKARTA'));
 
+        // initiate akun transaksi
+        $this->persediaan_baik_kalimas = KonfigurasiJurnal::query()->find('persediaan_baik_kalimas')->akun_id;
+        $this->persediaan_baik_perak = KonfigurasiJurnal::query()->find('persediaan_baik_perak')->akun_id;
     }
 
     public function render()
     {
         return view('livewire.stock.stock-mutasi-baik-baik-form');
-    }
-
-    public function forMount($mode, $data, $data_detail)
-    {
-        $this->mode = $mode;
-        $this->stock_id = $data->id;
-        $this->jenis_mutasi = $data->jenis_mutasi;
-        $this->gudang_asal_id = $data ->gudang_asal_id;
-        $this->gudang_tujuan_id = $data ->gudang_tujuan_id;
-        $this->user_id = $data->user_id;
-        $this->tgl_mutasi = ($data->tgl_mutasi) ? tanggalan_format($data->tgl_mutasi) : null;
-        $this->keterangan = $data->keterangan;
-
-        foreach ($data_detail as $row)
-        {
-            $this->data_detail [] = [
-                'produk_id'=>$row->produk_id,
-                'kode_lokal'=>$row->produk->kode_lokal,
-                'nama_produk'=>$row->produk->nama."\n".$row->produk->cover."\n".$row->produk->hal,
-                'jumlah'=>$row->jumlah,
-            ];
-        }
     }
 
     protected function resetForm()
@@ -79,7 +64,7 @@ class StockMutasiBaikBaikForm extends Component
             'idProduk', 'namaProduk', 'jumlahProduk'
         ]);
     }
-    
+
     public function setProduk(Produk $produk)
     {
         $produk = $this->setProduk_sales($produk);
@@ -136,6 +121,20 @@ class StockMutasiBaikBaikForm extends Component
         $this->data_detail = array_values($this->data_detail);
     }
 
+    public function validateData()
+    {
+        return $this->validate([
+            'mutasi_id'=>'nullable',
+            'gudang_asal_id'=>'required',
+            'gudang_tujuan_id'=>'required',
+            'tgl_mutasi'=>'required',
+            'keterangan'=>'nullable',
+            'persediaan_baik_kalimas'=>'required',
+            'persediaan_baik_perak'=>'required',
+            'data-detail'=>'required'
+        ]);
+    }
+
     public function store()
     {
         \DB::beginTransaction();
@@ -154,7 +153,7 @@ class StockMutasiBaikBaikForm extends Component
     {
         \DB::beginTransaction();
         try{
-            StockMutasiBaikRepo::update((object) $this->validateData(), $this->data_detail);
+            (new StockMutasiBaikRepo)->update((object) $this->validateData(), $this->data_detail);
             \DB::commit();
         } catch (ModelNotFoundException $e){
             \DB::rollback();

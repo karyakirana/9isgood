@@ -1,14 +1,26 @@
 <?php namespace App\Haramain\Repository\Stock;
 
 use App\Haramain\Repository\Persediaan\PersediaanRepository;
-use App\Haramain\Repository\StockMasuk\StockMasukRepository;
 use App\Models\Stock\StockMutasi;
 
 class StockMutasiBaikRepo
 {
-    public function kode()
+    public function kode($kondisi = 'baik')
     {
-        return null;
+        $query = StockMutasi::query()
+            ->where('active_cash', session('ClosedCash'))
+            ->where('kondisi', $kondisi)
+            ->latest('kode');
+
+        $kodeKondisi = ($kondisi == 'baik') ? 'MB' : 'MBR';
+
+        // check last num
+        if ($query->doesntExist()){
+            return "0001/{$kodeKondisi}/".date('Y');
+        }
+
+        $num = (int) $query->first()->last_num_trans + 1;
+        return sprintf("%04s", $num)."/{$kodeKondisi}/".date('Y');
     }
 
     public function store($data)
@@ -80,6 +92,9 @@ class StockMutasiBaikRepo
                 'kredit',
             ]);
 
+        // initiate nilai transaksi
+        $nilaiTransaksi = 0;
+
         // store detail
         foreach ($data->data_detail as $item) {
             // stock mutasi detail
@@ -105,6 +120,8 @@ class StockMutasiBaikRepo
             $persediaanRepo = (new PersediaanRepository())->getProdukForMutasi($item['produk_id'], $data->gudang_asal_id, $item['jumlah']);
 
             foreach ($persediaanRepo as $row){
+                // tambah nilai total
+                $nilaiTransaksi += $row->harga * $row->jumlah;
                 // persediaan keluar detail
                 $persediaanKeluar->persediaan_transaksi_detail()->create([
                     'produk_id'=>$row->produk_id,
@@ -125,6 +142,26 @@ class StockMutasiBaikRepo
                 (new PersediaanRepository())->store($persediaanMasuk, $row, 'stock_masuk');
             }
         }
+        // jurnal transaksi
+        $jurnalTransaksi = $jurnalPersediaanMutasi->jurnal_transaksi();
+        $akunDebet = ($data->gudang_tujuan_id == '1') ? $data->persediaan_baik_kalimas : $data->persediaan_baik_perak;
+        $akunKredit = ($data->gudang_asal_id == '1') ? $data->persediaan_baik_kalimas : $data->persediaan_baik_perak;
+        // jurnal transaksi debet
+        $jurnalTransaksi->create([
+            'active_cash'=>session('ClosedCash'),
+            'akun_id'=>$akunDebet,
+            'nominal_debet'=>$nilaiTransaksi,
+            'nominal_kredit',
+            'keterangan'
+        ]);
+        // jurnal transaksi kredit
+        $jurnalTransaksi->create([
+            'active_cash'=>session('ClosedCash'),
+            'akun_id'=>$akunKredit,
+            'nominal_debet',
+            'nominal_kredit'=>$nilaiTransaksi,
+            'keterangan'
+        ]);
         return $stockMutasi;
     }
 
