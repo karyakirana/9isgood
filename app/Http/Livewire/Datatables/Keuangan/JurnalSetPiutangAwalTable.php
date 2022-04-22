@@ -16,7 +16,8 @@ class JurnalSetPiutangAwalTable extends DataTableComponent
         return [
             Column::make('ID'),
             Column::make('Tgl Jurnal'),
-            Column::make('Customer'),
+            Column::make('Customer', 'customer.nama')
+                ->searchable(),
             Column::make('Pembuat'),
             Column::make('Keterangan'),
             Column::make(''),
