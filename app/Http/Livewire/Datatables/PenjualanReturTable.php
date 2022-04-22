@@ -4,13 +4,15 @@ namespace App\Http\Livewire\Datatables;
 
 use App\Haramain\Traits\LivewireTraits\DatatablesTraits;
 use App\Models\Penjualan\PenjualanRetur;
+use App\Models\Master\Customer;
+use App\Haramain\Traits\ModelTraits\CustomerTraits;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class PenjualanReturTable extends DataTableComponent
 {
-    use DatatablesTraits;
+    use DatatablesTraits, CustomerTraits;
 
     public $kondisi;
 
@@ -24,9 +26,13 @@ class PenjualanReturTable extends DataTableComponent
             Column::make('ID', 'kode')
                 ->searchable()
                 ->addClass('hidden md:table-cell')
-                ->selected(),
+                ->selected()
+                ->sortable(),
             Column::make('Customer', 'customer.nama')
-                ->searchable(),
+                ->searchable()
+                ->sortable(function(Builder $query, $direction) {
+                    return $query->orderBy(Customer::query()->select('nama')->whereColumn('customer.id', 'penjualan_retur.customer_id'), $direction);
+                }),
             Column::make('Tgl Nota', 'tgl_nota')
                 ->searchable(),
             Column::make('Tgl Tempo', 'tgl_tempo')
@@ -45,8 +51,7 @@ class PenjualanReturTable extends DataTableComponent
     {
         return PenjualanRetur::query()
             ->where('active_cash', session('ClosedCash'))
-            ->where('jenis_retur', $this->kondisi)
-            ->latest('kode');
+            ->where('jenis_retur', $this->kondisi);
     }
 
     public function rowView(): string
