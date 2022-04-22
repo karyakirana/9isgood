@@ -19,7 +19,7 @@
     {{$row->status_bayar}}
 </x-atoms.table.td>
 <x-atoms.table.td width="10%" align="end">
-    {{rupiah_format($row->total_bayar)}}
+        {{rupiah_format($row->total_bayar)}}
 </x-atoms.table.td>
 <x-atoms.table.td align="center">
     @if($row->status_bayar == 'belum')
@@ -28,5 +28,5 @@
     @endif
         <x-atoms.button.btn-icon color="dark" onclick="Livewire.emit('showPenjualanDetail', {{$row->id}})"><i class="fas fa-indent"></i></x-atoms.button.btn-icon>
         <x-atoms.button.btn-icon-link href="penjualan/print/{{$row->id}}" color="info"><i class="fas fa-print"></i></x-atoms.button.btn-icon-link>
-        <x-atoms.button.btn-icon color="success"><i class="fas fa-file-powerpoint"></i></x-atoms.button.btn-icon>
+        <x-atoms.button.btn-icon-link href="penjualan/pdf/{{$row->id}}" color="success"><i class="fas fa-file-powerpoint"></i></x-atoms.button.btn-icon-link>
 </x-atoms.table.td>

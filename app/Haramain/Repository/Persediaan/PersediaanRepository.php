@@ -123,13 +123,6 @@ class PersediaanRepository
                     continue;
                 }
 
-                $hasil [] = (object)[
-                    'produk_id'=>$dataPersediaanTersedia[$j]->produk_id,
-                    'harga'=>$dataPersediaanTersedia[$j]->harga,
-                    'jumlah'=>$stockSaldo,
-                    'keterangan'=>'yoman$i--2'
-                ];
-
                 if ($stockSaldo > $i){
                     $hasil [] = (object)[
                         'produk_id'=>$dataPersediaanTersedia[$j]->produk_id,
@@ -141,6 +134,12 @@ class PersediaanRepository
                     break;
                 }
 
+                $hasil [$j-1] = (object)[
+                    'produk_id'=>$dataPersediaanTersedia[$j]->produk_id,
+                    'harga'=>$dataPersediaanTersedia[$j]->harga,
+                    'jumlah'=>$stockSaldo + $hasil [$j]['jumlah'],
+                    'keterangan'=>'yoman$i--2'
+                ];
                 $j--;
             }
             return $hasil;

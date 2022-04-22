@@ -6,7 +6,7 @@
                     <div class="row mb-6">
                         <div class="col-6">
                             <x-atoms.input.group-horizontal label="Gudang Asal" name="gudang" required="required">
-                                <x-atoms.input.select name="gudang_asal_id" wire:model.defer="gudang_asal_id">
+                                <x-atoms.input.select name="gudang_asal_id" wire:model="gudang_asal_id">
                                     <option>Dipilih</option>
                                     @forelse($gudang_data as $row)
                                         <option value="{{$row->id}}">{{$row->nama}}</option>
@@ -114,18 +114,18 @@
     </x-molecules.card>
 
     <x-molecules.modal title="Daftar Produk" id="produk_modal" size="xl" wire:ignore.self>
-        <livewire:datatables.produk-set-table />
+        <livewire:datatable.produk-from-stock-inventory />
         <x-slot name="footer"></x-slot>
     </x-molecules.modal>
 
     @push('custom-scripts')
     <script>
-    
-       
+
+
         let modal_produk = document.getElementById('produk_modal');
         let produkModal = new bootstrap.Modal(modal_produk);
 
-        Livewire.on('set_produk', function (){
+        Livewire.on('setProduk', function (){
             produkModal.hide();
         })
 

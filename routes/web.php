@@ -67,6 +67,8 @@ Route::middleware('auth')->group(function (){
 
     Route::get('penjualan/print/{penjualan}', [\App\Http\Controllers\Sales\ReceiptController::class, 'penjualanDotMatrix']);
 
+    Route::get('penjualan/pdf/{penjualan}/report', [\App\Http\Controllers\Pdf\ReportPdfController::class, 'penjualanPdf']);
+
     Route::get('penjualan/retur/{kondisi}', \App\Http\Livewire\Penjualan\PenjualanReturIndex::class);
     Route::get('penjualan/retur/{kondisi}/trans', \App\Http\Livewire\Penjualan\PenjualanReturForm::class);
     Route::get('penjualan/retur/{kondisi}/trans/{retur}', \App\Http\Livewire\Penjualan\PenjualanReturForm::class);
@@ -77,6 +79,8 @@ Route::middleware('auth')->group(function (){
     Route::get('penjualan/report', \App\Http\Livewire\Penjualan\PenjualanReportIndex::class)->name('penjualan.report');
     // Route::get('penjualan/report/bydate', \App\Http\Livewire\Penjualan\ReportPenjualanByDateForm::class)->name('penjualan.report.bydate');
     Route::get('penjualan/report/bydate/{tglAwal}/{tglakhir}', [\App\Http\Controllers\Penjualan\ReportPenjualanController::class, 'reportByDate'])->name('penjualan.report.bydate');
+    Route::get('penjualan/report/bymonth/{bulan}', [\App\Http\Controllers\Penjualan\ReportPenjualanController::class, 'reportByMonth'])->name('penjualan.report.bymonth');
+    Route::get('penjualan/report/retur/{tglAwal}/{tglakhir}', [\App\Http\Controllers\Penjualan\PenjualanReturReportController::class, 'reportRetur'])->name('penjualan.report.retur');
 });
 
 Route::middleware('auth')->group(function(){
@@ -147,7 +151,7 @@ Route::middleware('auth')->group(function (){
     Route::get('stock/mutasi/baik/rusak/trans', \App\Http\Livewire\Stock\Mutasi\StockMutasiBaikRusakTrans::class);
     Route::get('stock/mutasi/rusak/rusak', \App\Http\Livewire\Stock\Mutasi\StockMutasiRusakRusakIndeks::class)->name('');
     Route::get('stock/mutasi/rusak/rusak/trans', \App\Http\Livewire\Stock\Mutasi\StockMutasiRusakRusakTrans::class);
-   
+
     // numpang stock
     Route::get('stock/stockakhir', \App\Http\Livewire\Stock\StockAkhirIndex::class)->name('stock.stockakhir');
     Route::get('stock/stockakhir/transaksi', \App\Http\Livewire\Stock\StockAkhirForm::class)->name('stock.stockakhir.transaksi');

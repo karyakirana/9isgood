@@ -37,7 +37,7 @@ class StockMutasiBaikBaikForm extends Component
     public $persediaan_baik_kalimas, $persediaan_baik_perak;
 
     protected $listeners = [
-        'set_produk'=>'setProduk',
+        'setProduk',
     ];
 
     public function __construct($id = null)
@@ -67,7 +67,12 @@ class StockMutasiBaikBaikForm extends Component
 
     public function setProduk(Produk $produk)
     {
-        $produk = $this->setProduk_sales($produk);
+        $this->setProduk_sales($produk);
+    }
+
+    public function updatedGudangAsalId()
+    {
+        $this->emit('setGudang', $this->gudang_asal_id);
     }
 
     public function validatedToTable()
