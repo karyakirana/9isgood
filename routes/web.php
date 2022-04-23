@@ -183,3 +183,4 @@ Route::get('/logout', [\App\Http\Controllers\AuthController::class, 'destroy'])-
 
 // require __DIR__.'/auth.php';
  require __DIR__.'/keuangan.php';
+ require __DIR__.'/testerRoute.php';

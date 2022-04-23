@@ -2,9 +2,11 @@
 
 namespace App\Http\Livewire\Datatables;
 
+use App\Haramain\Repository\Stock\StockMutasiBaikRepo;
 use App\Haramain\Traits\LivewireTraits\DatatablesTraits;
 use App\Models\Stock\StockMutasi;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
@@ -16,7 +18,7 @@ class StockMutasiTable extends DataTableComponent
     protected string $pageName = 'stockMutasi';
     protected string $tableName = 'stockMutasiList';
 
-    
+
     public function mount($jenis_mutasi = null)
     {
         $this->jenis_mutasi = $jenis_mutasi;
@@ -40,7 +42,7 @@ class StockMutasiTable extends DataTableComponent
                 ->searchable(),
             Column::make('Tgl Mutasi', 'tgl_mutasi')
                 ->sortable(),
-            Column::make('Action', 'actions')   
+            Column::make('Action', 'actions')
             ];
     }
 
@@ -60,5 +62,17 @@ class StockMutasiTable extends DataTableComponent
     public function rowView(): string
     {
         return 'livewire-tables.rows.stock_mutasi_table';
+    }
+
+    public function destroy($id)
+    {
+        \DB::beginTransaction();
+        try {
+            (new StockMutasiBaikRepo())->destroy($id);
+            \DB::commit();
+        } catch (ModelNotFoundException $e){
+            \DB::rollBack();
+        }
+        $this->emit('refreshDatatable');
     }
 }

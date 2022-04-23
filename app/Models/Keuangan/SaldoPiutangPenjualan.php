@@ -10,9 +10,7 @@ class SaldoPiutangPenjualan extends Model
 {
     use HasFactory, CustomerTraits;
 
-    protected $connection = 'mysql2';
-
-    protected $table = 'saldo_piutang_penjualan';
+    protected $table = 'haramain_keuangan.saldo_piutang_penjualan';
     public $incrementing = false;
     protected $primaryKey = 'customer_id';
 

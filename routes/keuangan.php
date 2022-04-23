@@ -40,6 +40,9 @@ Route::middleware('auth')->group(function (){
     Route::get('keuangan/penjualan/piutang/trans', \App\Http\Livewire\Keuangan\Kasir\PiutangPenjualanForm::class)->name('penjualan.piutang.trans');
     Route::get('keuangan/penjualan/piutang/trans/{jurnalSetPiutangId}', \App\Http\Livewire\Keuangan\Kasir\PiutangPenjualanForm::class)->name('penjualan.piutang.trans.piutangId');
 
+    // saldo piutang penjualan
+    Route::get('keuangan/penjualan/saldopiutang', \App\Http\Livewire\Keuangan\SaldoPiutangIndex::class)->name('penjualan.saldopiutang');
+
     Route::get('keuangan/penjualan/piutanglama', \App\Http\Livewire\Keuangan\PiutangPenjualanLamaIndex::class)->name('penjualan.piutanglama');
     Route::get('keuangan/penjualan/piutanglama/trans', \App\Http\Livewire\Keuangan\PiutangPenjualanLamaForm::class)->name('penjualan.piutanglama.trans');
     Route::get('keuangan/penjualan/piutanglama/trans/{piutangLamaId}', \App\Http\Livewire\Keuangan\PiutangPenjualanLamaForm::class)->name('penjualan.piutanglama.trans.piutangLamaId');

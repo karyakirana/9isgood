@@ -4,6 +4,26 @@ use App\Models\Keuangan\Persediaan;
 
 class PersediaanRepository
 {
+    // check total persediaan
+    public function check($produk_id, $gudang, $kondisi, $jumlah): object
+    {
+        $query = Persediaan::query()
+            ->where('active_cash', session('ClosedCash'))
+            ->where('produk_id', $produk_id)
+            ->where('jenis', $kondisi)
+            ->where('gudang_id', $gudang);
+
+        if ($query->doesntExist()){
+            return (object) ['status'=>false, 'keterangan'=>'barang tidak ada'];
+        }
+
+        if ($query->count() < $jumlah){
+            return (object) ['status'=>false, 'keterangan'=>'jumlah barang tidak mencukupi'];
+        }
+
+        return (object) ['status'=>true, 'keterangan'=>'jumlah barang '.$query->sum('stock_saldo')];
+    }
+
     /**
      * get data from persediaan table
      * digunakan untuk menyimpan pada transaksi persediaan transaksi
@@ -117,6 +137,7 @@ class PersediaanRepository
             for ($i = $jumlah;  $i >= 0 ;$i -= $stockSaldo){
 
                 $stockSaldo = (int) $dataPersediaanTersedia[$j]->stock_opname + (int) $dataPersediaanTersedia[$j]->stock_masuk;
+                dd($stockSaldo);
 
                 if ($stockSaldo <= 0){
                     $j--;
@@ -201,7 +222,7 @@ class PersediaanRepository
             return $this->store($dataMaster, $dataDetail, $field);
         }
 
-        $persediaan = $persediaan->first();
+        $persediaan = $persediaan->oldest()->first();
 
         $persediaan->increment($field, $dataDetail['jumlah']);
 
@@ -254,7 +275,7 @@ class PersediaanRepository
             ->where('jenis', $dataMaster->kondisi ?? $dataMaster->jenis)
             ->where('gudang_id', $dataMaster->gudang_id)
             ->where('produk_id', $dataDetail['produk_id'])
-            ->where('harga', $dataDetail['harga_hpp'])->first();
+            ->where('harga', $dataDetail['harga_hpp'])->oldest()->first();
 
         $persediaan->decrement($field, $dataDetail['jumlah']);
 

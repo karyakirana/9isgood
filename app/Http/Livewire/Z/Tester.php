@@ -21,7 +21,7 @@ class Tester extends Component
 
     public function queryMe()
     {
-        return (new PersediaanRepository())->getProdukForKeluar(302, 2, 500);
+        return (new PersediaanRepository())->getProdukForKeluar(302, 2, 1000);
     }
 
     public function render()

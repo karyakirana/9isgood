@@ -227,7 +227,7 @@ class StockMutasiBaikRepo
                     'sub_total' => $row->harga * $row->jumlah,
                 ]);
                 // update stock keluar
-                (new PersediaanRepository())->storeObject($persediaanKeluar, $row, 'stock_keluar');
+                (new PersediaanRepository())->update($persediaanKeluar, $row, 'stock_keluar');
                 // persediaan masuk detail
                 $persediaanMasuk->persediaan_transaksi_detail()->create([
                     'produk_id' => $row->produk_id,
@@ -236,7 +236,7 @@ class StockMutasiBaikRepo
                     'sub_total' => $row->harga * $row->jumlah,
                 ]);
                 // update stock masuk
-                (new PersediaanRepository())->storeObject($persediaanMasuk, $row, 'stock_masuk');
+                (new PersediaanRepository())->update($persediaanMasuk, $row, 'stock_masuk');
             }
         }
         // jurnal transaksi
@@ -260,5 +260,63 @@ class StockMutasiBaikRepo
             'keterangan'
         ]);
         return $stockMutasi;
+    }
+
+    public function destroy($mutasi_id)
+    {
+        // initiate
+        // initiate
+        $stockInventoryRepo = new StockInventoryRepo();
+        $persediaanRepo = new PersediaanRepository();
+        $stockMutasi = StockMutasi::query()->find($mutasi_id);
+        $stockKeluar = $stockMutasi->stockKeluarMorph()->first();
+        $stockMasuk = $stockMutasi->stockMasukMorph()->first();
+        $jurnalPersediaanMutasi = $stockMutasi->jurnalPersediaanTransaksi()->first();
+        $persediaanKeluar = $jurnalPersediaanMutasi->persediaanTransaksi()->firstWhere('jenis', 'keluar');
+        $persediaanMasuk = $jurnalPersediaanMutasi->persediaanTransaksi()->firstWhere('jenis', 'masuk');
+        //dd($persediaanKeluar->persediaan_transaksi_detail());
+        $jurnalTransaksi = $jurnalPersediaanMutasi->jurnalTransaksi();
+
+        // rollback stock inventeory keluar
+        foreach ($stockKeluar->stockKeluarDetail as $item) {
+            $stockInventoryRepo->rollback($item, $stockKeluar->gudang_id, 'baik', 'stock_keluar');
+        }
+        // rollback stock inventory masuk
+        foreach ($stockMasuk->stockMasukDetail as $item) {
+            $stockInventoryRepo->rollback($item, $stockMasuk->gudang_id, 'baik', 'stock_masuk');
+        }
+        // rollback persediaan keluar
+        foreach ($persediaanKeluar->persediaan_transaksi_detail as $item) {
+            $persediaanRepo->rollbackObject($persediaanKeluar, $item, 'stock_keluar', 'baik');
+        }
+        // rollback persediaan masuk
+        foreach ($persediaanMasuk->persediaan_transaksi_detail as $item) {
+            $persediaanRepo->rollbackObject($persediaanMasuk, $item, 'stock_masuk', 'baik');
+        }
+        // delete stock keluar detail
+        $stockKeluar->stockKeluarDetail()->delete();
+        // delete stock masuk detail
+        $stockMasuk->stockMasukDetail()->delete();
+        // delete persediaan keluar detail
+        $persediaanKeluar->persediaan_transaksi_detail()->delete();
+        // delete persediaan masuk detail
+        $persediaanKeluar->persediaan_transaksi_detail()->delete();
+        // delete jurnal transaksi
+        $jurnalTransaksi->delete();
+        // delete mutasi detail
+        $stockMutasi->stockMutasiDetail()->delete();
+
+        // delete stock keluar
+        $stockKeluar->delete();
+        // delete stock masuk
+        $stockMasuk->delete();
+        // delete persediaankeluar
+        $persediaanKeluar->delete();
+        // delete persediaanmasuk
+        $persediaanMasuk->delete();
+        // delete persediaan mutasi
+        $jurnalPersediaanMutasi->delete();
+        // delete mutasi
+        return $stockMutasi->delete();
     }
 }
