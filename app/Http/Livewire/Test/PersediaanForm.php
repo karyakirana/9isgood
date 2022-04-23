@@ -32,11 +32,6 @@ class PersediaanForm extends Component
         //
     }
 
-    protected function checkJumlahProduk()
-    {
-        //
-    }
-
     protected function resetForm()
     {
         $this->reset([
@@ -52,6 +47,8 @@ class PersediaanForm extends Component
     public function validateFormDetail()
     {
         $this->validate([
+            'gudang_id'=>'required',
+            'kondisi'=>'required',
             'produk_nama'=>'required',
             'harga'=>'required',
             'jumlah'=>'required'

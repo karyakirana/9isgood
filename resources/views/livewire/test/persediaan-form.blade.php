@@ -1,19 +1,18 @@
 <div>
-    <div class="d-flex flex-column flex-lg-row">
-        <!-- begin:table cards-->
-        <div class="flex-lg-row-fluid mb-10 mb-lg-0 me-lg-7 me-xl-10">
-            <x-molecules.card title="Persediaan Transaksi">
+    <x-molecules.card title="Persediaan Transaksi">
+        <div class="row">
+            <div class="col-9">
                 <!--begin:form-->
                 <form>
                     <div class="row mb-5">
                         <div class="col-6">
-                            <x-atoms.input.group-horizontal label="Gudang">
-                                <x-atoms.input.select></x-atoms.input.select>
+                            <x-atoms.input.group-horizontal label="Gudang" name="gudang_id">
+                                <x-atoms.input.select wire:model.defer="gudang_id"></x-atoms.input.select>
                             </x-atoms.input.group-horizontal>
                         </div>
                         <div class="col-6">
-                            <x-atoms.input.group-horizontal label="Kondisi">
-                                <x-atoms.input.select>
+                            <x-atoms.input.group-horizontal label="Kondisi" name="kondisi">
+                                <x-atoms.input.select wire:model.defer="kondisi">
                                     <option>Dipilih</option>
                                     <option value="baik">Baik</option>
                                     <option value="rusak">Rusak</option>
@@ -55,57 +54,55 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5">Tidak Ada data</td>
+                            <td colspan="6" class="text-center">Tidak Ada data</td>
                         </tr>
                     @endforelse
                 </x-atoms.table>
                 <!--end:table-->
-            </x-molecules.card>
+            </div>
+            <div class="col-3">
+                <form class="border p-5">
+                    <x-atoms.input.group class="mb-5" label="Produk" name="produk_nama">
+                        <x-atoms.input.textarea wire:model.defer="produk_nama"></x-atoms.input.textarea>
+                    </x-atoms.input.group>
+                    <x-atoms.input.group class="mb-5" label="Harga Jual" name="produk_harga">
+                        <x-atoms.input.text wire:model.defer="produk_harga" />
+                    </x-atoms.input.group>
+                    <x-atoms.input.group class="mb-5" label="Harga" name="harga">
+                        <x-atoms.input.text wire:model.defer="harga" />
+                    </x-atoms.input.group>
+                    <x-atoms.input.group class="mb-5" label="Jumlah" name="jumlah">
+                        <x-atoms.input.text wire:model.defer="jumlah" />
+                    </x-atoms.input.group>
+                    <x-atoms.input.group class="mb-5" label="Sub Total" name="sub_total">
+                        <x-atoms.input.text wire:model.defer="sub_total" />
+                    </x-atoms.input.group>
+                    <div class="separator separator-dashed mb-8"></div>
+                    <div class="row mb-5">
+                        <!--begin::Col-->
+                        <div class="col">
+                            @if($update==true)
+                                <x-atoms.button.btn-info wire:click="update" class="w-100">Update</x-atoms.button.btn-info>
+                            @else
+                                <x-atoms.button.btn-info wire:click="add" class="w-100">Add</x-atoms.button.btn-info>
+                            @endif
+                        </div>
+                        <!--end::Col-->
+                        <!--begin::Col-->
+                        <div class="col">
+                            <x-atoms.button.btn-danger wire:click="setJurnalTransaksi" class="w-100">RESET</x-atoms.button.btn-danger>
+                        </div>
+                        <!--end::Col-->
+                    </div>
+                    @if($mode=='update')
+                        <x-atoms.button.btn-primary wire:click="put" class="w-100">UPDATE</x-atoms.button.btn-primary>
+                    @else
+                        <x-atoms.button.btn-primary wire:click="store" class="w-100">SIMPAN</x-atoms.button.btn-primary>
+                    @endif
+                </form>
+            </div>
         </div>
-        <!-- end:table cards-->
 
-        <!-- begin:form cards-->
-        <div class="flex-lg-auto min-w-lg-300px">
-            <x-molecules.card>
-                <x-atoms.input.group class="mb-5" label="Produk">
-                    <x-atoms.input.text />
-                </x-atoms.input.group>
-                <x-atoms.input.group class="mb-5" label="Harga Jual">
-                    <x-atoms.input.text />
-                </x-atoms.input.group>
-                <x-atoms.input.group class="mb-5" label="Harga">
-                    <x-atoms.input.text />
-                </x-atoms.input.group>
-                <x-atoms.input.group class="mb-5" label="Jumlah">
-                    <x-atoms.input.text />
-                </x-atoms.input.group>
-                <x-atoms.input.group class="mb-5" label="Sub Total">
-                    <x-atoms.input.text />
-                </x-atoms.input.group>
-                <div class="separator separator-dashed mb-8"></div>
-                <div class="row mb-5">
-                    <!--begin::Col-->
-                    <div class="col">
-                        @if($update==true)
-                            <x-atoms.button.btn-info wire:click="updateLine" class="w-100">Update</x-atoms.button.btn-info>
-                        @else
-                            <x-atoms.button.btn-info wire:click="addLine" class="w-100">Add</x-atoms.button.btn-info>
-                        @endif
-                    </div>
-                    <!--end::Col-->
-                    <!--begin::Col-->
-                    <div class="col">
-                        <x-atoms.button.btn-danger wire:click="setJurnalTransaksi" class="w-100">RESET</x-atoms.button.btn-danger>
-                    </div>
-                    <!--end::Col-->
-                </div>
-                @if($mode=='update')
-                    <x-atoms.button.btn-primary wire:click="update" class="w-100">UPDATE</x-atoms.button.btn-primary>
-                @else
-                    <x-atoms.button.btn-primary wire:click="store" class="w-100">SIMPAN</x-atoms.button.btn-primary>
-                @endif
-            </x-molecules.card>
-        </div>
-        <!-- end:form cards-->
-    </div>
+
+    </x-molecules.card>
 </div>
