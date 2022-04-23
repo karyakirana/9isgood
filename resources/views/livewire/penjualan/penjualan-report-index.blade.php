@@ -23,7 +23,7 @@
                     </div>
                     <div class="col-4">
                         <x-atoms.button.btn-primary wire:click="setTanggal">Set</x-atoms.button.btn-primary>
-                        <x-atoms.button.btn-danger>PRINT</x-atoms.button.btn-danger>
+                        <x-atoms.button.btn-danger wire:click="printPeriode">PRINT</x-atoms.button.btn-danger>
                     </div>
                 </div>
             </form>

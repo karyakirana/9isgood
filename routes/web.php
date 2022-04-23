@@ -78,7 +78,7 @@ Route::middleware('auth')->group(function (){
     // report penjualan
     Route::get('penjualan/report', \App\Http\Livewire\Penjualan\PenjualanReportIndex::class)->name('penjualan.report');
     // Route::get('penjualan/report/bydate', \App\Http\Livewire\Penjualan\ReportPenjualanByDateForm::class)->name('penjualan.report.bydate');
-    Route::get('penjualan/report/bydate/{tglAwal}/{tglakhir}', [\App\Http\Controllers\Penjualan\ReportPenjualanController::class, 'reportByDate'])->name('penjualan.report.bydate');
+    Route::get('penjualan/report/bydate/{tglAwal}/{tglAkhir}', [\App\Http\Controllers\Penjualan\ReportPenjualanController::class, 'reportByDate'])->name('penjualan.report.bydate');
     Route::get('penjualan/report/bymonth/{bulan}', [\App\Http\Controllers\Penjualan\ReportPenjualanController::class, 'reportByMonth'])->name('penjualan.report.bymonth');
     Route::get('penjualan/report/retur/{tglAwal}/{tglakhir}', [\App\Http\Controllers\Penjualan\PenjualanReturReportController::class, 'reportRetur'])->name('penjualan.report.retur');
 });
