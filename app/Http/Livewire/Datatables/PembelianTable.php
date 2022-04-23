@@ -28,7 +28,8 @@ class PembelianTable extends DataTableComponent
                     return $query->orderBy(Supplier::query()->select('nama')->whereColumn('supplier.id', 'pembelian.supplier_id'), $direction);
                 }),
             Column::make('Tgl Nota', 'tgl_nota')
-                ->searchable(),
+                ->searchable()
+                ->sortable(),
             Column::make('Tgl Tempo', 'tgl_tempo')
                 ->searchable(),
             Column::make('Jenis Bayar', 'jenis_bayar')

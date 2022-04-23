@@ -15,9 +15,15 @@ class PersediaanOpnameTable extends DataTableComponent
     public function columns(): array
     {
         return [
-            Column::make('ID'),
-            Column::make('Kondisi'),
-            Column::make('Gudang'),
+            Column::make('ID', 'kode')
+                ->searchable()
+                ->addClass('hidden md:table-cell')
+                ->selected()
+                ->sortable(),
+            Column::make('Kondisi', 'kondisi')
+                ->sortable(),
+            Column::make('Gudang', 'gudang_id')
+                ->sortable(),
             Column::make('Pembuat'),
             Column::make('Keterangan'),
             Column::make(''),

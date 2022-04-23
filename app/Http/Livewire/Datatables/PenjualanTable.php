@@ -28,7 +28,8 @@ class PenjualanTable extends DataTableComponent
                     return $query->orderBy(Customer::query()->select('nama')->whereColumn('customer.id', 'penjualan.customer_id'), $direction);
                 }),
             Column::make('Tgl Nota', 'tgl_nota')
-                ->searchable(),
+                ->searchable()
+                ->sortable(),
             Column::make('Tgl Tempo', 'tgl_tempo')
                 ->searchable(),
             Column::make('Jenis Bayar', 'jenis_bayar')

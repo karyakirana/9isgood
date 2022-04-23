@@ -28,8 +28,10 @@ class PembelianBukuLuarTable extends DataTableComponent
                     return $query->orderBy(Supplier::query()->select('nama')->whereColumn('supplier.id', 'pembelian.supplier_id'), $direction);
                 }),
             Column::make('Gudang'),
-            Column::make('Tgl Nota'),
-            Column::make('Surat Jalan'),
+            Column::make('Tgl Nota', 'tgl_nota')
+                ->sortable(),
+            Column::make('Surat Jalan', 'nomor_surat_jalan')
+                ->sortable(),
             Column::make('Pembuat'),
             Column::make('Keterangan'),
             Column::make(''),
