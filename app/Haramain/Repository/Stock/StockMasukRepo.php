@@ -59,7 +59,7 @@ class StockMasukRepo
             'active_cash'=>session('ClosedCash'),
             'kondisi'=>$kondisi ?? $data->kondisi,
             'gudang_id'=>$data->gudang_id ?? $data->gudang_tujuan_id,
-            'supplier_id'=>$data->supplier_id,
+            'supplier_id'=>$data->supplier_id ?? null,
             'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
             'user_id'=>Auth::id(),
             'nomor_po'=>null,
@@ -99,7 +99,7 @@ class StockMasukRepo
         $stockMasuk->update([
             'kondisi'=>$kondisi ?? $data->kondisi,
             'gudang_id'=>$data->gudang_id,
-            'supplier_id'=>$data->supplier_id,
+            'supplier_id'=>$data->supplier_id ?? null,
             'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
             'user_id'=>Auth::id(),
             'nomor_po'=>null,
