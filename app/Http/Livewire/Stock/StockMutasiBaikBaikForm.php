@@ -2,12 +2,14 @@
 
 namespace App\Http\Livewire\Stock;
 
+use App\Haramain\Repository\Stock\StockMutasiRepo;
 use App\Haramain\Traits\LivewireTraits\SetProdukTraits;
 use App\Models\KonfigurasiJurnal;
 use App\Models\Stock\StockMutasi;
 use App\Models\Master\Gudang;
 use App\Models\Master\Produk;
 use App\Haramain\Repository\Stock\StockMutasiBaikRepo;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -45,6 +47,7 @@ class StockMutasiBaikBaikForm extends Component
         parent::__construct($id);
         $this->gudang_data = Gudang::all();
         $this->tgl_mutasi = tanggalan_format(now('ASIA/JAKARTA'));
+        $this->jenis_mutasi = 'baik_baik';
 
         // initiate akun transaksi
         $this->persediaan_baik_kalimas = KonfigurasiJurnal::query()->find('persediaan_baik_kalimas')->akun_id;
@@ -130,6 +133,7 @@ class StockMutasiBaikBaikForm extends Component
     {
         return $this->validate([
             'mutasi_id'=>'nullable',
+            'jenis_mutasi'=>'required',
             'gudang_asal_id'=>'required',
             'gudang_tujuan_id'=>'required',
             'tgl_mutasi'=>'required',
@@ -142,12 +146,12 @@ class StockMutasiBaikBaikForm extends Component
 
     public function store()
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try{
-            (new StockMutasiBaikRepo)->store((object) $this->validateData());
-            \DB::commit();
+            (new StockMutasiRepo())->store((object) $this->validateData());
+            DB::commit();
         } catch (ModelNotFoundException $e){
-            \DB::rollback();
+            DB::rollback();
             session()->flash('message', $e);
         }
         return redirect()->route('stock.mutasi.baik.baik');
@@ -156,12 +160,12 @@ class StockMutasiBaikBaikForm extends Component
 
     public function update()
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try{
-            (new StockMutasiBaikRepo)->update((object) $this->validateData(), $this->data_detail);
-            \DB::commit();
+            (new StockMutasiRepo())->update((object) $this->validateData(), $this->data_detail);
+            DB::commit();
         } catch (ModelNotFoundException $e){
-            \DB::rollback();
+            DB::rollback();
             session()->flash('message', $e);
         }
         return redirect()->route('stock.mutasi.baik.baik');

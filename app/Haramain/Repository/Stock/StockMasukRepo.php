@@ -1,6 +1,7 @@
 <?php namespace App\Haramain\Repository\Stock;
 
 use App\Models\Stock\StockMasuk;
+use Illuminate\Support\Facades\Auth;
 
 class StockMasukRepo
 {
@@ -41,11 +42,48 @@ class StockMasukRepo
             'gudang_id'=>$data->gudang_id,
             'supplier_id'=>$data->supplier_id,
             'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
-            'user_id'=>\Auth::id(),
+            'user_id'=>Auth::id(),
             'nomor_po'=>null,
             'nomor_surat_jalan'=>$data->nomor_surat_jalan,
             'keterangan'=>$data->keterangan,
         ]);
+        // store detail
+        foreach ($data->data_detail as $item)
+        {
+            $stockMasuk->stockMasukDetail()->create([
+                'produk_id'=>$item['produk_id'],
+                'jumlah'=>$item['jumlah'],
+            ]);
+            // stock inventory
+            $this->stockInventory->incrementArrayData($item, $data->gudang_id, $data->kondisi, 'stock_masuk');
+        }
+
+        return $stockMasuk;
+    }
+
+    public function updateFromRelation(object $stockMasuk, $data)
+    {
+        $stockMasuk = $stockMasuk->first();
+        // rollback
+        foreach ($stockMasuk->stockMasukDetail as $item) {
+            $this->stockInventory->rollback($item, $stockMasuk->gudang_id, $stockMasuk->kondisi, 'stock_masuk');
+        }
+
+        // delete detail
+        $stockMasuk->stockMasukDetail()->delete();
+
+        $tglMasuk = $data->tgl_masuk ?? $data->tgl_nota ?? $data->tgl_mutasi;
+        $stockMasuk->update([
+            'kondisi'=>$data->kondisi,
+            'gudang_id'=>$data->gudang_id,
+            'supplier_id'=>$data->supplier_id,
+            'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
+            'user_id'=>Auth::id(),
+            'nomor_po'=>null,
+            'nomor_surat_jalan'=>$data->nomor_surat_jalan,
+            'keterangan'=>$data->keterangan,
+        ]);
+
         // store detail
         foreach ($data->data_detail as $item)
         {
