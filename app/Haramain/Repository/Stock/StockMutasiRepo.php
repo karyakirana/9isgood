@@ -43,7 +43,7 @@ class StockMutasiRepo
             ]);
         }
         // stock keluar
-        $stockKeluar = (new StockKeluarRepo)->storeFromRelation($mutasi, $data);
+        $stockKeluar = (new StockKeluarRepo())->storeFromRelation($mutasi, $data);
         // stock masuk
         $stockMasuk = (new StockMasukRepo())->storeFromRelation($mutasi, $data);
 
