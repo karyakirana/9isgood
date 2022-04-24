@@ -53,9 +53,11 @@ class StockMasukRepo
             $kondisi = $this->setKondisi($data->jenis_mutasi);
         }
 
+        $kode = $this->kode($data->kondisi ?? null, $data->jenis_mutasi);
+
         // store stock masuk
         $stockMasuk = $stockMasuk->create([
-            'kode'=>$this->kode($data->kondisi ?? null, $data->jenis_mutasi),
+            'kode'=>$kode,
             'active_cash'=>session('ClosedCash'),
             'kondisi'=>$kondisi ?? $data->kondisi,
             'gudang_id'=>$data->gudang_id ?? $data->gudang_tujuan_id,
@@ -63,7 +65,7 @@ class StockMasukRepo
             'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
             'user_id'=>Auth::id(),
             'nomor_po'=>null,
-            'nomor_surat_jalan'=>$data->nomor_surat_jalan,
+            'nomor_surat_jalan'=>$data->nomor_surat_jalan ?? $kode,
             'keterangan'=>$data->keterangan,
         ]);
         // store detail
@@ -103,7 +105,7 @@ class StockMasukRepo
             'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
             'user_id'=>Auth::id(),
             'nomor_po'=>null,
-            'nomor_surat_jalan'=>$data->nomor_surat_jalan,
+            'nomor_surat_jalan'=>$data->nomor_surat_jalan ?? $stockMasuk->kode,
             'keterangan'=>$data->keterangan,
         ]);
 
