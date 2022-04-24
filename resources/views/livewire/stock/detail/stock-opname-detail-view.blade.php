@@ -50,7 +50,7 @@
                 @foreach($stock_detail_data as $item)
                     <tr>
                         <x-atoms.table.td align="center">
-                            {{$item->kode_lokal}}
+                            {{$item->produk->kode_lokal}}
                         </x-atoms.table.td>
                         <x-atoms.table.td>
                             {{$item->produk->nama}}
