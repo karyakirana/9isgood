@@ -45,6 +45,39 @@ class StockCardIndex extends Component
 
                     UNION ALL
 
+                    select produk.nama as nama, stock_mutasi.kode, stock_keluar_detail.produk_id, jumlah as jumlah_keluar,
+                        null as jumlah_masuk, tgl_mutasi as tanggal, null as nama_keterangan
+                    from stock_mutasi
+                    right join stock_keluar
+                        on stock_mutasi.id = stock_keluar.stockable_keluar_id
+                    right join stock_keluar_detail
+                        on stock_keluar_detail.stock_keluar_id = stock_keluar.id AND stock_keluar.stockable_keluar_type like '%StockMutasi'
+                    right join produk
+                        on stock_keluar_detail.produk_id = produk.id
+                    WHERE produk_id = '".$this->produk_id."'
+                        AND stock_mutasi.active_cash = '".session('ClosedCash')."'
+                        AND stock_mutasi.gudang_asal_id = '".$this->gudang_id."'
+                        AND stock_mutasi.jenis_mutasi = 'baik_baik'
+                        OR stock_mutasi.jenis_mutasi = 'baik_rusak'
+
+                    UNION ALL
+
+                    select produk.nama as nama, stock_mutasi.kode, stock_masuk_detail.produk_id, null as jumlah_keluar,
+                        jumlah as jumlah_masuk, tgl_mutasi as tanggal, null as nama_keterangan
+                    from stock_mutasi
+                    right join stock_masuk
+                        on (stock_mutasi.id = stock_masuk.stockable_masuk_id AND stock_masuk.stockable_masuk_type like '%StockMutasi')
+                    right join stock_masuk_detail
+                        on stock_masuk.id = stock_masuk_detail.stock_masuk_id
+                    right join produk
+                        on stock_masuk_detail.produk_id = produk.id
+                    WHERE produk_id = '".$this->produk_id."'
+                        AND stock_mutasi.active_cash = '".session('ClosedCash')."'
+                        AND stock_mutasi.gudang_tujuan_id = '".$this->gudang_id."'
+                        AND stock_mutasi.jenis_mutasi = 'baik_baik'
+
+                    UNION ALL
+
                     select produk.nama as nama, penjualan_retur.kode, stock_masuk_detail.produk_id, null as jumlah_keluar,
                         jumlah as jumlah_masuk, tgl_nota as tanggal, customer.nama as nama_keterangan
                     from penjualan_retur
