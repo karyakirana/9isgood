@@ -62,7 +62,7 @@ class StockKeluarRepo
                 'jumlah'=>$item['jumlah']
             ]);
 
-            (new StockInventoryRepo())->incrementArrayData($item, $data->gudang_id, $data->kondisi, 'stock_masuk');
+            (new StockInventoryRepo())->incrementArrayData($item, $data->gudang_id ?? $data->gudang_asal_id, $kondisi ?? $data->kondisi, 'stock_masuk');
         }
         return $stockKeluar;
     }
@@ -100,7 +100,7 @@ class StockKeluarRepo
                 'jumlah'=>$item['jumlah']
             ]);
 
-            (new StockInventoryRepo())->incrementArrayData($item, $data->gudang_id, $data->kondisi, 'stock_keluar');
+            (new StockInventoryRepo())->incrementArrayData($item, $data->gudang_id ?? $data->gudang_asal_id, $kondisi ?? $data->kondisi, 'stock_keluar');
         }
         return $stockKeluar;
     }

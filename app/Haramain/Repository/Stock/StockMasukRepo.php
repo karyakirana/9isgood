@@ -47,11 +47,17 @@ class StockMasukRepo
     public function storeFromRelation(object $stockMasuk, $data)
     {
         $tglMasuk = $data->tgl_masuk ?? $data->tgl_nota ?? $data->tgl_mutasi;
+
+        //kondisi
+        if (isset($data->jenis_mutasi)){
+            $kondisi = $this->setKondisi($data->jenis_mutasi);
+        }
+
         // store stock masuk
         $stockMasuk = $stockMasuk->create([
             'kode'=>$this->kode($data->kondisi ?? null, $data->jenis_mutasi),
             'active_cash'=>session('ClosedCash'),
-            'kondisi'=>$data->kondisi,
+            'kondisi'=>$kondisi ?? $data->kondisi,
             'gudang_id'=>$data->gudang_id ?? $data->gudang_tujuan_id,
             'supplier_id'=>$data->supplier_id,
             'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
@@ -68,7 +74,7 @@ class StockMasukRepo
                 'jumlah'=>$item['jumlah'],
             ]);
             // stock inventory
-            $this->stockInventory->incrementArrayData($item, $data->gudang_id, $data->kondisi, 'stock_masuk');
+            $this->stockInventory->incrementArrayData($item, $data->gudang_id ?? $data->gudang_tujuan_id, $kondisi ?? $data->kondisi, 'stock_masuk');
         }
 
         return $stockMasuk;
@@ -86,8 +92,12 @@ class StockMasukRepo
         $stockMasuk->stockMasukDetail()->delete();
 
         $tglMasuk = $data->tgl_masuk ?? $data->tgl_nota ?? $data->tgl_mutasi;
+        //kondisi
+        if (isset($data->jenis_mutasi)){
+            $kondisi = $this->setKondisi($data->jenis_mutasi);
+        }
         $stockMasuk->update([
-            'kondisi'=>$data->kondisi,
+            'kondisi'=>$kondisi ?? $data->kondisi,
             'gudang_id'=>$data->gudang_id,
             'supplier_id'=>$data->supplier_id,
             'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
@@ -105,7 +115,7 @@ class StockMasukRepo
                 'jumlah'=>$item['jumlah'],
             ]);
             // stock inventory
-            $this->stockInventory->incrementArrayData($item, $data->gudang_id, $data->kondisi, 'stock_masuk');
+            $this->stockInventory->incrementArrayData($item, $data->gudang_id ?? $data->gudang_tujuan_id, $kondisi ?? $data->kondisi, 'stock_masuk');
         }
 
         return $stockMasuk;
