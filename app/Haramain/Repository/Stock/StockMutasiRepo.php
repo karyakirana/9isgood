@@ -12,7 +12,7 @@ class StockMutasiRepo
             ->where('jenis_mutasi', $jenis)
             ->latest('kode');
 
-        $kodeKondisi = ($jenis == 'baik') ? 'MBB' : 'MBR';
+        $kodeKondisi = ($jenis == 'baik_baik') ? 'MBB' : 'MBR';
 
         // check last num
         if ($query->doesntExist()){

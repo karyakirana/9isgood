@@ -30,7 +30,7 @@ class StockKeluarRepo
 
     public function setKondisi($kondisi)
     {
-        if ($kondisi == 'baik_baik'|| 'baik_rusak'){
+        if ($kondisi == 'baik_baik'|| $kondisi == 'baik_rusak'){
             return 'baik';
         }
 
@@ -62,7 +62,7 @@ class StockKeluarRepo
                 'jumlah'=>$item['jumlah']
             ]);
 
-            (new StockInventoryRepo())->incrementArrayData($item, $data->gudang_id ?? $data->gudang_asal_id, $kondisi ?? $data->kondisi, 'stock_masuk');
+            (new StockInventoryRepo())->incrementArrayData($item, $data->gudang_id ?? $data->gudang_asal_id, $kondisi ?? $data->kondisi, 'stock_keluar');
         }
         return $stockKeluar;
     }

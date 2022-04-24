@@ -37,7 +37,7 @@ class StockMasukRepo
 
     public function setKondisi($kondisi)
     {
-        if ($kondisi == 'baik_rusak'|| 'rusak_rusak'){
+        if ($kondisi == 'baik_rusak'|| $kondisi == 'rusak_rusak'){
             return 'rusak';
         }
 
