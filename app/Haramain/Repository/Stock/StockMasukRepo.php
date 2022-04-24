@@ -52,7 +52,7 @@ class StockMasukRepo
             'kode'=>$this->kode($data->kondisi ?? null, $data->jenis_mutasi),
             'active_cash'=>session('ClosedCash'),
             'kondisi'=>$data->kondisi,
-            'gudang_id'=>$data->gudang_id,
+            'gudang_id'=>$data->gudang_id ?? $data->gudang_tujuan_id,
             'supplier_id'=>$data->supplier_id,
             'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
             'user_id'=>Auth::id(),

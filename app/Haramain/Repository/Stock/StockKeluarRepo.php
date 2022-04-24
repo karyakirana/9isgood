@@ -50,7 +50,7 @@ class StockKeluarRepo
             'supplier_id'=>$data->supplier_id ?? null,
             'active_cash'=>session('ClosedCash'),
             'kondisi'=> $kondisi ?? $data->kondisi,
-            'gudang_id'=>$data->gudang_id,
+            'gudang_id'=>$data->gudang_id ?? $data->gudang_asal_id,
             'tgl_keluar'=>tanggalan_database_format($tglKeluar, 'd-M-Y'),
             'user_id'=>Auth::id(),
             'keterangan'=>$data->keterangan,
