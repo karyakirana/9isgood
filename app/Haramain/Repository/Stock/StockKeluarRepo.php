@@ -46,7 +46,7 @@ class StockKeluarRepo
         }
 
         $stockKeluar = $stockKeluar->create([
-            'kode'=>$this->kode($data->kondisi, $data->jenis_mutasi),
+            'kode'=>$this->kode($data->kondisi ?? null, $data->jenis_mutasi),
             'supplier_id'=>$data->supplier_id ?? null,
             'active_cash'=>session('ClosedCash'),
             'kondisi'=> $kondisi ?? $data->kondisi,

@@ -49,7 +49,7 @@ class StockMasukRepo
         $tglMasuk = $data->tgl_masuk ?? $data->tgl_nota ?? $data->tgl_mutasi;
         // store stock masuk
         $stockMasuk = $stockMasuk->create([
-            'kode'=>$this->kode($data->kondisi, $data->jenis_mutasi),
+            'kode'=>$this->kode($data->kondisi ?? null, $data->jenis_mutasi),
             'active_cash'=>session('ClosedCash'),
             'kondisi'=>$data->kondisi,
             'gudang_id'=>$data->gudang_id,
