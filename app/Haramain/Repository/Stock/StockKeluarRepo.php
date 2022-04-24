@@ -5,8 +5,12 @@ use Illuminate\Support\Facades\Auth;
 
 class StockKeluarRepo
 {
-    public function kode($kondisi= 'baik')
+    public function kode($kondisi= 'baik', $jenisMutasi = null)
     {
+        if ($jenisMutasi){
+            $kondisi = $this->setKondisi($jenisMutasi);
+        }
+
         // query
         $query = StockKeluar::query()
             ->where('active_cash', session('ClosedCash'))
@@ -40,8 +44,9 @@ class StockKeluarRepo
         if (isset($data->jenis_mutasi)){
             $kondisi = $this->setKondisi($data->jenis_mutasi);
         }
+
         $stockKeluar = $stockKeluar->create([
-            'kode'=>$this->kode($data->kondisi),
+            'kode'=>$this->kode($data->kondisi, $data->jenis_mutasi),
             'supplier_id'=>$data->supplier_id ?? null,
             'active_cash'=>session('ClosedCash'),
             'kondisi'=> $kondisi ?? $data->kondisi,
