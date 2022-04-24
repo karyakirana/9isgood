@@ -31,7 +31,7 @@ class StockMutasiRepo
             'jenis_mutasi'=>$data->jenis_mutasi,
             'gudang_asal_id'=>$data->gudang_asal_id,
             'gudang_tujuan_id'=>$data->gudang_tujuan_id,
-            'tgl_mutasi'=>tanggalan_database_format($data->tanggal_mutasi, 'd-M-Y'),
+            'tgl_mutasi'=>tanggalan_database_format($data->tgl_mutasi, 'd-M-Y'),
             'user_id'=>Auth::id(),
             'keterangan'=>$data->keterangan,
         ]);
@@ -63,7 +63,7 @@ class StockMutasiRepo
             'jenis_mutasi'=>$data->jenis_mutasi,
             'gudang_asal_id'=>$data->gudang_asal_id,
             'gudang_tujuan_id'=>$data->gudang_tujuan_id,
-            'tgl_mutasi'=>tanggalan_database_format($data->tanggal_mutasi, 'd-M-Y'),
+            'tgl_mutasi'=>tanggalan_database_format($data->tgl_mutasi, 'd-M-Y'),
             'user_id'=>Auth::id(),
             'keterangan'=>$data->keterangan,
         ]);

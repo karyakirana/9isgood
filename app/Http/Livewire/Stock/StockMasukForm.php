@@ -2,7 +2,7 @@
 
 namespace App\Http\Livewire\Stock;
 
-use App\Haramain\Repository\StockMasukRepository;
+use App\Haramain\Repository\Stock\StockMasukRepo;
 use App\Models\Stock\StockMasuk;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
@@ -57,7 +57,7 @@ class StockMasukForm extends StockTransaksi
     {
         \DB::beginTransaction();
         try{
-            StockMasukRepository::create((object) $this->validateData(), $this->data_detail);
+            (new StockMasukRepo)::store((object) $this->validateData(), $this->data_detail);
             \DB::commit();
         } catch (ModelNotFoundException $e){
             \DB::rollback();
@@ -70,7 +70,7 @@ class StockMasukForm extends StockTransaksi
     {
         \DB::beginTransaction();
         try{
-            StockMasukRepository::update((object) $this->validateData(), $this->data_detail);
+            (new StockMasukRepo)::update((object) $this->validateData(), $this->data_detail);
             \DB::commit();
         } catch (ModelNotFoundException $e){
             \DB::rollback();

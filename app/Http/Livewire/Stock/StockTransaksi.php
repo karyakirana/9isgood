@@ -84,7 +84,12 @@ class StockTransaksi extends Component
         $this->pegawai_nama = $pegawai->nama;
     }
 
-    public function set_produk(Produk $produk)
+    public function setSupplier(Supplier $supplier)
+    {
+        $this->supplier_id = $supplier ->id;
+        $this->supplier_nama = $supplier ->nama;
+    }
+    public function setProduk(Produk $produk)
     {
         $produk = $this->setProduk_sales($produk);
     }
@@ -134,7 +139,7 @@ class StockTransaksi extends Component
         $this->update = false;
     }
 
-    public function removeLine($index)
+    public function destroyLine($index)
     {
         // remove line transaksi
         unset($this->data_detail[$index]);
