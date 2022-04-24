@@ -9,7 +9,7 @@
                 </div>
                 <div class="col-6">
                     <x-atoms.input.group-horizontal label="Jenis Mutasi">
-                        <x-atoms.input.plaintext>{{$stock_data->jenis_mutasi ?? ''}}</x-atoms.input.plaintext>
+                        <x-atoms.input.plaintext>{{Str::headline($stock_data->jenis_mutasi ?? '')}}</x-atoms.input.plaintext>
                     </x-atoms.input.group-horizontal>
                 </div>
             </div>
@@ -50,7 +50,7 @@
                 @foreach($stock_detail_data as $item)
                     <tr>
                         <x-atoms.table.td align="center">
-                            {{$item->kode_lokal}}
+                            {{$item->produk->kode_lokal}}
                         </x-atoms.table.td>
                         <x-atoms.table.td>
                             {{$item->produk->nama}}
