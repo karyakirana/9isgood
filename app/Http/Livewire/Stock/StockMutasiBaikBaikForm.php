@@ -54,6 +54,27 @@ class StockMutasiBaikBaikForm extends Component
         $this->persediaan_baik_perak = KonfigurasiJurnal::query()->find('persediaan_baik_perak')->akun_id;
     }
 
+    public function mount($mutasiId = null){
+
+        if ($mutasiId){
+            // load
+            $mutasi = StockMutasi::query()->find($mutasiId);
+            $this->mutasi_id = $mutasi->id;
+            $this->tgl_mutasi = $mutasi->tgl_mutasi;
+            $this->gudang_asal_id = $mutasi->gudang_asal_id;
+            $this->gudang_tujuan_id = $mutasi->gudang_tujuan_id;
+            $this->keterangan = $mutasi->keterangan;
+            foreach ($mutasi->stockMutasiDetail as $item) {
+                $this->data_detail [] = [
+                    'produk_id'=>$item->produk_id,
+                    'kode_lokal'=>$item->produk->kode_lokal,
+                    'nama_produk'=>$item->produk->nama,
+                    'jumlah'=>$item->jumlahProduk,
+                ];
+            }
+        }
+    }
+
     public function render()
     {
         return view('livewire.stock.stock-mutasi-baik-baik-form');

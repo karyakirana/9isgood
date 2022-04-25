@@ -56,7 +56,7 @@
                             <th width="10%"></th>
                         </tr>
                     </x-slot>
-                    @forelse($data_detail as $row)
+                    @forelse($data_detail as $index=>$row)
                         <tr class="align-middle">
                             <td class="text-center">{{$row['kode_lokal']}}</td>
                             <td>{{$row['nama_produk']}}</td>
