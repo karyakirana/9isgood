@@ -222,12 +222,7 @@
                 @this.tgl_nota = e.target.value;
             })
 
-            $('#tglTempo').on('change', function (e) {
-                let date = $(this).data("#tgl_tempo");
-                // eval(date).set('tglLahir', $('#tglLahir').val())
-                console.log(e.target.value);
-                @this.tgl_tempo = e.target.value;
-            })
+            \
         </script>
     @endpush
 </div>

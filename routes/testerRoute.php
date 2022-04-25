@@ -8,5 +8,5 @@ Route::middleware('auth')->group(function (){
     Route::get('test/persediaan')->name('persediaan');
     Route::get('test/persediaan/index', \App\Http\Livewire\Test\PersediaanIndex::class)->name('test.persediaan.index');
     Route::get('test/persediaan/transaksi', \App\Http\Livewire\Test\PersediaanForm::class)->name('test.persediaan.transaksi');
-    Route::get('test/persediaan/transaksi/{transaksiId}', \App\Http\Livewire\Test\PersediaanForm::class)->name('test.persediaan.transaksi.transaksiId');
+    Route::get('test/persediaan/transaksi/{persediaan}', \App\Http\Livewire\Test\PersediaanForm::class)->name('test.persediaan.transaksi.transaksiId');
 });

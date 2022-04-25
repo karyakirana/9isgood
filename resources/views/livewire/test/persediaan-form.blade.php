@@ -55,7 +55,7 @@
                             <th></th>
                         </tr>
                     </x-slot>
-                    @forelse($data_detail as $row)
+                    @forelse($data_detail as $index=> $row)
                         <tr>
                             <x-atoms.table.td>
                                 {{$row['produk_kode_lokal']}}
@@ -66,11 +66,19 @@
                             <x-atoms.table.td>
                                 {{$row['jumlah']}}
                             </x-atoms.table.td>
-                            <x-atoms.table.td>
-                                {{$row['harga']}}
+                            <x-atoms.table.td align="end">
+                                {{rupiah_format($row['harga'])}}
+                            </x-atoms.table.td>
+                            <x-atoms.table.td align="end">
+                                {{rupiah_format($row['sub_total'])}}
                             </x-atoms.table.td>
                             <x-atoms.table.td>
-                                {{$row['sub_total']}}
+                                <x-atoms.button.btn-icon wire:click="edit({{$index}})">
+                                    <i class="la la-edit fs-2"></i>
+                                </x-atoms.button.btn-icon>
+                                <x-atoms.button.btn-icon wire:click="destroy({{$index}})">
+                                    <i class="la la-trash fs-2"></i>
+                                </x-atoms.button.btn-icon>
                             </x-atoms.table.td>
                         </tr>
                     @empty

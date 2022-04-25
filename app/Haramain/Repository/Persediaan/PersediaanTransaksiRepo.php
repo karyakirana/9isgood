@@ -31,6 +31,10 @@ class PersediaanTransaksiRepo
             'kredit',
         ]);
 
+        if ($data->jenis == 'keluar'){
+            // persediaan keluar
+        }
+
         foreach ($data->data_detail as $item) {
             $persediaan->persediaan_transaksi_detail()->create([
                 'produk_id'=>$item['produk_id'],
@@ -39,5 +43,37 @@ class PersediaanTransaksiRepo
                 'sub_total'=>$item['sub_total'] ?? ($item['harga'] * $item['jumlah']),
             ]);
         }
+        return $persediaan;
+    }
+
+    public function update($data)
+    {
+        // inititate
+        $persediaan = PersediaanTransaksi::query()->find($data->persediaan_transaksi_id);
+        $persediaanDetail = $persediaan->persediaan_transaksi_detail();
+
+        // delete detail
+        $persediaanDetail->delete();
+
+        $persediaan->update([
+            'jenis'=>$data->jenis, // masuk atau keluar
+            'kondisi'=>$data->kondisi, // baik atau rusak
+            'gudang_id'=>$data->gudang_id,
+            'persediaan_type',
+            'persediaan_id',
+            'debet',
+            'kredit',
+        ]);
+
+        foreach ($data->data_detail as $item) {
+            $persediaanDetail->create([
+                'produk_id'=>$item['produk_id'],
+                'harga'=>$item['harga'],
+                'jumlah'=>$item['jumlah'],
+                'sub_total'=>$item['sub_total'] ?? ($item['harga'] * $item['jumlah']),
+            ]);
+        }
+
+        return $persediaan;
     }
 }

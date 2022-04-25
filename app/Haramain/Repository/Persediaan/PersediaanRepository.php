@@ -24,6 +24,26 @@ class PersediaanRepository
         return (object) ['status'=>true, 'keterangan'=>'jumlah barang '.$query->sum('stock_saldo')];
     }
 
+    public function getForOut($produk_id, $gudang, $kondisi, $jumlah)
+    {
+        $query = Persediaan::query()
+            ->where('active_cash', session('ClosedCash'))
+            ->where('produk_id', $produk_id)
+            ->where('jenis', $kondisi)
+            ->where('gudang_id', $gudang)
+            ->oldest();
+
+        $stockSaldo = $query->sum('stock_saldo');
+        $count = $query->count();
+        $dataPersediaan = $query->get();
+        $iteration = 0;
+        for ($i=$count-1; $i>=0; $i--){
+            $data[] = [
+                'produk_id'=>$dataPersediaan[$i]
+            ];
+        }
+    }
+
     /**
      * get data from persediaan table
      * digunakan untuk menyimpan pada transaksi persediaan transaksi

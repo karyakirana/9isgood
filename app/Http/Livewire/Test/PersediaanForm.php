@@ -56,7 +56,7 @@ class PersediaanForm extends Component
             foreach ($persediaan->persediaan_transaksi_detail as $item) {
                 $this->data_detail[] = [
                     'produk_id'=>$item->produk_id,
-                    'produk_nama'=>$item->produk->nama."\n".$item->kategoriHarga->nama." ".$item->cover,
+                    'produk_nama'=>$item->produk->nama."\n".$item->produk->kategoriHarga->nama." ".$item->cover,
                     'produk_kode_lokal'=>$item->produk->kode_lokal,
                     'produk_harga'=>$item->produk->harga,
                     'harga'=>$item->harga,
@@ -133,6 +133,7 @@ class PersediaanForm extends Component
 
     public function edit($index)
     {
+        $this->update = true;
         $this->index = $index;
         $this->produk_id = $this->data_detail[$index]['produk_id'];
         $this->produk_nama = $this->data_detail[$index]['produk_nama'];
@@ -189,8 +190,24 @@ class PersediaanForm extends Component
         try {
             (new PersediaanTransaksiRepo())->store((object)$data);
             DB::commit();
+            return redirect()->route('test.persediaan.index');
         } catch (ModelNotFoundException $e){
             DB::rollBack();
         }
+        return null;
+    }
+
+    public function put()
+    {
+        $data = $this->validateFormMaster();
+        DB::beginTransaction();
+        try {
+            (new PersediaanTransaksiRepo())->update((object)$data);
+            DB::commit();
+            return redirect()->route('test.persediaan.index');
+        } catch (ModelNotFoundException $e){
+            DB::rollBack();
+        }
+        return null;
     }
 }
