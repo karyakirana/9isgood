@@ -183,7 +183,7 @@ class StockMutasiBaikBaikForm extends Component
     {
         DB::beginTransaction();
         try{
-            (new StockMutasiRepo())->update((object) $this->validateData(), $this->data_detail);
+            (new StockMutasiRepo())->update((object) $this->validateData());
             DB::commit();
         } catch (ModelNotFoundException $e){
             DB::rollback();
