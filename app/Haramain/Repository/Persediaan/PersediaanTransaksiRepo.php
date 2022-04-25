@@ -20,7 +20,7 @@ class PersediaanTransaksiRepo
     public function store($data)
     {
         $persediaan = PersediaanTransaksi::query()->create([
-            'active_cash',
+            'active_cash'=>session('ClosedCash'),
             'kode'=>$this->kode(),
             'jenis'=>$data->jenis, // masuk atau keluar
             'kondisi'=>$data->kondisi, // baik atau rusak

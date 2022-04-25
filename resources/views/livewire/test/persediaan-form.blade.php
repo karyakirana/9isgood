@@ -1,4 +1,9 @@
 <div>
+    @if(session()->has('error jumlah'))
+        <x-molecules.alert-danger>
+            {{session('error jumlah')}}
+        </x-molecules.alert-danger>
+    @endif
     <x-molecules.card title="Persediaan Transaksi">
         <div class="row">
             <div class="col-9">
@@ -7,15 +12,31 @@
                     <div class="row mb-5">
                         <div class="col-6">
                             <x-atoms.input.group-horizontal label="Gudang" name="gudang_id">
-                                <x-atoms.input.select wire:model.defer="gudang_id"></x-atoms.input.select>
+                                <x-atoms.input.select wire:model.defer="gudang_id" :disabled="$disabled">
+                                    <option>Dipilih</option>
+                                    @foreach($gudang_data as $row)
+                                        <option value="{{$row->id}}">{{ucfirst($row->nama)}}</option>
+                                    @endforeach
+                                </x-atoms.input.select>
                             </x-atoms.input.group-horizontal>
                         </div>
                         <div class="col-6">
                             <x-atoms.input.group-horizontal label="Kondisi" name="kondisi">
-                                <x-atoms.input.select wire:model.defer="kondisi">
+                                <x-atoms.input.select wire:model.defer="kondisi" :disabled="$disabled">
                                     <option>Dipilih</option>
                                     <option value="baik">Baik</option>
                                     <option value="rusak">Rusak</option>
+                                </x-atoms.input.select>
+                            </x-atoms.input.group-horizontal>
+                        </div>
+                    </div>
+                    <div class="row mb-5">
+                        <div class="col-6">
+                            <x-atoms.input.group-horizontal label="Jenis" name="jenis">
+                                <x-atoms.input.select wire:model.defer="jenis" :disabled="$disabled">
+                                    <option>Dipilih</option>
+                                    <option value="masuk">Masuk</option>
+                                    <option value="keluar">Keluar</option>
                                 </x-atoms.input.select>
                             </x-atoms.input.group-horizontal>
                         </div>
@@ -63,7 +84,7 @@
             <div class="col-3">
                 <form class="border p-5">
                     <x-atoms.input.group class="mb-5" label="Produk" name="produk_nama">
-                        <x-atoms.input.textarea wire:model.defer="produk_nama"></x-atoms.input.textarea>
+                        <x-atoms.input.textarea data-bs-toggle="modal" data-bs-target="#modalProduk" wire:model.defer="produk_nama"></x-atoms.input.textarea>
                     </x-atoms.input.group>
                     <x-atoms.input.group class="mb-5" label="Harga Jual" name="produk_harga">
                         <x-atoms.input.text wire:model.defer="produk_harga" />
@@ -72,7 +93,7 @@
                         <x-atoms.input.text wire:model.defer="harga" />
                     </x-atoms.input.group>
                     <x-atoms.input.group class="mb-5" label="Jumlah" name="jumlah">
-                        <x-atoms.input.text wire:model.defer="jumlah" />
+                        <x-atoms.input.text wire:model.defer="jumlah" wire:keyup="hitungSubTotal" wire:key="jumlah"/>
                     </x-atoms.input.group>
                     <x-atoms.input.group class="mb-5" label="Sub Total" name="sub_total">
                         <x-atoms.input.text wire:model.defer="sub_total" />
@@ -102,7 +123,36 @@
                 </form>
             </div>
         </div>
-
-
     </x-molecules.card>
+
+    <!-- modal Produk -->
+    <x-molecules.modal size="xl" id="modalProduk">
+        <livewire:datatables.produk-set-table />
+    </x-molecules.modal>
+    <!-- modal Produk -->
+
+    @push('custom-scripts')
+        <script>
+            let modalProduk = new bootstrap.Modal(document.getElementById('modalProduk'));
+
+            Livewire.on('set_produk', function (){
+                modalProduk.hide();
+            })
+
+            let input1, input2, input3;
+
+            $('document').ready(function(){
+                input1 = document.getElementById('input-1');
+                input2 = document.getElementById('input-2');
+                input3 = document.getElementById('input-3');
+                console.log(input1)
+
+                Livewire.on('disabledSelect', function (){
+                    input1.disabled = true;
+                    input2.disabled = true;
+                    input3.disabled = true;
+                })
+            });
+        </script>
+    @endpush
 </div>
