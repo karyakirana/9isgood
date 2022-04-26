@@ -31,15 +31,25 @@ class PersediaanRepository
             ->where('produk_id', $produk_id)
             ->where('jenis', $kondisi)
             ->where('gudang_id', $gudang)
-            ->oldest();
+            ->oldest('tgl_input');
 
         $stockSaldo = $query->sum('stock_saldo');
         $count = $query->count();
         $dataPersediaan = $query->get();
         $iteration = 0;
         for ($i=$count-1; $i>=0; $i--){
+            if ($stockSaldo > $jumlah){
+                $data[] = [
+                    'produk_id'=>$dataPersediaan[0]->produk_id,
+                    'harga'=>$dataPersediaan[0]->harga,
+                    'jumlah'=>$jumlah
+                ];
+                break;
+            }
             $data[] = [
-                'produk_id'=>$dataPersediaan[$i]
+                'produk_id'=>$dataPersediaan[0]->produk_id,
+                'harga'=>$dataPersediaan[0]->harga,
+                'jumlah'=>$dataPersediaan[0]->stock_saldo
             ];
         }
     }
