@@ -8,7 +8,7 @@
     {{$row->produk->nama}}<br>
     {{$row->produk->cover}} {{$row->produk->kategoriHarga->nama}}
 </x-atoms.table.td>
-<x-atoms.table.td>
+<x-atoms.table.td align="end">
     {{rupiah_format($row->stock_saldo)}}
 </x-atoms.table.td>
 <x-atoms.table.td>

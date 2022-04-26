@@ -18,7 +18,7 @@ class PersediaanRepository
         }
 
         if ($query->sum('stock_saldo') < $jumlah){
-            return (object) ['status'=>false, 'keterangan'=>'jumlah barang tidak mencukupi'];
+            return (object) ['status'=>false, 'keterangan'=>'jumlah barang tidak mencukupi '.$query->sum('stock_saldo')];
         }
 
         return (object) ['status'=>true, 'keterangan'=>'jumlah barang '.$query->sum('stock_saldo')];

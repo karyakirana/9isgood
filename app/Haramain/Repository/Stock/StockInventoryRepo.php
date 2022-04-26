@@ -12,6 +12,25 @@ class StockInventoryRepo
         $this->closedCash = session('ClosedCash');
     }
 
+    public function check($produk_id, $gudang, $kondisi, $jumlah)
+    {
+        $query = StockInventory::query()
+            ->where('active_cash', session('ClosedCash'))
+            ->where('produk_id', $produk_id)
+            ->where('jenis', $kondisi)
+            ->where('gudang_id', $gudang);
+
+        if ($query->doesntExist()){
+            return (object) ['status'=>false, 'keterangan'=>'barang tidak ada'];
+        }
+
+        if ($query->sum('stock_saldo') < $jumlah){
+            return (object) ['status'=>false, 'keterangan'=>'jumlah barang tidak mencukupi '.$query->sum('stock_saldo')];
+        }
+
+        return (object) ['status'=>true, 'keterangan'=>'jumlah barang '.$query->sum('stock_saldo')];
+    }
+
     public function incrementArrayData(array $data, $gudang, $kondisi, $field)
     {
         // initiate query

@@ -3,7 +3,7 @@
 namespace App\Http\Livewire\Stock;
 
 use Livewire\Component;
-use Str;
+use Illuminate\Support\Str;
 
 class StockMutasiIndex extends Component
 {

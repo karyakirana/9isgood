@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Datatables\Stock;
 
+use App\Haramain\Traits\LivewireTraits\DatatablesTraits;
 use App\Models\Stock\StockMutasi;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
@@ -9,6 +10,7 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class StockMutasiTable extends DataTableComponent
 {
+    use DatatablesTraits;
     public $jenisMutasi;
 
     public function mount($jenisMutasi=null)
@@ -19,7 +21,22 @@ class StockMutasiTable extends DataTableComponent
     public function columns(): array
     {
         return [
-            Column::make('Column Name'),
+            Column::make('ID', 'kode')
+                ->sortable()
+                ->addClass('hidden md:table-cell')
+                ->selected(),
+            Column::make('Gudang Asal', 'gudang_asal_id')
+                ->sortable()
+                ->searchable(),
+            Column::make('Gudang Tujuan', 'gudang_tujuan_id')
+                ->sortable()
+                ->searchable(),
+            Column::make('Pembuat', 'user_id')
+                ->sortable()
+                ->searchable(),
+            Column::make('Tgl Mutasi', 'tgl_mutasi')
+                ->sortable(),
+            Column::make('Action', 'actions')
         ];
     }
 
@@ -32,5 +49,10 @@ class StockMutasiTable extends DataTableComponent
         }
 
         return $query->where('jenis_mutasi', $this->jenisMutasi);
+    }
+
+    public function rowView(): string
+    {
+        return 'livewire-tables.rows.stock_mutasi_table';
     }
 }

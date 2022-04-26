@@ -100,7 +100,7 @@ class StockMasukRepo
         }
         $stockMasuk->update([
             'kondisi'=>$kondisi ?? $data->kondisi,
-            'gudang_id'=>$data->gudang_id,
+            'gudang_id'=>$data->gudang_id ?? $data->gudang_asal_id,
             'supplier_id'=>$data->supplier_id ?? null,
             'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
             'user_id'=>Auth::id(),

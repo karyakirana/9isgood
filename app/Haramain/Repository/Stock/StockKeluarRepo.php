@@ -72,7 +72,7 @@ class StockKeluarRepo
         // initiate
         $stockKeluar = $stockKeluar->first();
         // rollback
-        foreach ($stockKeluar->stockKeluarDetaiil as $item) {
+        foreach ($stockKeluar->stockKeluarDetail as $item) {
             (new StockInventoryRepo())->rollback($item, $stockKeluar->gudang_id, $stockKeluar->kondisi, 'stock_keluar');
         }
 
@@ -88,7 +88,7 @@ class StockKeluarRepo
         $stockKeluar->update([
             'supplier_id'=>$data->supplier_id ?? null,
             'kondisi'=>$kondisi ?? $data->kondisi,
-            'gudang_id'=>$data->gudang_id,
+            'gudang_id'=>$data->gudang_id ?? $data->gudang_asal_id,
             'tgl_keluar'=>tanggalan_database_format($tglKeluar, 'd-M-Y'),
             'user_id'=>Auth::id(),
             'keterangan'=>$data->keterangan,
