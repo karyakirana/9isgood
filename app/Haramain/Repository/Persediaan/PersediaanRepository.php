@@ -40,18 +40,20 @@ class PersediaanRepository
         for ($i=$count-1; $i>=0; $i--){
             if ($stockSaldo > $jumlah){
                 $data[] = [
-                    'produk_id'=>$dataPersediaan[0]->produk_id,
-                    'harga'=>$dataPersediaan[0]->harga,
+                    'produk_id'=>$dataPersediaan[$iteration]->produk_id,
+                    'harga'=>$dataPersediaan[$iteration]->harga,
                     'jumlah'=>$jumlah
                 ];
                 break;
             }
             $data[] = [
-                'produk_id'=>$dataPersediaan[0]->produk_id,
-                'harga'=>$dataPersediaan[0]->harga,
-                'jumlah'=>$dataPersediaan[0]->stock_saldo
+                'produk_id'=>$dataPersediaan[$iteration]->produk_id,
+                'harga'=>$dataPersediaan[$iteration]->harga,
+                'jumlah'=>$dataPersediaan[$iteration]->stock_saldo
             ];
+            $iteration++;
         }
+        return $data;
     }
 
     /**

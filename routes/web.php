@@ -137,6 +137,15 @@ Route::middleware('auth')->group(function (){
     Route::get('stock/transaksi/opname/trans/{jenis}', \App\Http\Livewire\Stock\StockOpnameForm::class);
     Route::get('stock/transaksi/opname/trans/{jenis}/{stockOpname_id}', \App\Http\Livewire\Stock\StockOpnameForm::class);
 
+    Route::get('stock/transaksi/mutasi', \App\Http\Livewire\Stock\StockMutasiIndex::class)->name('mutasi');
+    Route::get('stock/transaksi/mutasi/edit/{mutasiId}', \App\Http\Livewire\Stock\StockMutasiForm::class)->name('mutasi.trans.edit');
+    Route::get('stock/transaksi/mutasi/baik_baik', \App\Http\Livewire\Stock\StockMutasiIndex::class)->name('mutasi.baik_baik');
+    Route::get('stock/transaksi/mutasi/baik_baik/trans', \App\Http\Livewire\Stock\StockMutasiForm::class)->name('mutasi.baik_baik.trans');
+    Route::get('stock/transaksi/mutasi/baik_rusak', \App\Http\Livewire\Stock\StockMutasiIndex::class)->name('mutasi.baik_rusak');
+    Route::get('stock/transaksi/mutasi/baik_rusak/trans', \App\Http\Livewire\Stock\StockMutasiForm::class)->name('mutasi.baik_rusak.trans');
+    Route::get('stock/transaksi/mutasi/rusak_rusak', \App\Http\Livewire\Stock\StockMutasiIndex::class)->name('mutasi.rusak_rusak');
+    Route::get('stock/transaksi/mutasi/rusak_rusak/trans', \App\Http\Livewire\Stock\StockMutasiForm::class)->name('mutasi.rusak_rusak.trans');
+
     Route::get('stock/transaksi/mutasi/baik/baik',  \App\Http\Livewire\Stock\StockMutasiBaikBaikIndex::class)->name('stock.mutasi.baik.baik');
     Route::get('stock/transaksi/mutasi/baik/baik/trans',  \App\Http\Livewire\Stock\StockMutasiBaikBaikForm::class)->name('stock.mutasi.baik.baik.trans');
     Route::get('stock/transaksi/mutasi/baik/baik/trans/{mutasiId}',  \App\Http\Livewire\Stock\StockMutasiBaikBaikForm::class)->name('stock.mutasi.baik.baik.trans.edit');
