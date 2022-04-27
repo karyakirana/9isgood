@@ -221,8 +221,6 @@
                 console.log(e.target.value);
                 @this.tgl_nota = e.target.value;
             })
-
-            \
         </script>
     @endpush
 </div>
