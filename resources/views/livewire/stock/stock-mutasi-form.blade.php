@@ -33,7 +33,7 @@
                     <div class="row mb-5">
                         <div class="col-6">
                             <x-atoms.input.group-horizontal label="Tanggal" name="keterangan">
-                                <x-atoms.input.singledaterange wire:model.defer="tgl_mutasi" />
+                                <x-atoms.input.singledaterange id="tgl_mutasi" wire:model.defer="tgl_mutasi" />
                             </x-atoms.input.group-horizontal>
                         </div>
                         <div class="col-6">
