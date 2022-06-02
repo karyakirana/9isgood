@@ -632,7 +632,7 @@
 											</span> --}}<i class="fa-solid fa-cash-register"></i>
                                             <!--end::Svg Icon-->
 										</span>
-										<span class="menu-title">Master Keuangan</span>
+										<span class="menu-title">Keuangan</span>
 										<span class="menu-arrow"></span>
 									</span>
                     <div class="menu-sub menu-sub-accordion menu-active-bg">
@@ -715,7 +715,7 @@
                                         <span class="menu-title">Penerimaan Penjualan</span>
                                     </a>
                                 </div>
-                                <div class="menu-item">
+                                {{-- <div class="menu-item">
                                     <a class="menu-link {{request()->is('keuangan/penjualan/piutang') ? 'active' : ''}}" href="{{route('penjualan.piutang')}}">
 														<span class="menu-bullet">
 															<span class="bullet bullet-dot"></span>
@@ -730,7 +730,7 @@
 														</span>
                                         <span class="menu-title">Piutang Penjualan Lama</span>
                                     </a>
-                                </div>
+                                </div> --}}
                                 <div class="menu-item">
                                     <a class="menu-link {{request()->is('keuangan/penjualan/piutangretur') ? 'active' : ''}}" href="{{route('penjualan.piutangretur')}}">
 														<span class="menu-bullet">
@@ -760,7 +760,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('keuangan/kasir/*') ? 'here show' : ''}} menu-accordion mb-1">
+                        {{-- <div data-kt-menu-trigger="click" class="menu-item {{request()->is('keuangan/kasir/*') ? 'here show' : ''}} menu-accordion mb-1">
                             <span class="menu-link">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
@@ -786,8 +786,8 @@
                                     </a>
                                 </div>
                             </div>
-                        </div>
-                        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('keuangan/neraca/*') ? 'here show' : ''}} menu-accordion mb-1">
+                        </div> --}}
+                        {{-- <div data-kt-menu-trigger="click" class="menu-item {{request()->is('keuangan/neraca/*') ? 'here show' : ''}} menu-accordion mb-1">
                             <span class="menu-link">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
@@ -805,7 +805,7 @@
                                     </a>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <div data-kt-menu-trigger="click" class="menu-item {{request()->is('keuangan/config/*') ? 'here show' : ''}} menu-accordion mb-1">
                             <span class="menu-link">
                                 <span class="menu-bullet">
@@ -858,7 +858,7 @@
                         </div>
                     </div>
                 </div>
-                <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
+                <div data-kt-menu-trigger="click" class="menu-item {{request()->is('kasir/*') ? 'here show' : ''}} menu-accordion">
 									<span class="menu-link">
 										<span class="menu-icon">
 											<!--begin::Svg Icon | path: icons/duotune/general/gen009.svg-->
@@ -870,44 +870,170 @@
 											</span>
                                             <!--end::Svg Icon-->
 										</span>
-										<span class="menu-title">Aside</span>
+										<span class="menu-title">Kasir</span>
 										<span class="menu-arrow"></span>
 									</span>
                     <div class="menu-sub menu-sub-accordion menu-active-bg">
+                        
+                        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('kasir/*') ? 'here show' : ''}} menu-accordion mb-1">
+                            <span class="menu-link">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Kasir</span>
+                                <span class="menu-arrow"></span>
+                            </span> <div class="menu-sub menu-sub-accordion">
+                                <div class="menu-item">
+                                    <a class="menu-link {{request()->is('kasir/penjualan') ? 'active' : ''}}" href="{{route('keuangan.kasir.penjualan')}}">
+														<span class="menu-bullet">
+															<span class="bullet bullet-dot"></span>
+														</span>
+                                        <span class="menu-title">Kasir Penerimaan Penjualan</span>
+                                    </a>
+                                </div>
+                                <div class="menu-item">
+                                    <a class="menu-link {{request()->is('kasir/penjualan/penerimaan') ? 'active' : ''}}" href="{{route('keuangan.kasir.penjualan.penerimaan')}}">
+														<span class="menu-bullet">
+															<span class="bullet bullet-dot"></span>
+														</span>
+                                        <span class="menu-title">Kasir Penerimaan Penjualan Baru</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div data-kt-menu-trigger="click" class="menu-item {{request()->is('neraca/*') ? 'here show' : ''}} menu-accordion">
+                    <span class="menu-link">
+                        <span class="menu-icon">
+                            <!--begin::Svg Icon | path: icons/duotune/general/gen009.svg-->
+                            <span class="svg-icon svg-icon-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path opacity="0.3" d="M21 22H14C13.4 22 13 21.6 13 21V3C13 2.4 13.4 2 14 2H21C21.6 2 22 2.4 22 3V21C22 21.6 21.6 22 21 22Z" fill="black" />
+                                    <path d="M10 22H3C2.4 22 2 21.6 2 21V3C2 2.4 2.4 2 3 2H10C10.6 2 11 2.4 11 3V21C11 21.6 10.6 22 10 22Z" fill="black" />
+                                </svg>
+                            </span>
+                            <!--end::Svg Icon-->
+                        </span>
+                        <span class="menu-title">Neraca</span>
+                        <span class="menu-arrow"></span>
+                    </span>
+    <div class="menu-sub menu-sub-accordion menu-active-bg">
+        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('neraca/*') ? 'here show' : ''}} menu-accordion mb-1">
+            <span class="menu-link">
+                <span class="menu-bullet">
+                    <span class="bullet bullet-dot"></span>
+                </span>
+                <span class="menu-title">Neraca Saldo Awal</span>
+                <span class="menu-arrow"></span>
+            </span>
+            <div class="menu-sub menu-sub-accordion">
+                <div class="menu-item">
+                    <a class="menu-link {{request()->is('neraca/awal') ? 'active' : ''}}" href="{{route('keuangan.neraca')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                        <span class="menu-title">Saldo Awal</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="menu-sub menu-sub-accordion">
+                <div class="menu-item">
+                    <a class="menu-link {{request()->is('neraca/saldo/awal') ? 'active' : ''}}" href="{{route('keuangan.neraca.saldoawal')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                        <span class="menu-title">Asset Awal</span>
+                    </a>
+                </div>
+            </div>
+            <div class="menu-sub menu-sub-accordion menu-active-bg">
+                <div data-kt-menu-trigger="click" class="menu-item {{request()->is('neraca/*') ? 'here show' : ''}} menu-accordion mb-1">
+                    <span class="menu-link">
+                        <span class="menu-bullet">
+                            <span class="bullet bullet-dot"></span>
+                        </span>
+                        <span class="menu-title">Piutang Awal</span>
+                        <span class="menu-arrow"></span>
+                    </span>
+                    
+                    <div class="menu-sub menu-sub-accordion">
                         <div class="menu-item">
-                            <a class="menu-link" href="../../demo1/dist/layouts/aside/light.html">
-												<span class="menu-bullet">
-													<span class="bullet bullet-dot"></span>
-												</span>
-                                <span class="menu-title">Light Skin</span>
+                            <a class="menu-link {{request()->is('neraca/penjualan/piutang') ? 'active' : ''}}" href="{{route('penjualan.piutang')}}">
+                                                <span class="menu-bullet">
+                                                    <span class="bullet bullet-dot"></span>
+                                                </span>
+                                <span class="menu-title">Piutang Penjualan</span>
                             </a>
                         </div>
                         <div class="menu-item">
-                            <a class="menu-link" href="../../demo1/dist/layouts/aside/font-icons.html">
-												<span class="menu-bullet">
-													<span class="bullet bullet-dot"></span>
-												</span>
-                                <span class="menu-title">Font Icons</span>
-                            </a>
-                        </div>
-                        <div class="menu-item">
-                            <a class="menu-link" href="../../demo1/dist/layouts/aside/minimized.html">
-												<span class="menu-bullet">
-													<span class="bullet bullet-dot"></span>
-												</span>
-                                <span class="menu-title">Minimized</span>
-                            </a>
-                        </div>
-                        <div class="menu-item">
-                            <a class="menu-link" href="../../demo1/dist/layouts/aside/only-header.html">
-												<span class="menu-bullet">
-													<span class="bullet bullet-dot"></span>
-												</span>
-                                <span class="menu-title">Only Header</span>
+                            <a class="menu-link {{request()->is('neraca/penjualan/piutanglama') ? 'active' : ''}}" href="{{route('penjualan.piutanglama')}}">
+                                                <span class="menu-bullet">
+                                                    <span class="bullet bullet-dot"></span>
+                                                </span>
+                                <span class="menu-title">Piutang Penjualan Lama</span>
                             </a>
                         </div>
                     </div>
                 </div>
+            </div>
+            
+            
+            <div class="menu-sub menu-sub-accordion">
+                <div class="menu-item">
+                    <a class="menu-link {{request()->is('neraca/awal') ? 'active' : ''}}" href="{{route('keuangan.neraca')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                        <span class="menu-title">Persediaan Awal</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="menu-sub menu-sub-accordion">
+                <div class="menu-item">
+                    <a class="menu-link {{request()->is('neraca/awal') ? 'active' : ''}}" href="{{route('keuangan.neraca')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                        <span class="menu-title">Hutang Awal</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('neraca/*') ? 'here show' : ''}} menu-accordion mb-1">
+            <span class="menu-link">
+                <span class="menu-bullet">
+                    <span class="bullet bullet-dot"></span>
+                </span>
+                <span class="menu-title">Neraca Saldo Sekarang</span>
+                <span class="menu-arrow"></span>
+            </span>
+            <div class="menu-sub menu-sub-accordion">
+                <div class="menu-item">
+                    <a class="menu-link {{request()->is('neraca/awal') ? 'active' : ''}}" href="{{route('keuangan.neraca')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                        <span class="menu-title">Saldo Sekarang</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="menu-sub menu-sub-accordion">
+                <div class="menu-item">
+                    <a class="menu-link {{request()->is('neraca/saldo/awal') ? 'active' : ''}}" href="{{route('keuangan.neraca.saldoawal')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                        <span class="menu-title">Saldo Sekarang Baru</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
             </div>
             <!--end::Menu-->
