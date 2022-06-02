@@ -109,7 +109,7 @@ class Transaksi extends Component
     public function hitungDiskon(): void
     {
         // hitung harga setelah diskon
-        $this->hargaSetelahDiskon = (int) $this->hargaProduk - ($this->hargaProduk * ((int) $this->diskonProduk)/100);
+        $this->hargaSetelahDiskon = (int) $this->hargaProduk - ($this->hargaProduk * ((float) $this->diskonProduk)/100);
         $this->hargaSetelahDiskonRupiah = rupiah_format((int) $this->hargaSetelahDiskon);
     }
 
