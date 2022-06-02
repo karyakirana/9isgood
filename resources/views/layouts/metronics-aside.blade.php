@@ -949,7 +949,7 @@
                 </div>
             </div>
             <div class="menu-sub menu-sub-accordion menu-active-bg">
-                <div data-kt-menu-trigger="click" class="menu-item {{request()->is('neraca/*') ? 'here show' : ''}} menu-accordion mb-1">
+                <div data-kt-menu-trigger="click" class="menu-item {{request()->is('neraca/penjualan/*') ? 'here show' : ''}} menu-accordion mb-1">
                     <span class="menu-link">
                         <span class="menu-bullet">
                             <span class="bullet bullet-dot"></span>
@@ -982,7 +982,7 @@
             
             <div class="menu-sub menu-sub-accordion">
                 <div class="menu-item">
-                    <a class="menu-link {{request()->is('neraca/awal') ? 'active' : ''}}" href="{{route('keuangan.neraca')}}">
+                    <a class="menu-link {{request()->is('persediaan/awal') ? 'active' : ''}}" href="{{route('keuangan.neraca')}}">
                                         <span class="menu-bullet">
                                             <span class="bullet bullet-dot"></span>
                                         </span>
@@ -993,7 +993,7 @@
             
             <div class="menu-sub menu-sub-accordion">
                 <div class="menu-item">
-                    <a class="menu-link {{request()->is('neraca/awal') ? 'active' : ''}}" href="{{route('keuangan.neraca')}}">
+                    <a class="menu-link {{request()->is('hutang/awal') ? 'active' : ''}}" href="{{route('keuangan.neraca')}}">
                                         <span class="menu-bullet">
                                             <span class="bullet bullet-dot"></span>
                                         </span>
@@ -1002,7 +1002,7 @@
                 </div>
             </div>
         </div>
-        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('neraca/*') ? 'here show' : ''}} menu-accordion mb-1">
+        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('neraca/saldo/*') ? 'here show' : ''}} menu-accordion mb-1">
             <span class="menu-link">
                 <span class="menu-bullet">
                     <span class="bullet bullet-dot"></span>
@@ -1012,7 +1012,7 @@
             </span>
             <div class="menu-sub menu-sub-accordion">
                 <div class="menu-item">
-                    <a class="menu-link {{request()->is('neraca/awal') ? 'active' : ''}}" href="{{route('keuangan.neraca')}}">
+                    <a class="menu-link {{request()->is('neraca/saldo/index') ? 'active' : ''}}" href="{{route('neraca.saldo')}}">
                                         <span class="menu-bullet">
                                             <span class="bullet bullet-dot"></span>
                                         </span>

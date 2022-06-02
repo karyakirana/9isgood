@@ -88,6 +88,8 @@ Route::middleware('auth')->group(function (){
     Route::get('neraca/awal', \App\Http\Livewire\Keuangan\Neraca\NeracaSaldoAwalIndex::class)->name('keuangan.neraca');
     Route::get('neraca/saldo/awal', \App\Http\Livewire\Keuangan\Kasir\NeracaSaldoAwal::class)->name('keuangan.neraca.saldoawal');
 
+    Route::get('neraca/saldo/index', \App\Http\Livewire\Keuangan\Neraca\NeracaSaldoIndex::class)->name('neraca.saldo');
+
     // neraca piutang 
     Route::get('neraca/penjualan/piutang', \App\Http\Livewire\Keuangan\Kasir\PiutangPenjualanIndex::class)->name('penjualan.piutang');
     Route::get('neraca/penjualan/piutang/trans', \App\Http\Livewire\Keuangan\Kasir\PiutangPenjualanForm::class)->name('penjualan.piutang.trans');
