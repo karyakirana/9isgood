@@ -880,7 +880,7 @@
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">Kasir</span>
+                                <span class="menu-title">Penerimaan</span>
                                 <span class="menu-arrow"></span>
                             </span> <div class="menu-sub menu-sub-accordion">
                                 <div class="menu-item">
