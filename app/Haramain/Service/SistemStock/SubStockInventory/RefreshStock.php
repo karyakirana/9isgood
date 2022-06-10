@@ -41,7 +41,7 @@ class RefreshStock
         // get all stock opname by session active
         $stockOpname = $this->getStockOpname();
         // insert by detail and return by status
-        $this->handleBulkStore($stockOpname);
+        return $this->handleBulkStore($stockOpname);
     }
 
     protected function getStockOpname():array
@@ -60,8 +60,8 @@ class RefreshStock
 
     protected function handleBulkStore(array $data)
     {
-        foreach ($data as $datum) {
-            $this->stockBehaviorRepo->createOrUpdate($data, $this->field);
+        foreach ($data as $item) {
+            $this->stockBehaviorRepo->createOrUpdate($item, $this->field);
         }
     }
 

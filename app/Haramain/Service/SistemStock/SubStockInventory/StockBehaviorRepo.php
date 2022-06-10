@@ -4,9 +4,19 @@ use App\Models\Stock\StockInventory;
 
 class StockBehaviorRepo
 {
+    protected object $stockInventory;
+    protected array|object $data;
+    protected string $field;
+
+    public function __construct(StockInventory $stockInventory)
+    {
+        $this->stockInventory = $stockInventory;
+    }
+
     public function createOrUpdate(array|object $data, string $field): object
     {
-        $data = (is_array($data)) ? (object) $data : $data;
+        $this->data = (is_array($data)) ? (object) $data : $data;
+        $this->field = $field;
         // check item by active_cash, produk_id, jenis
         $query = StockInventory::query()
             ->where('active_cash', session('ClosedCash'))
@@ -17,29 +27,29 @@ class StockBehaviorRepo
             // increment fields
             $query->increment($field, $data->jumlah);
             // increment or decrement saldo
-            $this->saldoUpdate($field, $data->jumlah, $query);
+            $this->saldoUpdate($data->jumlah, $query);
             return (object)['status'=>true, 'keterangan'=>'update', 'messages'=>$query];
         }
         // if false insert
-        return $this->create($data, $field);
+        return $this->create();
     }
 
-    protected function create(object $data, $field): object
+    protected function create(): object
     {
-        $saldo = ($field == 'stock_keluar') ? 0 - $data->jumlah : $data->jumlah;
+        $saldo = ($this->field == 'stock_keluar') ? 0 - $this->data->jumlah : $this->data->jumlah;
         $create =  StockInventory::query()
             ->create([
                 'active_cash'=>session('ClosedCash'),
-                'produk_id'=>$data->produk_id,
-                $field=>$data->jumlah,
+                'produk_id'=>$this->data->produk_id,
+                $this->field=>$this->data->jumlah,
                 'stock_saldo'=>$saldo
             ]);
         return (object)['status'=>true, 'keterangan'=>'create', 'messages'=>$create];
     }
 
-    protected function saldoUpdate(string $field, int $jumlah, $query):void
+    protected function saldoUpdate(int $jumlah, $query):void
     {
-        if ($field == 'stock_keluar'){
+        if ($this->field == 'stock_keluar'){
             $query->decrement('stock_saldo', $jumlah);
         } else {
             $query->increment('stock_saldo', $jumlah);
