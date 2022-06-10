@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Collection;
 class GeneralStock
 {
 
-    public StockInventory $stockInventory;
+    public object $stockInventory;
     public string $sessionActive;
 
     protected string $active_cash;
@@ -18,9 +18,9 @@ class GeneralStock
 
     public object $row_detail;
 
-    public function __construct()
+    public function __construct(StockInventory $stockInventory)
     {
-        //
+        $this->stockInventory = $stockInventory;
     }
 
     /**
