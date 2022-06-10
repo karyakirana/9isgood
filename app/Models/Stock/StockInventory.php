@@ -2,6 +2,7 @@
 
 namespace App\Models\Stock;
 
+use App\Haramain\Service\SystemCore\SessionScope;
 use App\Haramain\Traits\ModelTraits\{GudangTraits, ProdukTraits};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,4 +25,14 @@ class StockInventory extends Model
         'stock_akhir',
         'stock_lost',
     ];
+
+    public function scopeSessionActive($query)
+    {
+        $query->where('active_cash', session('ClosedCash'));
+    }
+
+    public function scopeByKondisi($query, $kondisi)
+    {
+        $query->where('jenis', $kondisi);
+    }
 }

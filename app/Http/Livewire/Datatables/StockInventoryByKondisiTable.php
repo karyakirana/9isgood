@@ -28,8 +28,7 @@ class StockInventoryByKondisiTable extends DataTableComponent
                 ->searchable()
                 ->sortable(function(Builder $query, $direction){
                     return $query->orderBy(
-                        Produk::query()->select('nama')
-                            ->whereColumn('stock_inventory.produk_id', '=', 'produk.id'),
+                        Produk::query()->select('nama')->whereColumn('stock_inventory.produk_id', '=', 'produk.id'),
                         $direction
                     );
                 }),
