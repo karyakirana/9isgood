@@ -35,4 +35,9 @@ class StockInventory extends Model
     {
         $query->where('jenis', $kondisi);
     }
+
+    public function scopeClean($query, $field)
+    {
+        $query->whereNotNull($field)->update([$field, 0]);
+    }
 }

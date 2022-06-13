@@ -1,13 +1,14 @@
 <?php namespace App\Haramain\Service\SistemStock\SubStockInventory;
 
+use App\Haramain\Service\SistemStock\SubStockOpname\StockOpnameRepo;
 use App\Models\Stock\StockInventory;
-use App\Models\Stock\StockOpname;
 
 class RefreshStock
 {
     public object $stockInventory;
     public object $generalStock;
     public object $stockBehaviorRepo;
+    public object $stockOpnameRepo;
 
     protected string $field;
     protected string $kondisi;
@@ -15,29 +16,31 @@ class RefreshStock
     public function __construct(
         StockInventory $stockInventory,
         GeneralStock $generalStock,
-        StockBehaviorRepo $stockBehaviorRepo
+        StockBehaviorRepo $stockBehaviorRepo,
+        StockOpnameRepo $stockOpnameRepo
     )
     {
         $this->stockInventory = $stockInventory;
         $this->generalStock = $generalStock;
         $this->stockBehaviorRepo = $stockBehaviorRepo;
+        $this->stockOpnameRepo = $stockOpnameRepo;
     }
 
-    protected function base(): \Illuminate\Database\Eloquent\Builder
+    protected function base()
     {
-        return $this->stockInventory->newQuery()->where('active_cash', session('ClosedCash'));
+        return $this->stockInventory->newQuery()->sessionActive();
     }
 
     protected function clean()
     {
-        return $this->base()->whereNotNull($this->field)->where('kondisi', $this->kondisi)->delete();
+        return $this->base()->kondisi($this->kondisi)->clean($this->field);
     }
 
-    public function generateStockOpname(string $kondisi = 'baik')
+    public function generateStockOpname(string $kondisi = 'baik'): array
     {
         $this->kondisi = $kondisi;
         // clean all field stock opname
-        $clean = $this->clean('stock_opname');
+        $this->clean();
         // get all stock opname by session active
         $stockOpname = $this->getStockOpname();
         // insert by detail and return by status
@@ -46,10 +49,7 @@ class RefreshStock
 
     protected function getStockOpname():array
     {
-        $stockOpname = StockOpname::query()
-            ->where('active_cash', session('ClosedCash'))
-            ->where('jenis', $this->kondisi)
-            ->get();
+        $stockOpname = $this->stockOpnameRepo->getDataAllByActiveSession($this->kondisi);
         $stockOpnameDetail = [];
         // get all stock opname detail on array
         foreach ($stockOpname->stockOpnameDetail as $item) {
@@ -58,16 +58,19 @@ class RefreshStock
         return $stockOpnameDetail;
     }
 
-    protected function handleBulkStore(array $data)
+    protected function handleBulkStore(array $data): array
     {
+        $dataReturn = [];
         foreach ($data as $item) {
-            $this->stockBehaviorRepo->createOrUpdate($item, $this->field);
+            $dataReturn[] = $this->stockBehaviorRepo->createOrUpdate($item, $this->field);
         }
+        return $dataReturn;
     }
 
     public function generateStockMasuk()
     {
         // clean all field stock masuk
+
         // get all stock masuk by session active
         // insert by detail and return by status
     }
