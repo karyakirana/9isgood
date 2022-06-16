@@ -23,6 +23,11 @@ class StockOpname extends Model
         'keterangan',
     ];
 
+    public function scopeActive($query, $session)
+    {
+        return $query->where('active_cash', $session);
+    }
+
     public function stockOpnameDetail()
     {
         return $this->hasMany(StockOpnameDetail::class, 'stock_opname_id');

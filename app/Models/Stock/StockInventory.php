@@ -26,9 +26,9 @@ class StockInventory extends Model
         'stock_lost',
     ];
 
-    public function scopeSessionActive($query)
+    public function scopeSessionActive($query, $session)
     {
-        $query->where('active_cash', session('ClosedCash'));
+        $query->where('active_cash', $session);
     }
 
     public function scopeByKondisi($query, $kondisi)

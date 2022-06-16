@@ -105,6 +105,9 @@ Route::middleware('auth')->group(function(){
  */
 Route::middleware('auth')->group(function (){
 
+    // stock report
+    Route::get('stock/report', \App\Http\Livewire\Stock\RefreshStock::class);
+
     // daftar inventory
     Route::get('stock/inventory', \App\Http\Livewire\Stock\InventoryIndex::class)->name('inventory');
     Route::get('stock/inventory/{jenis}/{gudang}', \App\Http\Livewire\Stock\InventoryByJenisIndex::class);

@@ -24,6 +24,11 @@ class StockKeluar extends Model
         'keterangan',
     ];
 
+    public function scopeActive($query, $session)
+    {
+        return $query->where('active_cash', $session);
+    }
+
     public function stockKeluarDetail()
     {
         return $this->hasMany(StockKeluarDetail::class, 'stock_keluar_id');
