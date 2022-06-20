@@ -1,5 +1,5 @@
 <div>
-    <x-molecules.card title="Form Jurnal Penjualan">
+    <x-molecules.card title="Form Penerimaan Penjualan">
         <x-slot name="toolbar">
             @if($saldo_piutang)
                 Saldo Piutang {{rupiah_format($saldo_piutang)}}

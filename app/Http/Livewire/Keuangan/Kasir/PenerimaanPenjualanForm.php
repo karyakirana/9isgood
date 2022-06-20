@@ -74,7 +74,7 @@ class PenerimaanPenjualanForm extends Component
 
         // get_saldo_piutang_penjualan
         $this->saldo_piutang = SaldoPiutangPenjualan::query()
-                ->firstWhere('customer_id', $customer)->saldo ?? null;
+                ->firstWhere('customer_id', $customer->id)->saldo ?? 0;
     }
 
     public function setPenjualan(Penjualan $penjualan)

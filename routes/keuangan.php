@@ -12,11 +12,15 @@ Route::middleware('auth')->group(function (){
 
     // config keuangan
     Route::get('keuangan/config/akun', \App\Http\Livewire\KonfigurasiJurnalIndex::class)->name('keuangan.config');
-  
+
     // set piutang
     Route::get('kasir/penjualan/setpiutang')->name('keuangan.kasir.penjualan.setpiutang');
 
-    
+    // kasir
+    Route::get('kasir/penerimaan/penjualan', \App\Http\Livewire\Keuangan\Kasir\PenerimaanPenjualanIndex::class);
+    Route::get('kasir/penerimaan/penjualan/baru', \App\Http\Livewire\Keuangan\Kasir\PenerimaanPenjualanForm::class);
+
+
     // payment pembelian
     Route::get('kasir/pembelian')->name('keuangan.kasir.pembelian');
     Route::get('kasir/pembelian/pembayaran')->name('keuangan.kasir.pembelian.pembayaran');
@@ -30,7 +34,7 @@ Route::middleware('auth')->group(function (){
     Route::get('kasir/piutanginternal/penerimaan')->name('keuangan.kasir.piutanginternal.penerimaan');
     Route::get('kasir/piutanginternal/penerimaan/{id}');
 
-   
+
     // saldo piutang penjualan
     Route::get('keuangan/penjualan/saldopiutang', \App\Http\Livewire\Keuangan\SaldoPiutangIndex::class)->name('penjualan.saldopiutang');
 
@@ -67,19 +71,19 @@ Route::middleware('auth')->group(function (){
     Route::get('keuangan/labarugi')->name('keuangan.labarugi');
     Route::get('keuangan/labarugi/{closedcash}')->name('keuangan.labarugi');
 
-    // neraca menu 
-    
+    // neraca menu
+
     // neraca
     Route::get('neraca/awal', \App\Http\Livewire\Keuangan\Neraca\NeracaSaldoAwalIndex::class)->name('keuangan.neraca');
     Route::get('neraca/saldo/awal', \App\Http\Livewire\Keuangan\Kasir\NeracaSaldoAwal::class)->name('keuangan.neraca.saldoawal');
 
     Route::get('neraca/saldo/index', \App\Http\Livewire\Keuangan\Neraca\NeracaSaldoIndex::class)->name('neraca.saldo');
 
-    // neraca piutang 
+    // neraca piutang
     Route::get('neraca/asset/penjualan/piutang', \App\Http\Livewire\Keuangan\Kasir\PiutangPenjualanIndex::class)->name('penjualan.piutang');
     Route::get('neraca/asset/penjualan/piutang/trans', \App\Http\Livewire\Keuangan\Kasir\PiutangPenjualanForm::class)->name('penjualan.piutang.trans');
     Route::get('neraca/asset/penjualan/piutang/trans/{jurnalSetPiutangId}', \App\Http\Livewire\Keuangan\Kasir\PiutangPenjualanForm::class)->name('penjualan.piutang.trans.piutangId');
-    
+
     Route::get('neraca/asset/penjualan/piutanglama', \App\Http\Livewire\Keuangan\PiutangPenjualanLamaIndex::class)->name('penjualan.piutanglama');
     Route::get('neraca/asset/penjualan/piutanglama/trans', \App\Http\Livewire\Keuangan\PiutangPenjualanLamaForm::class)->name('penjualan.piutanglama.trans');
     Route::get('neraca/asset/penjualan/piutanglama/trans/{piutangLamaId}', \App\Http\Livewire\Keuangan\PiutangPenjualanLamaForm::class)->name('penjualan.piutanglama.trans.piutangLamaId');
@@ -91,7 +95,7 @@ Route::middleware('auth')->group(function (){
 
 
     // kasir
-    
+
     // kasir hutang penjualan retur
     Route::get('kasir/penjualan/piutangretur', \App\Http\Livewire\Keuangan\JurnalSetPiutangReturIndex::class)->name('penjualan.piutangretur');
     Route::get('kasir/penjualan/piutangretur/trans', \App\Http\Livewire\Keuangan\JurnalSetPiutangReturForm::class)->name('penjualan.piutangretur.trans');
