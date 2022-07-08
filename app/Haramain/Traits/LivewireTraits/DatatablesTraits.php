@@ -13,4 +13,9 @@ trait DatatablesTraits
     {
         return 'border align-middle';
     }
+
+    public function setFooterRowClass($rows): ?string
+    {
+        return 'text-end fw-bolder border fs-4';
+    }
 }

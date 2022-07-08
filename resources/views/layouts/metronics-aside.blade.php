@@ -760,52 +760,6 @@
                                 </div>
                             </div>
                         </div>
-                        {{-- <div data-kt-menu-trigger="click" class="menu-item {{request()->is('keuangan/kasir/*') ? 'here show' : ''}} menu-accordion mb-1">
-                            <span class="menu-link">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">Kasir</span>
-                                <span class="menu-arrow"></span>
-                            </span>
-                            <div class="menu-sub menu-sub-accordion">
-                                <div class="menu-item">
-                                    <a class="menu-link {{request()->is('keuangan/kasir/penjualan') ? 'active' : ''}}" href="{{route('keuangan.kasir.penjualan')}}">
-														<span class="menu-bullet">
-															<span class="bullet bullet-dot"></span>
-														</span>
-                                        <span class="menu-title">Kasir Penerimaan Penjualan</span>
-                                    </a>
-                                </div>
-                                <div class="menu-item">
-                                    <a class="menu-link {{request()->is('keuangan/kasir/penjualan/penerimaan') ? 'active' : ''}}" href="{{route('keuangan.kasir.penjualan.penerimaan')}}">
-														<span class="menu-bullet">
-															<span class="bullet bullet-dot"></span>
-														</span>
-                                        <span class="menu-title">Kasir Penerimaan Penjualan Baru</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div> --}}
-                        {{-- <div data-kt-menu-trigger="click" class="menu-item {{request()->is('keuangan/neraca/*') ? 'here show' : ''}} menu-accordion mb-1">
-                            <span class="menu-link">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">Neraca Saldo</span>
-                                <span class="menu-arrow"></span>
-                            </span>
-                            <div class="menu-sub menu-sub-accordion">
-                                <div class="menu-item">
-                                    <a class="menu-link {{request()->is('keuangan/neraca/saldo/awal') ? 'active' : ''}}" href="{{route('keuangan.neraca.saldoawal')}}">
-														<span class="menu-bullet">
-															<span class="bullet bullet-dot"></span>
-														</span>
-                                        <span class="menu-title">Neraca Saldo Awal</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div> --}}
                         <div data-kt-menu-trigger="click" class="menu-item {{request()->is('keuangan/config/*') ? 'here show' : ''}} menu-accordion mb-1">
                             <span class="menu-link">
                                 <span class="menu-bullet">
@@ -874,34 +828,42 @@
 										<span class="menu-arrow"></span>
 									</span>
                     <div class="menu-sub menu-sub-accordion menu-active-bg">
-                        
-                        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('kasir/*') ? 'here show' : ''}} menu-accordion mb-1">
+                        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('kasir/penerimaan/*') ? 'here show' : ''}} menu-accordion mb-1">
                             <span class="menu-link">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
                                 <span class="menu-title">Penerimaan</span>
                                 <span class="menu-arrow"></span>
-                            </span> <div class="menu-sub menu-sub-accordion">
+                            </span>
+                            <div class="menu-sub menu-sub-accordion">
                                 <div class="menu-item">
-                                    <a class="menu-link {{request()->is('kasir/penjualan') ? 'active' : ''}}" href="{{route('keuangan.kasir.penjualan')}}">
+                                    <a class="menu-link {{request()->is('kasir/penerimaan/penjualan') ? 'active' : ''}}" href="{{route('kasir.penerimaan.penjualan')}}">
 														<span class="menu-bullet">
 															<span class="bullet bullet-dot"></span>
 														</span>
-                                        <span class="menu-title">Kasir Penerimaan Penjualan</span>
+                                        <span class="menu-title">Penerimaan Penjualan</span>
                                     </a>
                                 </div>
                                 <div class="menu-item">
-                                    <a class="menu-link {{request()->is('kasir/penjualan/penerimaan') ? 'active' : ''}}" href="{{route('keuangan.kasir.penjualan.penerimaan')}}">
+                                    <a class="menu-link {{request()->is('kasir/penerimaan/penjualan/baru') ? 'active' : ''}}" href="{{route('kasir.penerimaan.penjualan.baru')}}">
 														<span class="menu-bullet">
 															<span class="bullet bullet-dot"></span>
 														</span>
-                                        <span class="menu-title">Kasir Penerimaan Penjualan Baru</span>
+                                        <span class="menu-title">Penerimaan Penjualan Baru</span>
+                                    </a>
+                                </div>
+                                <div class="menu-item">
+                                    <a class="menu-link {{request()->is('kasir/penerimaan/piutangpenjualan*') ? 'active' : ''}}" href="{{route('kasir.piutang.penjualan')}}">
+														<span class="menu-bullet">
+															<span class="bullet bullet-dot"></span>
+														</span>
+                                        <span class="menu-title">Piutang Penjualan</span>
                                     </a>
                                 </div>
                             </div>
                         </div>
-                        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('kasir/*') ? 'here show' : ''}} menu-accordion mb-1">
+                        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('kasir/piutang/*') ? 'here show' : ''}} menu-accordion mb-1">
                             <span class="menu-link">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
@@ -910,19 +872,11 @@
                                 <span class="menu-arrow"></span>
                             </span> <div class="menu-sub menu-sub-accordion">
                                 <div class="menu-item">
-                                    <a class="menu-link {{request()->is('keuangan/jurnal/piutangpenjualan') ? 'active' : ''}}" href="{{route('keuangan.jurnal.piutangpenjualan')}}">
+                                    <a class="menu-link {{request()->is('kasir/piutang/penjualan') ? 'active' : ''}}" href="{{route('kasir.piutang.penjualan')}}">
 														<span class="menu-bullet">
 															<span class="bullet bullet-dot"></span>
 														</span>
-                                        <span class="menu-title">Kasir Piutang Penjualan</span>
-                                    </a>
-                                </div>
-                                <div class="menu-item">
-                                    <a class="menu-link {{request()->is('keuangan/penjualan/piutangretur') ? 'active' : ''}}" href="{{route('penjualan.piutangretur')}}">
-														<span class="menu-bullet">
-															<span class="bullet bullet-dot"></span>
-														</span>
-                                        <span class="menu-title">Kasir Piutang Penjualan Retur</span>
+                                        <span class="menu-title">Piutang Penjualan</span>
                                     </a>
                                 </div>
                             </div>
@@ -963,7 +917,7 @@
                     </a>
                 </div>
             </div>
-            
+
             <div class="menu-sub menu-sub-accordion menu-active-bg">
                 <div data-kt-menu-trigger="click" class="menu-item {{request()->is('neraca/asset/*') ? 'here show' : ''}} menu-accordion mb-1">
                     <span class="menu-link">
@@ -973,7 +927,7 @@
                         <span class="menu-title">Asset Awal</span>
                         <span class="menu-arrow"></span>
                     </span>
-                    
+
                     <div class="menu-sub menu-sub-accordion">
                         <div class="menu-item">
                             <a class="menu-link {{request()->is('neraca/asset/penjualan/piutang') ? 'active' : ''}}" href="{{route('penjualan.piutang')}}">
@@ -1010,9 +964,9 @@
                     </div>
                 </div>
             </div>
-            
-        
-            
+
+
+
             <div class="menu-sub menu-sub-accordion">
                 <div class="menu-item">
                     <a class="menu-link {{request()->is('hutang/awal') ? 'active' : ''}}" href="{{route('keuangan.neraca')}}">
@@ -1042,7 +996,7 @@
                     </a>
                 </div>
             </div>
-            
+
             <div class="menu-sub menu-sub-accordion">
                 <div class="menu-item">
                     <a class="menu-link {{request()->is('neraca/saldo/awal') ? 'active' : ''}}" href="{{route('keuangan.neraca.saldoawal')}}">

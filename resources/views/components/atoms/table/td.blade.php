@@ -1,2 +1,2 @@
-@props(['align'=>null, 'width'=>null])
-<td {{$attributes->class('text-'.$align)}} width="{{$width}}">{{$slot}}</td>
+@props(['align'=>null, 'width'=>'auto'])
+<td {{$attributes->class('text-'.$align)->merge(['style'=>'width:'.$width]) }}>{{$slot}}</td>

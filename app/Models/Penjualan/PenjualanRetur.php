@@ -2,13 +2,18 @@
 
 namespace App\Models\Penjualan;
 
-use App\Haramain\Traits\ModelTraits\{CustomerTraits, GudangTraits, KodeTraits, StockMasukTraits, UserTraits};
+use App\Haramain\Traits\ModelTraits\{CustomerTraits,
+    GudangTraits,
+    JurnalTransaksiTraits,
+    KodeTraits,
+    StockMasukTraits,
+    UserTraits};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PenjualanRetur extends Model
 {
-    use HasFactory, KodeTraits, CustomerTraits, GudangTraits, UserTraits, StockMasukTraits;
+    use HasFactory, KodeTraits, CustomerTraits, GudangTraits, UserTraits, StockMasukTraits, JurnalTransaksiTraits;
     protected $table = 'penjualan_retur';
     protected $fillable = [
         'kode',

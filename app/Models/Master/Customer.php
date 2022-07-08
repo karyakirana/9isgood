@@ -10,7 +10,7 @@ class Customer extends Model
 {
     use HasFactory, KodeTraits;
 
-    protected $table = 'customer';
+    protected $table = 'haramainv2.customer';
     protected $fillable = [
         'kode',
         'nama',

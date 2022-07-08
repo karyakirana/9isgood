@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Datatables;
 
+use App\Haramain\Traits\LivewireTraits\DatatablesTraits;
 use App\Models\Keuangan\SaldoPiutangPenjualan;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
@@ -9,14 +10,13 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class DaftarPiutangPenjualanTable extends DataTableComponent
 {
-
+    use DatatablesTraits;
     public function columns(): array
     {
         return [
             Column::make('Customer'),
-            Column::make('Tanggal Awal'),
-            Column::make('Tanggal Akhir'),
             Column::make('Saldo'),
+            Column::make('')
         ];
     }
 

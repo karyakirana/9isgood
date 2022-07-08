@@ -1,24 +1,53 @@
 <?php
 
+use App\Http\Controllers\Kasir\PiutangPenjualanController;
+use App\Http\Livewire\Keuangan\Jurnal\{JurnalTransaksiIndex, JurnalUmumForm, JurnalUmumIndex};
+use App\Http\Livewire\Keuangan\{JurnalSetPiutangReturForm, JurnalSetPiutangReturIndex };
+use App\Http\Livewire\Keuangan\Neraca\{NeracaSaldoAwalIndex, NeracaSaldoIndex};
+use App\Http\Livewire\Keuangan\Persediaan\{PersediaanIndex, PersediaanTransaksiIndex};
+use App\Http\Livewire\Keuangan\{PersediaanOpnameForm, PersediaanOpnameIndex, PersediaanTempIndex, PiutangPenjualanLamaForm, PiutangPenjualanLamaIndex, SaldoPiutangIndex};
+use App\Http\Livewire\KonfigurasiJurnalIndex;
+use App\Http\Livewire\Keuangan\Kasir\{DaftarPiutangPenjualan,
+    NeracaSaldoAwal,
+    PenerimaanPenjualanForm,
+    PenerimaanPenjualanIndex,
+    PiutangPenjualanForm,
+    PiutangPenjualanIndex};
+use App\Http\Livewire\Keuangan\Master\{AkunIndex, AkunKategoriIndex, AkunTipeIndex, RekananIndex};
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function (){
 
     // master keuangan
-    Route::get('keuangan/master/akun', \App\Http\Livewire\Keuangan\Master\AkunIndex::class)->name('keuangan.master.akun');
-    Route::get('keuangan/master/akuntipe', \App\Http\Livewire\Keuangan\Master\AkunTipeIndex::class)->name('keuangan.master.akuntipe');
-    Route::get('keuangan/master/akunkategori', \App\Http\Livewire\Keuangan\Master\AkunKategoriIndex::class)->name('keuangan.master.akunkategori');
-    Route::get('keuangan/master/rekanan', \App\Http\Livewire\Keuangan\Master\RekananIndex::class)->name('keuangan.master.rekanan');
+    Route::get('keuangan/master/akun', AkunIndex::class)->name('keuangan.master.akun');
+    Route::get('keuangan/master/akuntipe', AkunTipeIndex::class)->name('keuangan.master.akuntipe');
+    Route::get('keuangan/master/akunkategori', AkunKategoriIndex::class)->name('keuangan.master.akunkategori');
+    Route::get('keuangan/master/rekanan', RekananIndex::class)->name('keuangan.master.rekanan');
 
     // config keuangan
-    Route::get('keuangan/config/akun', \App\Http\Livewire\KonfigurasiJurnalIndex::class)->name('keuangan.config');
+    Route::get('keuangan/config/akun', KonfigurasiJurnalIndex::class)->name('keuangan.config');
 
     // set piutang
     Route::get('kasir/penjualan/setpiutang')->name('keuangan.kasir.penjualan.setpiutang');
 
-    // kasir
-    Route::get('kasir/penerimaan/penjualan', \App\Http\Livewire\Keuangan\Kasir\PenerimaanPenjualanIndex::class);
-    Route::get('kasir/penerimaan/penjualan/baru', \App\Http\Livewire\Keuangan\Kasir\PenerimaanPenjualanForm::class);
+    // kasir - penerimaan
+    Route::get('kasir/penerimaan/penjualan', PenerimaanPenjualanIndex::class)->name('kasir.penerimaan.penjualan');
+    Route::get('kasir/penerimaan/penjualan/baru', PenerimaanPenjualanForm::class)->name('kasir.penerimaan.penjualan.baru');
+    Route::get('kasir/penerimaan/piutangpenjualan', DaftarPiutangPenjualan::class)->name('kasir.piutang.penjualan');
+    Route::get('kasir/penerimaan/piutangpenjualan/{customer_id}', [PiutangPenjualanController::class, 'showDetailPenjualan'])->name('kasir.piutang.penjualan.detail');
+
+    // kasir - pengeluaran
+    Route::get('kasir/pengeluaran/pembelian')->name('kasir.pengeluaran.pembelian');
+    Route::get('kasir/pengeluaran/pembelian/form')->name('kasir.pengeluaran.pembelian.form');
+    Route::get('kasir/pengeluaran/hutangpembelian/{supplier_id}')->name('kasir.pengeluaran.hutangpembelian.detail');
+
+    // kasir - daftar mutasi rekening
+
+    // kasir - daftar piutang internal
+    Route::get('kasir/piutanginternal')->name('kasir.piutang.internal');
+
+    // kasir - daftar hutang
+    Route::get('kasir/hutang/pembelian');
 
 
     // payment pembelian
@@ -36,7 +65,7 @@ Route::middleware('auth')->group(function (){
 
 
     // saldo piutang penjualan
-    Route::get('keuangan/penjualan/saldopiutang', \App\Http\Livewire\Keuangan\SaldoPiutangIndex::class)->name('penjualan.saldopiutang');
+    Route::get('keuangan/penjualan/saldopiutang', SaldoPiutangIndex::class)->name('penjualan.saldopiutang');
 
     // penerimaan
     Route::get('keuangan/jurnal/penerimaan')->name('keuangan.jurnal.penerimaan');
@@ -49,8 +78,8 @@ Route::middleware('auth')->group(function (){
     Route::get('keuangan/jurnal/pengeluaran/trans/{id}');
 
     // jurnal umum
-    Route::get('keuangan/jurnal/umum', \App\Http\Livewire\Keuangan\Jurnal\JurnalUmumIndex::class)->name('jurnal.umum');
-    Route::get('keuangan/jurnal/umum/trans', \App\Http\Livewire\Keuangan\Jurnal\JurnalUmumForm::class)->name('jurnal.umum.trans');
+    Route::get('keuangan/jurnal/umum', JurnalUmumIndex::class)->name('jurnal.umum');
+    Route::get('keuangan/jurnal/umum/trans', JurnalUmumForm::class)->name('jurnal.umum.trans');
 
     // penyesuaian
     Route::get('keuangan/jurnal/penyesuaian')->name('keuangan.jurnal.penyesuaian');
@@ -58,14 +87,14 @@ Route::middleware('auth')->group(function (){
     Route::get('keuangan/jurnal/penyesuaian/trans/{id}');
 
     // Jurnal transaksi
-    Route::get('keuangan/jurnal/transaksi', \App\Http\Livewire\Keuangan\Jurnal\JurnalTransaksiIndex::class)->name('jurnal.transaksi');
+    Route::get('keuangan/jurnal/transaksi', JurnalTransaksiIndex::class)->name('jurnal.transaksi');
 
     // persediaan
-    Route::get('keuangan/tester/index', \App\Http\Livewire\Keuangan\Persediaan\PersediaanIndex::class)->name('keuangan.persediaan');
-    Route::get('keuangan/tester/transaksi', \App\Http\Livewire\Keuangan\Persediaan\PersediaanTransaksiIndex::class)->name('keuangan.persediaan.transaksi');
+    Route::get('keuangan/tester/index', PersediaanIndex::class)->name('keuangan.persediaan');
+    Route::get('keuangan/tester/transaksi', PersediaanTransaksiIndex::class)->name('keuangan.persediaan.transaksi');
 
     // persediaan awal temporary
-    Route::get('keuangan/persediaan/awal/temp', \App\Http\Livewire\Keuangan\PersediaanTempIndex::class);
+    Route::get('keuangan/persediaan/awal/temp', PersediaanTempIndex::class);
 
     // laba-rugi
     Route::get('keuangan/labarugi')->name('keuangan.labarugi');
@@ -74,40 +103,40 @@ Route::middleware('auth')->group(function (){
     // neraca menu
 
     // neraca
-    Route::get('neraca/awal', \App\Http\Livewire\Keuangan\Neraca\NeracaSaldoAwalIndex::class)->name('keuangan.neraca');
-    Route::get('neraca/saldo/awal', \App\Http\Livewire\Keuangan\Kasir\NeracaSaldoAwal::class)->name('keuangan.neraca.saldoawal');
+    Route::get('neraca/awal', NeracaSaldoAwalIndex::class)->name('keuangan.neraca');
+    Route::get('neraca/saldo/awal', NeracaSaldoAwal::class)->name('keuangan.neraca.saldoawal');
 
-    Route::get('neraca/saldo/index', \App\Http\Livewire\Keuangan\Neraca\NeracaSaldoIndex::class)->name('neraca.saldo');
+    Route::get('neraca/saldo/index', NeracaSaldoIndex::class)->name('neraca.saldo');
 
     // neraca piutang
-    Route::get('neraca/asset/penjualan/piutang', \App\Http\Livewire\Keuangan\Kasir\PiutangPenjualanIndex::class)->name('penjualan.piutang');
-    Route::get('neraca/asset/penjualan/piutang/trans', \App\Http\Livewire\Keuangan\Kasir\PiutangPenjualanForm::class)->name('penjualan.piutang.trans');
-    Route::get('neraca/asset/penjualan/piutang/trans/{jurnalSetPiutangId}', \App\Http\Livewire\Keuangan\Kasir\PiutangPenjualanForm::class)->name('penjualan.piutang.trans.piutangId');
+    Route::get('neraca/asset/penjualan/piutang', PiutangPenjualanIndex::class)->name('penjualan.piutang');
+    Route::get('neraca/asset/penjualan/piutang/trans', PiutangPenjualanForm::class)->name('penjualan.piutang.trans');
+    Route::get('neraca/asset/penjualan/piutang/trans/{jurnalSetPiutangId}', PiutangPenjualanForm::class)->name('penjualan.piutang.trans.piutangId');
 
-    Route::get('neraca/asset/penjualan/piutanglama', \App\Http\Livewire\Keuangan\PiutangPenjualanLamaIndex::class)->name('penjualan.piutanglama');
-    Route::get('neraca/asset/penjualan/piutanglama/trans', \App\Http\Livewire\Keuangan\PiutangPenjualanLamaForm::class)->name('penjualan.piutanglama.trans');
-    Route::get('neraca/asset/penjualan/piutanglama/trans/{piutangLamaId}', \App\Http\Livewire\Keuangan\PiutangPenjualanLamaForm::class)->name('penjualan.piutanglama.trans.piutangLamaId');
+    Route::get('neraca/asset/penjualan/piutanglama', PiutangPenjualanLamaIndex::class)->name('penjualan.piutanglama');
+    Route::get('neraca/asset/penjualan/piutanglama/trans', PiutangPenjualanLamaForm::class)->name('penjualan.piutanglama.trans');
+    Route::get('neraca/asset/penjualan/piutanglama/trans/{piutangLamaId}', PiutangPenjualanLamaForm::class)->name('penjualan.piutanglama.trans.piutangLamaId');
 
     // neraca persediaan opname
-    Route::get('neraca/asset/persediaan/opname', \App\Http\Livewire\Keuangan\PersediaanOpnameIndex::class)->name('persediaan.opname');
-    Route::get('neraca/asset/persediaan/opname/trans', \App\Http\Livewire\Keuangan\PersediaanOpnameForm::class)->name('persediaan.opname.t');
-    Route::get('neraca/asset/persediaan/opname/trans/{persediaanOpnameId}', \App\Http\Livewire\Keuangan\PersediaanOpnameForm::class)->name('persediaan.opname.trans');
+    Route::get('neraca/asset/persediaan/opname', PersediaanOpnameIndex::class)->name('persediaan.opname');
+    Route::get('neraca/asset/persediaan/opname/trans', PersediaanOpnameForm::class)->name('persediaan.opname.t');
+    Route::get('neraca/asset/persediaan/opname/trans/{persediaanOpnameId}', PersediaanOpnameForm::class)->name('persediaan.opname.trans');
 
 
     // kasir
 
     // kasir hutang penjualan retur
-    Route::get('kasir/penjualan/piutangretur', \App\Http\Livewire\Keuangan\JurnalSetPiutangReturIndex::class)->name('penjualan.piutangretur');
-    Route::get('kasir/penjualan/piutangretur/trans', \App\Http\Livewire\Keuangan\JurnalSetPiutangReturForm::class)->name('penjualan.piutangretur.trans');
-    Route::get('kasir/penjualan/piutangretur/trans/{jurnalSetPiutangRetur}', \App\Http\Livewire\Keuangan\JurnalSetPiutangReturForm::class)->name('penjualan.piutangretur.trans.edit');
+    Route::get('kasir/penjualan/piutangretur', JurnalSetPiutangReturIndex::class)->name('penjualan.piutangretur');
+    Route::get('kasir/penjualan/piutangretur/trans', JurnalSetPiutangReturForm::class)->name('penjualan.piutangretur.trans');
+    Route::get('kasir/penjualan/piutangretur/trans/{jurnalSetPiutangRetur}', JurnalSetPiutangReturForm::class)->name('penjualan.piutangretur.trans.edit');
 
 
     // kasir payment penjualan
-    Route::get('kasir/penjualan', \App\Http\Livewire\Keuangan\Kasir\PenerimaanPenjualanIndex::class)->name('keuangan.kasir.penjualan');
-    Route::get('kasir/penjualan/penerimaan', \App\Http\Livewire\Keuangan\Kasir\PenerimaanPenjualanForm::class)->name('keuangan.kasir.penjualan.penerimaan');
-    Route::get('kasir/penjualan/penerimaan/{penerimaanPenjualanId}', \App\Http\Livewire\Keuangan\Kasir\PenerimaanPenjualanForm::class);
+    Route::get('kasir/penjualan', PenerimaanPenjualanIndex::class)->name('keuangan.kasir.penjualan');
+    Route::get('kasir/penjualan/penerimaan', PenerimaanPenjualanForm::class)->name('keuangan.kasir.penjualan.penerimaan');
+    Route::get('kasir/penjualan/penerimaan/{penerimaanPenjualanId}', PenerimaanPenjualanForm::class);
 
     // kasir piutang penjualan
-    Route::get('kasir/jurnal/piutangpenjualan', \App\Http\Livewire\Keuangan\Kasir\DaftarPiutangPenjualan::class)->name('keuangan.jurnal.piutangpenjualan'); // daftar piutang by customer
+    Route::get('kasir/jurnal/piutangpenjualan', DaftarPiutangPenjualan::class)->name('keuangan.jurnal.piutangpenjualan'); // daftar piutang by customer
 
 });
