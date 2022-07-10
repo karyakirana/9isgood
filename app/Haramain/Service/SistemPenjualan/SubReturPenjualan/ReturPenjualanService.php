@@ -16,6 +16,16 @@ class ReturPenjualanService
     protected NeracaSaldoRepository $neracaSaldoRepository;
     protected PiutangPenjualanRepo $piutangPenjualanRepo;
 
+    public function handleRulesValidation():array
+    {
+        return [];
+    }
+
+    public function handleMessagesValidation(): array
+    {
+        return [];
+    }
+
     public function handleStore($data): object
     {
         \DB::beginTransaction();

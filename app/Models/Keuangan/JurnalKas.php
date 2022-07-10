@@ -15,8 +15,8 @@ class JurnalKas extends Model
         'kode',
         'active_cash',
         'type',
-        'jurnal_type',
-        'jurnal_id',
+        'cash_type',
+        'cash_id',
         'akun_id',
         'nominal_debet',
         'nominal_kredit',
@@ -25,6 +25,6 @@ class JurnalKas extends Model
 
     public function jurnalable_kas()
     {
-        return $this->morphTo(__FUNCTION__, 'jurnal_type', 'jurnal_id');
+        return $this->morphTo(__FUNCTION__, 'cash_type', 'cash_id');
     }
 }

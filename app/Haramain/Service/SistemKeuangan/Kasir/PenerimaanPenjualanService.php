@@ -7,9 +7,14 @@ class PenerimaanPenjualanService
     // dependency injection
     protected PenerimaanPenjualanRepo $penerimaanPenjualanRepo;
 
-    public function __construct()
+    public function handleRulesValidation():array
     {
-        //
+        return [];
+    }
+
+    public function handleMessagesValidation(): array
+    {
+        return [];
     }
 
     public function handleStore($data): object
