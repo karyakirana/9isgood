@@ -35,7 +35,7 @@ class KasRepo
     {
         return JurnalKas::query()
             ->create([
-                'kode'=>$this->kode(),
+                'kode'=>$this->kode($data->jenis_kas),
                 'active_cash'=>session('ClosedCash'),
                 'type'=>$data->type,
                 'jurnal_type'=>$jurnalType,
