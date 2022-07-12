@@ -6,9 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class KasRepo
 {
-    public function kode()
+    public function kode($type): string
     {
-        return null;
+        $initial = ($type == 'masuk') ? 'KM' : 'KK';
+        $query = JurnalKas::query()
+            ->where('active_cash', session('ClosedCash'))
+            ->where('type', $type)
+            ->latest('kode');
+        // check last num
+        if ($query->doesntExist()) {
+            return '00001/' .$initial.'/'.date('Y');
+        }
+        $num = (int)$query->first()->last_num_char + 1 ;
+        return sprintf("%05s", $num) . "/".$initial."/" . date('Y');
     }
 
     public function getById()

@@ -2,6 +2,7 @@
 
 namespace App\Models\Keuangan;
 
+use App\Haramain\Service\SistemKeuangan\Jurnal\KasModelTrait;
 use App\Haramain\Traits\ModelTraits\CustomerTraits;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PenerimaanPenjualan extends Model
 {
-    use HasFactory, CustomerTraits;
+    use HasFactory, CustomerTraits, KasModelTrait;
     protected $table = 'haramain_keuangan.penerimaan_penjualan';
     protected $fillable = [
         'active_cash',
