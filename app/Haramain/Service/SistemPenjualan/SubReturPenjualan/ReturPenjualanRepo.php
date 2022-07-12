@@ -26,7 +26,7 @@ class ReturPenjualanRepo
         return sprintf("%04s", $num)."/{$kode}/".date('Y');
     }
 
-    public function detData($penjualanReturId)
+    public function getData($penjualanReturId)
     {
         return PenjualanRetur::query()->find($penjualanReturId);
     }
@@ -87,5 +87,17 @@ class ReturPenjualanRepo
             ]);
         }
         return $penjualanRetur;
+    }
+
+    public function updateStatus($penjualanReturId, $status): bool|int
+    {
+        $penjualan = $this->getById($penjualanReturId);
+        return $penjualan->update(['status_bayar'=>$status]);
+    }
+
+    public function getById($penjualanReturId): Model|Collection|Builder|array|null
+    {
+        return PenjualanRetur::query()
+            ->find($penjualanReturId);
     }
 }

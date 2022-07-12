@@ -1,14 +1,19 @@
 <?php namespace App\Haramain\Service\SistemKeuangan\Kasir;
 
+use App\Haramain\Service\SistemPenjualan\SubPenjualan\PenjualanRepo;
+use App\Haramain\Service\SistemPenjualan\SubReturPenjualan\ReturPenjualanRepo;
 use App\Models\Keuangan\PiutangPenjualan;
 use App\Models\Keuangan\SaldoPiutangPenjualan;
 use App\Models\Penjualan\Penjualan;
 use App\Models\Penjualan\PenjualanRetur;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class PiutangPenjualanRepo
 {
+    protected PenjualanRepo $penjualanRepo;
+    protected ReturPenjualanRepo $returPenjualanRepo;
     /**
      * Piutang Penjualan
      */
@@ -106,9 +111,36 @@ class PiutangPenjualanRepo
     /**
      * Builder for this
      */
-    private function builderUpdateSaldo($customer_id)
+    private function builderUpdateSaldo($customer_id): Builder
     {
         return SaldoPiutangPenjualan::query()
             ->where('customer_id', $customer_id);
+    }
+
+    public function updateStatusPenjualan($piutangPenjualanId, $status, $kurangBayar): int
+    {
+        $piutangPenjualan = $this->builderUpdateStatus($piutangPenjualanId);
+        if($piutangPenjualan->penjualan_type == Penjualan::class){
+            // update penjualan
+            $this->penjualanRepo->updateStatus($piutangPenjualan->penjualan_id, $status);
+        } elseif ($piutangPenjualan->penjualan_type == PenjualanRetur::class){
+            // update status penjualan_retur
+            $this->returPenjualanRepo->updateStatus($piutangPenjualan->penjualan_id, $status);
+        }
+        return $piutangPenjualan->update([
+                'status_bayar'=>$status,
+                'kurang_bayar'=>$kurangBayar
+            ]);
+    }
+
+    public function rollbackStatus($piutangPenjualanId, $oldData)
+    {
+        //
+    }
+
+    private function builderUpdateStatus($piutangPenjualanId): Model|Collection|Builder|array|null
+    {
+        return PiutangPenjualan::query()
+            ->find($piutangPenjualanId);
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class PiutangPenjualan extends Model
 {
@@ -17,6 +18,7 @@ class PiutangPenjualan extends Model
     protected $fillable = [
         'saldo_piutang_penjualan_id',
         'jurnal_set_piutang_awal_id',
+        'penjualan_type',
         'penjualan_id',
         'status_bayar', // enum ['lunas', 'belum', 'kurang']
         'kurang_bayar',
@@ -35,5 +37,10 @@ class PiutangPenjualan extends Model
     public function penerimaanPenjualanDetail(): MorphMany
     {
         return $this->morphMany(PenerimaanPenjualanDetail::class, 'piutangPenjualan', 'piutang_penjualan_type', 'piutang_penjualan_id');
+    }
+
+    public function piutangablePenjualan(): MorphTo
+    {
+        return $this->morphTo(__FUNCTION__, 'penjualan_type', 'penjualan_id');
     }
 }
