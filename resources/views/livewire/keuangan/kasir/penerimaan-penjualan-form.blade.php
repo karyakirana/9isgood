@@ -1,4 +1,12 @@
 <div>
+    <div class="row mb-5">
+        <div class="col-6">
+            <x-molecules.card></x-molecules.card>
+        </div>
+        <div class="col-6">
+            <x-molecules.card></x-molecules.card>
+        </div>
+    </div>
     <x-molecules.card title="Form Penerimaan Penjualan">
         <x-slot name="toolbar">
             @if($saldo_piutang)
@@ -24,10 +32,7 @@
                         <div class="col-6">
                             <x-atoms.input.group label="Akun Kas" required="required">
                                 <x-atoms.input.select>
-                                    <option>Dipilih</option>
-                                    @foreach($akun_kas_data as $item)
-                                        <option value="{{$item->id}}">{{$item->deskripsi}}</option>
-                                    @endforeach
+                                    <x-molecules.select.akun-kas-list />
                                 </x-atoms.input.select>
                             </x-atoms.input.group>
                         </div>
@@ -41,10 +46,7 @@
                         <div class="col-6">
                             <x-atoms.input.group label="Akun Piutang" required="required">
                                 <x-atoms.input.select>
-                                    <option>Dipilih</option>
-                                    @foreach($akun_piutang_data as $item)
-                                        <option value="{{$item->id}}">{{$item->deskripsi}}</option>
-                                    @endforeach
+                                    <x-molecules.select.akun-piutang-list />
                                 </x-atoms.input.select>
                             </x-atoms.input.group>
                         </div>
@@ -59,25 +61,24 @@
                 <x-atoms.table>
                     <x-slot name="head">
                         <tr>
-                            <th></th>
                             <th>Id</th>
                             <th>Total Penjualan</th>
                             <th>Biaya</th>
                             <th>PPN</th>
                             <th>Total Bayar</th>
-                            <th></th>
+                            <th style="width: 15%"></th>
                         </tr>
                     </x-slot>
                     @forelse($detail as $index=>$item)
                         <tr class="align-middle">
-                            <x-atoms.table.td>{{$index}}</x-atoms.table.td>
-                            <x-atoms.table.td>{{$item->penjualan_kode}}</x-atoms.table.td>
-                            <x-atoms.table.td>{{$item->biaya}}</x-atoms.table.td>
-                            <x-atoms.table.td>{{$item->ppn}}</x-atoms.table.td>
-                            <x-atoms.table.td>{{$item->total_bayar}}</x-atoms.table.td>
+                            <x-atoms.table.td>{{$item['penjualan_kode']}}</x-atoms.table.td>
+                            <x-atoms.table.td align="end">{{$item['total_penjualan']}}</x-atoms.table.td>
+                            <x-atoms.table.td align="end">{{$item['biaya_lain']}}</x-atoms.table.td>
+                            <x-atoms.table.td align="end">{{$item['ppn']}}</x-atoms.table.td>
+                            <x-atoms.table.td align="end">{{$item['total_bayar']}}</x-atoms.table.td>
                             <x-atoms.table.td>
-                                <button type="button" class="btn btn-flush btn-active-color-info btn-icon" wire:click="editLine({{$index}})"><i class="la la-edit fs-2"></i></button>
-                                <button type="button" class="btn btn-flush btn-active-color-info btn-icon" wire:click="destroyLine({{$index}})"><i class="la la-trash fs-2"></i></button>
+                                <button type="button" class="btn btn-flush btn-active-color-info" wire:click="editLine({{$index}})"><i class="la la-edit fs-2"></i></button>
+                                <button type="button" class="btn btn-flush btn-active-color-info" wire:click="destroyLine({{$index}})"><i class="la la-trash fs-2"></i></button>
                             </x-atoms.table.td>
                         </tr>
                     @empty
@@ -90,8 +91,13 @@
             <div class="col-4">
                 <form class="mt-5 p-5 border">
                     <div class="mb-5">
-                        <x-atoms.input.group-horizontal label="Penjualan ID">
-                            <x-atoms.input.text name="penjualan_id" wire:model.defer="kode_penjualan"/>
+                        <x-atoms.input.group-horizontal label="ID">
+                            <x-atoms.input.text name="penjualan_id" wire:model.defer="penjualan_kode"/>
+                        </x-atoms.input.group-horizontal>
+                    </div>
+                    <div class="mb-5">
+                        <x-atoms.input.group-horizontal label="Tipe">
+                            <x-atoms.input.text name="penjualan_type" wire:model.defer="penjualan_type"/>
                         </x-atoms.input.group-horizontal>
                     </div>
                     <div class="mb-5">
@@ -102,10 +108,7 @@
                     <div class="mb-5">
                         <x-atoms.input.group-horizontal label="Akun Biaya">
                             <x-atoms.input.select>
-                                <option>Dipilih</option>
-                                @foreach($akun_biaya_data as $item)
-                                    <option value="{{$item->id}}">{{$item->deskripsi}}</option>
-                                @endforeach
+                                <x-molecules.select.akun-biaya-usaha-list />
                             </x-atoms.input.select>
                         </x-atoms.input.group-horizontal>
                     </div>
@@ -117,10 +120,7 @@
                     <div class="mb-5">
                         <x-atoms.input.group-horizontal label="Akun PPN">
                             <x-atoms.input.select>
-                                <option>Dipilih</option>
-                                @foreach($akun_ppn_data as $item)
-                                    <option value="{{$item->id}}">{{$item->deskripsi}}</option>
-                                @endforeach
+                                <x-molecules.select.akun-ppn-list />
                             </x-atoms.input.select>
                         </x-atoms.input.group-horizontal>
                     </div>
@@ -135,7 +135,11 @@
                         </x-atoms.input.group-horizontal>
                     </div>
                     <div class="text-center pb-4 pt-5">
-                        <x-atoms.button.btn-modal color="info" target="#modalDaftarPenjualan">Add Penjualan</x-atoms.button.btn-modal>
+                        <x-atoms.button.btn-modal color="info" target="#modalDaftarPenjualan">Penjualan</x-atoms.button.btn-modal>
+                        <x-atoms.button.btn-modal color="info" target="#modalDaftarPenjualanRetur">Retur</x-atoms.button.btn-modal>
+
+                    </div>
+                    <div class="text-center pb-4 pt-5">
                         @if($update)
                             <button type="button" class="btn btn-primary" wire:click="updateLine">update Data</button>
                         @else
@@ -147,33 +151,18 @@
         </div>
     </x-molecules.card>
 
-    <x-molecules.modal size="xl" title="Daftar Penjualan" id="modalDaftarPenjualan" wire:ignore.self>
-        <livewire:datatables.penjualan-set-table />
-        <x-slot name="footer"></x-slot>
-    </x-molecules.modal>
+    <x-organisms.modals.daftar-penjualan />
 
-    <x-molecules.modal title="Daftar Customer" id="customer_modal" size="xl" wire:ignore.self>
-        <livewire:datatables.customer-set-table />
-        <x-slot name="footer"></x-slot>
-    </x-molecules.modal>
+    <x-organisms.modals.daftar-penjualan-retur />
+
+    <x-organisms.modals.daftar-customer />
 
     <livewire:penjualan.penjualan-detail-view />
 
+    <livewire:penjualan.penjualan-retur-detail-view />
+
     @push('custom-scripts')
         <script>
-            let customer_modal = document.getElementById('customer_modal');
-            let customerModal = new bootstrap.Modal(customer_modal);
-
-            Livewire.on('set_customer', function (){
-                customerModal.hide();
-            })
-
-            let penjualan_modal = document.getElementById('modalDaftarPenjualan');
-            let penjualanModal = new bootstrap.Modal(penjualan_modal);
-
-            Livewire.on('setPenjualan', function (){
-                penjualanModal.hide();
-            })
 
             $('#tgl_jurnal').on('change', function (e) {
                 let date = $(this).data("#tgl_jurnal");

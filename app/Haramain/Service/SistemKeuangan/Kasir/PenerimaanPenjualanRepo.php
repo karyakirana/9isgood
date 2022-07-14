@@ -13,7 +13,6 @@ class PenerimaanPenjualanRepo
     {
         $query = PenerimaanPenjualan::query()
             ->where('active_cash', session('ClosedCash'))
-            ->where('type', $type)
             ->latest('kode');
         $num = (int)$query->first()->last_num_char + 1 ;
         return sprintf("%05s", $num) . "/PP/" . date('Y');

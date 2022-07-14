@@ -3,12 +3,12 @@
 namespace App\Http\Livewire\Datatables;
 
 use App\Haramain\Traits\LivewireTraits\DatatablesTraits;
-use App\Models\Penjualan\Penjualan;
+use App\Models\Penjualan\PenjualanRetur;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
-class PenjualanSetTable extends DataTableComponent
+class PenjualanReturSetTable extends DataTableComponent
 {
     use DatatablesTraits;
 
@@ -48,7 +48,7 @@ class PenjualanSetTable extends DataTableComponent
 
     public function query(): Builder
     {
-        $query = Penjualan::query()->with(['customer', 'gudang', 'users']);
+        $query = PenjualanRetur::query()->with(['customer', 'gudang', 'users']);
 
         if ($this->customer_id){
             return $query->where('customer_id', $this->customer_id)->latest();
@@ -59,6 +59,6 @@ class PenjualanSetTable extends DataTableComponent
 
     public function rowView(): string
     {
-        return 'livewire-tables.rows.penjualan_set_table';
+        return 'livewire-tables.rows.penjualan_retur_set_table';
     }
 }

@@ -8,54 +8,147 @@ use App\Models\Keuangan\KasirPenjualan;
 use App\Models\Keuangan\SaldoPiutangPenjualan;
 use App\Models\Master\Customer;
 use App\Models\Penjualan\Penjualan;
+use App\Models\Penjualan\PenjualanRetur;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
+use phpDocumentor\Reflection\Types\Integer;
 
 class PenerimaanPenjualanForm extends Component
 {
-    use SetCustomerTraits, SetCustomerTraits;
+    use SetCustomerTraits;
 
+    /**
+     * listener for emit
+     * @var string[]
+     */
     protected $listeners = [
         'set_customer'=>'customer',
-        'setPenjualan'
+        'setPenjualan',
+        'setPenjualanRetur'
     ];
 
+    /**
+     * status form update or create
+     * @var string
+     */
+    public $mode = 'create';
+
+    /**
+     * status mode update or create detail
+     * @var bool
+     */
     public $update= false;
 
-    public $penerimaan_penjualan_id;
-    public $customer_id;
-    public $total_nota, $total_tunai, $total_piutang;
+    /**
+     * penerimaan penjualan id (berguna untuk update)
+     * @var
+     */
+    public $penerimaan_penjualan_id; // if needed
 
-    public $akun_kas_data, $akun_kas, $akun_kas_nominal;
-    public $akun_piutang_data, $akun_piutang, $akun_piutang_nominal;
-    public $akun_biaya_data, $akun_ppn_data;
+    /**
+     * akun_kas untuk field akun kas
+     * akun_piutang untuk field akun piutang
+     * @var
+     */
+    public $akun_kas, $akun_piutang;
 
-    public $detail = [], $penjualan_id;
-    public $kode_penjualan;
-    public $total_penjualan, $akun_biaya, $biaya_lain, $akun_ppn, $ppn, $total_bayar;
+    /**
+     * $nominal_tunai untuk field nominal kas
+     * $nominal_piutang untuk field nominal piutang
+     * @var
+     */
+    public $nominal_tunai, $nominal_piutang;
+
+    /**
+     * array untuk menampilkan tabel item-item penerimaan penjualan
+     * @var
+     */
+    public $detail =[];
+
+    /**
+     * index for an array
+     * @var
+     */
+    public $index;
+
+    /**
+     * id penjualan
+     * @var
+     */
+    public $penjualan_id;
+
+    /**
+     * kode penjualan
+     * @var
+     */
+    public $penjualan_kode;
+
+    /**
+     * @var
+     */
+    public $penjualan_type;
+
+    /**
+     * total penjualan sebelum biaya dan ppn
+     * @var int|null
+     */
+    public $total_penjualan;
+
+    /**
+     * id akun untuk biaya
+     * nominal biaya
+     * @var
+     */
+    public $akun_biaya, $biaya_lain;
+
+    /**
+     * id akun untuk ppn
+     * nominal ppn
+     * @var
+     */
+    public $akun_ppn, $ppn;
+
+    /**
+     * total_bayar adalah jumlah total_penjualan + biaya_lain + ppn
+     * @var
+     */
+    public $total_bayar;
+
+    /**
+     * rekayasa tampilan penggunaan format rupiah
+     * @var
+     */
     public $total_penjualan_rupiah, $total_bayar_rupiah;
 
-    // saldo piutang
+    /**
+     * Saldo piutang customer
+     * @var int|null
+     */
     public $saldo_piutang;
 
-    public function render()
+    /**
+     * $total_nota seluruh jumlah nota yang dibayar
+     * $total_tunai seluruh jumlah yang dibayarkan
+     * $total_piutang seluruh jumlah piutang yang belum dibayar
+     * @var int|null
+     */
+    public ?int $total_nota, $total_tunai, $total_piutang;
+
+    /**
+     * @return Factory|View|Application
+     */
+    public function render(): Factory|View|Application
     {
         return view('livewire.keuangan.kasir.penerimaan-penjualan-form');
     }
 
-    public function mount($penerimaan_penjualan_id = null)
+    /**
+     * @param null $penerimaan_penjualan_id
+     */
+    public function mount($penerimaan_penjualan_id = null): void
     {
-        $this->akun_kas_data = Akun::query()
-            ->whereRelation('akunTipe', 'deskripsi', 'like', '%kas%')
-            ->get();
-        $this->akun_piutang_data = Akun::query()->whereRelation('akunTipe', 'deskripsi', 'like', '%piutang usaha%')->get();
-        $this->akun_biaya_data = Akun::query()
-            ->whereRelation('akunTipe', 'deskripsi', 'like', '%piutang usaha%')
-            ->orWhereRelation('akunTipe', 'deskripsi', 'like', '%Hutang Jangka Pendek%')
-            ->get();
-        $this->akun_ppn_data = Akun::query()
-            ->whereRelation('akunTipe', 'deskripsi', 'like', '%Hutang Jangka Menengah%')
-            ->get();
-
         if ($penerimaan_penjualan_id){
             $penerimaan_penjualan = KasirPenjualan::query()->find($penerimaan_penjualan_id);
             $this->penerimaan_penjualan_id = $penerimaan_penjualan_id;
@@ -68,19 +161,29 @@ class PenerimaanPenjualanForm extends Component
         }
     }
 
-    public function customer(Customer $customer)
+    /**
+     * set data customer
+     * @param $customer
+     */
+    public function customer($customer):void
     {
+        // dd($customer);
         $this->setCustomer($customer);
 
         // get_saldo_piutang_penjualan
         $this->saldo_piutang = SaldoPiutangPenjualan::query()
-                ->firstWhere('customer_id', $customer->id)->saldo ?? 0;
+                ->firstWhere('customer_id', $this->customer_id)->saldo ?? 0;
     }
 
-    public function setPenjualan(Penjualan $penjualan)
+    /**
+     * set data penjualan
+     * @param Penjualan $penjualan
+     */
+    public function setPenjualan(Penjualan $penjualan):void
     {
+        $this->penjualan_type = 'penjualan';
         $this->penjualan_id = $penjualan->id;
-        $this->kode_penjualan = $penjualan->kode;
+        $this->penjualan_kode = $penjualan->kode;
         $this->biaya_lain = ($penjualan->biaya_lain > 0) ? $penjualan->biaya_lain : null;
         $this->ppn =( $penjualan->ppn > 0) ? $penjualan->ppn : null;
         $this->total_penjualan = $penjualan->total_bayar - ($penjualan->biaya_lain ?? 0) - ($penjualan->ppn ?? 0);
@@ -89,21 +192,89 @@ class PenerimaanPenjualanForm extends Component
         $this->total_bayar_rupiah = rupiah_format($this->total_bayar);
     }
 
+    /**
+     * set data penjualan_retur
+     * @param PenjualanRetur $penjualanRetur
+     */
+    public function setPenjualanRetur(PenjualanRetur $penjualanRetur):void
+    {
+        $this->penjualan_type = 'penjualan_retur';
+        $this->penjualan_id = $penjualanRetur->id;
+        $this->penjualan_kode = $penjualanRetur->kode;
+        $this->biaya_lain = ($penjualanRetur->biaya_lain > 0) ? $penjualanRetur->biaya_lain : null;
+        $this->ppn =( $penjualanRetur->ppn > 0) ? $penjualanRetur->ppn : null;
+        $this->total_penjualan = $penjualanRetur->total_bayar - ($penjualanRetur->biaya_lain ?? 0) - ($penjualanRetur->ppn ?? 0);
+        $this->total_penjualan_rupiah = rupiah_format($this->total_penjualan);
+        $this->total_bayar = 0 - $penjualanRetur->total_bayar;
+        $this->total_bayar_rupiah = rupiah_format($this->total_bayar);
+    }
+
+    /**
+     * reset form
+     */
     public function resetForm()
     {
         $this->reset([
-            ''
+            'penjualan_id', 'penjualan_kode', 'akun_biaya', 'biaya_lain', 'akun_ppn', 'ppn', 'total_bayar',
+            'total_penjualan_rupiah', 'total_bayar_rupiah'
         ]);
     }
 
-    public function addLine()
+    public function addLine():void
     {
-        //
+        $this->detail[] = [
+            'penjualan_kode'=>$this->penjualan_kode,
+            'penjualan_type'=>$this->penjualan_type,
+            'total_penjualan'=>$this->total_penjualan,
+            'total_penjualan_rupiah'=>$this->total_penjualan_rupiah,
+            'akun_biaya'=>$this->akun_biaya,
+            'biaya_lain'=>$this->biaya_lain,
+            'akun_ppn'=>$this->akun_ppn,
+            'ppn'=>$this->ppn,
+            'total_bayar'=>$this->total_bayar,
+            'total_bayar_rupiah'=>$this->total_bayar_rupiah,
+        ];
+        $this->resetForm();
     }
 
-    public function removeLine()
+    public function editLine($index)
     {
-        //
+        $this->update = true;
+        $this->index = $index;
+        $this->penjualan_kode = $this->detail[$index]['penjualan_kode'];
+        $this->penjualan_type = $this->detail[$index]['penjualan_type'];
+        $this->total_penjualan = $this->detail[$index]['total_penjualan'];
+        $this->total_penjualan_rupiah = $this->detail[$index]['total_penjualan_rupiah'];
+        $this->akun_biaya = $this->detail[$index]['akun_biaya'];
+        $this->biaya_lain = $this->detail[$index]['biaya_lain'];
+        $this->akun_ppn = $this->detail[$index]['akun_ppn'];
+        $this->ppn = $this->detail[$index]['ppn'];
+        $this->total_bayar = $this->detail[$index]['total_bayar'];
+        $this->total_bayar_rupiah = $this->detail[$index]['total_bayar_rupiah'];
+    }
+
+    public function updateLine()
+    {
+        $this->update = false;
+        $index = $this->index;
+        $this->detail[$index]['penjualan_kode'] = $this->penjualan_kode;
+        $this->detail[$index]['penjualan_type'] = $this->penjualan_type;
+        $this->detail[$index]['total_penjualan'] = $this->total_penjualan;
+        $this->detail[$index]['total_penjualan_rupiah'] = $this->total_penjualan_rupiah;
+        $this->detail[$index]['akun_biaya'] = $this->akun_biaya;
+        $this->detail[$index]['biaya_lain'] = $this->biaya_lain;
+        $this->detail[$index]['akun_ppn'] = $this->akun_ppn;
+        $this->detail[$index]['ppn'] = $this->ppn;
+        $this->detail[$index]['total_bayar'] = $this->total_bayar;
+        $this->detail[$index]['total_bayar_rupiah'] = $this->total_bayar_rupiah;
+        $this->resetForm();
+    }
+
+    public function removeLine($index)
+    {
+        // remove line transaksi
+        unset($this->detail[$index]);
+        $this->detail = array_values($this->detail);
     }
 
     public function store()
