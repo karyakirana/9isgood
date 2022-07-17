@@ -141,7 +141,8 @@ class PenerimaanPenjualanForm extends Component
      */
     public function render(): Factory|View|Application
     {
-        return view('livewire.keuangan.kasir.penerimaan-penjualan-form');
+        return view('livewire.keuangan.kasir.penerimaan-penjualan-form')
+            ->layout('layouts.metronics', ['minimize'=>'on']);
     }
 
     /**

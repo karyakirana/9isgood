@@ -1,5 +1,5 @@
 @props(['title'=>null])
-<div class="card">
+<div {{$attributes->class('card')->merge()}}>
     @if($title)
         <div class="card-header">
             <div class="card-title">{{$title}}</div>

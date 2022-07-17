@@ -1,17 +1,57 @@
 <div>
     <div class="row mb-5">
         <div class="col-6">
-            <x-molecules.card></x-molecules.card>
+            <x-molecules.card class="card-flush">
+                <div class="row">
+                    <div class="col-9">
+                        <div class="row mb-5">
+                            <div class="col-4">
+                                <span class="fw-bolder fs-4">Customer</span>
+                            </div>
+                            <div class="col-8">
+                                <span class="fw-bolder fs-4">Haramain</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">
+                                <span class="fw-bolder fs-4">Telepon</span>
+                            </div>
+                            <div class="col-8">
+                                <span class="fw-bolder fs-4">031-3543085</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <x-atoms.button.btn-link-primary class="btn-flex">Customer</x-atoms.button.btn-link-primary>
+                    </div>
+                </div>
+
+            </x-molecules.card>
         </div>
         <div class="col-6">
-            <x-molecules.card></x-molecules.card>
+            <x-molecules.card class="card-flush">
+                <div class="row mb-5">
+                    <div class="col-4">
+                        <span class="fw-bolder fs-4">Total Piutang</span>
+                    </div>
+                    <div class="col-8">
+                        <span class="fw-bolder fs-4">Rp. 50.000</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4">
+                        <span class="fw-bolder fs-4">Sisa Piutang</span>
+                    </div>
+                    <div class="col-8">
+                        <span class="fw-bolder fs-4">Rp. 30.000</span>
+                    </div>
+                </div>
+            </x-molecules.card>
         </div>
     </div>
     <x-molecules.card title="Form Penerimaan Penjualan">
         <x-slot name="toolbar">
-            @if($saldo_piutang)
-                Saldo Piutang {{rupiah_format($saldo_piutang)}}
-            @endif
+            <input type="text" class="form-control form-control-solid w-250px ps-14" placeholder="Customer">
         </x-slot>
         <div class="row">
             <div class="col-8">
@@ -39,20 +79,6 @@
                         <div class="col-6">
                             <x-atoms.input.group label="Nominal Kas" required="required">
                                 <x-atoms.input.text id="tgl_jurnal"/>
-                            </x-atoms.input.group>
-                        </div>
-                    </div>
-                    <div class="row mb-5">
-                        <div class="col-6">
-                            <x-atoms.input.group label="Akun Piutang" required="required">
-                                <x-atoms.input.select>
-                                    <x-molecules.select.akun-piutang-list />
-                                </x-atoms.input.select>
-                            </x-atoms.input.group>
-                        </div>
-                        <div class="col-6">
-                            <x-atoms.input.group label="Nominal Piutang" required="required">
-                                <x-atoms.input.text />
                             </x-atoms.input.group>
                         </div>
                     </div>
