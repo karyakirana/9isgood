@@ -22,7 +22,7 @@
                         </div>
                     </div>
                     <div class="col-3">
-                        <x-atoms.button.btn-link-primary class="btn-flex">Customer</x-atoms.button.btn-link-primary>
+                        <x-atoms.button.btn-link-primary class="btn-flex" data-bs-toggle="modal" data-bs-target="#customer_modal">Customer</x-atoms.button.btn-link-primary>
                     </div>
                 </div>
 
@@ -51,23 +51,13 @@
     </div>
     <x-molecules.card title="Form Penerimaan Penjualan">
         <x-slot name="toolbar">
-            <input type="text" class="form-control form-control-solid w-250px ps-14" placeholder="Customer">
+            <x-atoms.input.group-horizontal label="Tanggal" required="required">
+                <x-atoms.input.singledaterange />
+            </x-atoms.input.group-horizontal>
         </x-slot>
         <div class="row">
             <div class="col-8">
                 <form>
-                    <div class="row mb-5">
-                        <div class="col-6">
-                            <x-atoms.input.group label="Tanggal" required="required">
-                                <x-atoms.input.singledaterange />
-                            </x-atoms.input.group>
-                        </div>
-                        <div class="col-6">
-                            <x-atoms.input.group label="Customer" required="required">
-                                <x-atoms.input.text name="customer_id" wire:model.defer="customer_nama" data-bs-toggle="modal" data-bs-target="#customer_modal" readonly/>
-                            </x-atoms.input.group>
-                        </div>
-                    </div>
                     <div class="row mb-5">
                         <div class="col-6">
                             <x-atoms.input.group label="Akun Kas" required="required">
