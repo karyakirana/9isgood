@@ -18,6 +18,6 @@ class MetronicsLayout extends Component
      */
     public function render()
     {
-        return view('layouts.metronics');
+        return view('layouts.metronics-811');
     }
 }

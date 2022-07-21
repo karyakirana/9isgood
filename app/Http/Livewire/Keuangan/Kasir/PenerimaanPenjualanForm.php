@@ -20,6 +20,19 @@ class PenerimaanPenjualanForm extends Component
     use SetCustomerTraits;
 
     /**
+     * Goals :
+     * Melakukan pembayaran tunai atau yg lain untuk membayar piutang
+     * membayar piutang berdasarkan nota penjualan
+     * ketika jumlah nota kurang dari total nota yang terbayarkan,
+     * maka akan menandai salah satu nota dengan status kurang bayar
+     *
+     * dibutuhkan :
+     * daftar piutang penjualan
+     * daftar retur piutang penjualan (digenerate terlebih dahulu retur mengurangi piutang)
+     * unit test
+     */
+
+    /**
      * listener for emit
      * @var string[]
      */
@@ -52,14 +65,14 @@ class PenerimaanPenjualanForm extends Component
      * akun_piutang untuk field akun piutang
      * @var
      */
-    public $akun_kas, $akun_piutang;
+    public $akun_kas;
 
     /**
      * $nominal_tunai untuk field nominal kas
      * $nominal_piutang untuk field nominal piutang
      * @var
      */
-    public $nominal_tunai, $nominal_piutang;
+    public $nominal_kas;
 
     /**
      * array untuk menampilkan tabel item-item penerimaan penjualan
@@ -132,9 +145,16 @@ class PenerimaanPenjualanForm extends Component
      * $total_nota seluruh jumlah nota yang dibayar
      * $total_tunai seluruh jumlah yang dibayarkan
      * $total_piutang seluruh jumlah piutang yang belum dibayar
+     * $sisa_piutang adalah selisih dari piutang dan nominal kas
      * @var int|null
      */
-    public ?int $total_nota, $total_tunai, $total_piutang;
+    public ?int $total_nota, $total_tunai, $total_piutang, $sisa_piutang;
+
+    /**
+     * variabel manipulasi dalam bentuk rupiah (string) dari integer
+     * @var
+     */
+    public $totalPiutangRupiah, $totalSisaPiutangRupiah;
 
     /**
      * @return Factory|View|Application
@@ -142,7 +162,7 @@ class PenerimaanPenjualanForm extends Component
     public function render(): Factory|View|Application
     {
         return view('livewire.keuangan.kasir.penerimaan-penjualan-form')
-            ->layout('layouts.metronics', ['minimize'=>'on']);
+            ->layout('layouts.metronics-811', ['minimize'=>'on']);
     }
 
     /**

@@ -18,7 +18,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('pages.dashboard.index');
+    return view('pages.dashboard.index-new');
 })->middleware(['auth'])->name('dashboard');
 
 //Route::get('/metronics', function (){

@@ -39,7 +39,7 @@ return [
     |
     */
 
-    'layout' => 'layouts.metronics',
+    'layout' =>\App\View\Components\MetronicsLayout::class,
 
     /*
     |--------------------------------------------------------------------------
