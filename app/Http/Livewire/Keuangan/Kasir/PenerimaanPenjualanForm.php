@@ -157,6 +157,12 @@ class PenerimaanPenjualanForm extends Component
     public $totalPiutangRupiah, $totalSisaPiutangRupiah;
 
     /**
+     * variabel for table footer
+     * @var
+     */
+    public $totalTagihan, $dibayar, $sisa;
+
+    /**
      * @return Factory|View|Application
      */
     public function render(): Factory|View|Application
@@ -194,6 +200,26 @@ class PenerimaanPenjualanForm extends Component
         // get_saldo_piutang_penjualan
         $this->saldo_piutang = SaldoPiutangPenjualan::query()
                 ->firstWhere('customer_id', $this->customer_id)->saldo ?? 0;
+        $this->totalPiutangRupiah = rupiah_format($this->saldo_piutang);
+    }
+
+    /**
+     * menghitung sisa piutang
+     */
+    public function setSisaPiutang():void
+    {
+        $this->sisa_piutang = (int) $this->saldo_piutang - (int) $this->nominal_kas;
+        $this->totalSisaPiutangRupiah = (is_int($this->sisa_piutang)) ? rupiah_format($this->sisa_piutang) : '0';
+    }
+
+    public function setSisaBayar(): void
+    {
+        $this->sisa = (int) $this->totalTagihan - (int) $this->dibayar;
+    }
+
+    public function setDibayar(): void
+    {
+        $this->dibayar = $this->nominal_kas;
     }
 
     /**

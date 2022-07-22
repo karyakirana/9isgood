@@ -2,48 +2,47 @@
     <div class="row mb-5">
         <div class="col-6">
             <x-molecules.card class="card-flush">
+                <div class="row mb-5">
+                    <div class="col-4">
+                        <span class="fw-bolder fs-4">Customer</span>
+                    </div>
+                    <div class="col-8">
+                        <span class="fw-bolder fs-4">{{$customer_nama ?? '-'}}</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4">
+                        <span class="fw-bolder fs-4">Telepon</span>
+                    </div>
+                    <div class="col-8">
+                        <span class="fw-bolder fs-4">{{$customer_telepon ?? '-'}}</span>
+                    </div>
+                </div>
+            </x-molecules.card>
+        </div>
+        <div class="col-6">
+            <x-molecules.card class="card-flush">
                 <div class="row">
                     <div class="col-9">
                         <div class="row mb-5">
                             <div class="col-4">
-                                <span class="fw-bolder fs-4">Customer</span>
+                                <span class="fw-bolder fs-4">Total Piutang</span>
                             </div>
                             <div class="col-8">
-                                <span class="fw-bolder fs-4">Haramain</span>
+                                <span class="fw-bolder fs-4">{{(isset($totalPiutangRupiah) ? 'Rp. '.$totalPiutangRupiah : '-')}}</span>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-4">
-                                <span class="fw-bolder fs-4">Telepon</span>
+                                <span class="fw-bolder fs-4">Sisa Piutang</span>
                             </div>
                             <div class="col-8">
-                                <span class="fw-bolder fs-4">031-3543085</span>
+                                <span class="fw-bolder fs-4">{{isset($totalSisaPiutangRupiah) ? 'Rp. '.$totalSisaPiutangRupiah : '-'}}</span>
                             </div>
                         </div>
                     </div>
                     <div class="col-3">
                         <x-atoms.button.btn-link-primary class="btn-flex" data-bs-toggle="modal" data-bs-target="#customer_modal">Customer</x-atoms.button.btn-link-primary>
-                    </div>
-                </div>
-
-            </x-molecules.card>
-        </div>
-        <div class="col-6">
-            <x-molecules.card class="card-flush">
-                <div class="row mb-5">
-                    <div class="col-4">
-                        <span class="fw-bolder fs-4">Total Piutang</span>
-                    </div>
-                    <div class="col-8">
-                        <span class="fw-bolder fs-4">Rp. 50.000</span>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-4">
-                        <span class="fw-bolder fs-4">Sisa Piutang</span>
-                    </div>
-                    <div class="col-8">
-                        <span class="fw-bolder fs-4">Rp. 30.000</span>
                     </div>
                 </div>
             </x-molecules.card>
@@ -102,12 +101,12 @@
                     </x-slot>
                     @forelse($detail as $index=>$item)
                         <tr class="align-middle">
-                            <x-atoms.table.td>{{$item['penjualan_kode']}}</x-atoms.table.td>
-                            <x-atoms.table.td align="end">{{$item['total_penjualan']}}</x-atoms.table.td>
-                            <x-atoms.table.td align="end">{{$item['biaya_lain']}}</x-atoms.table.td>
-                            <x-atoms.table.td align="end">{{$item['ppn']}}</x-atoms.table.td>
-                            <x-atoms.table.td align="end">{{$item['total_bayar']}}</x-atoms.table.td>
-                            <x-atoms.table.td>
+                            <x-atoms.table.td width="15%">{{$item['penjualan_kode']}}</x-atoms.table.td>
+                            <x-atoms.table.td align="end" width="20%">{{$item['total_penjualan']}}</x-atoms.table.td>
+                            <x-atoms.table.td align="end" width="20%">{{$item['biaya_lain']}}</x-atoms.table.td>
+                            <x-atoms.table.td align="end" width="20%">{{$item['ppn']}}</x-atoms.table.td>
+                            <x-atoms.table.td align="end" width="20%">{{$item['total_bayar']}}</x-atoms.table.td>
+                            <x-atoms.table.td width="15%">
                                 <button type="button" class="btn btn-flush btn-active-color-info" wire:click="editLine({{$index}})"><i class="la la-edit fs-2"></i></button>
                                 <button type="button" class="btn btn-flush btn-active-color-info" wire:click="destroyLine({{$index}})"><i class="la la-trash fs-2"></i></button>
                             </x-atoms.table.td>
@@ -117,6 +116,23 @@
                             <td colspan="7" class="text-center">Tidak Ada Data</td>
                         </tr>
                     @endforelse
+                    <x-slot name="footer">
+                        <tr>
+                            <x-atoms.table.td colspan="2"></x-atoms.table.td>
+                            <x-atoms.table.td colspan="2">Tagihan</x-atoms.table.td>
+                            <x-atoms.table.td></x-atoms.table.td>
+                        </tr>
+                        <tr>
+                            <x-atoms.table.td colspan="2"></x-atoms.table.td>
+                            <x-atoms.table.td colspan="2">Dibayar</x-atoms.table.td>
+                            <x-atoms.table.td></x-atoms.table.td>
+                        </tr>
+                        <tr>
+                            <x-atoms.table.td colspan="2"></x-atoms.table.td>
+                            <x-atoms.table.td colspan="2">Sisa</x-atoms.table.td>
+                            <x-atoms.table.td></x-atoms.table.td>
+                        </tr>
+                    </x-slot>
                 </x-atoms.table>
             </div>
             <div class="col-4">

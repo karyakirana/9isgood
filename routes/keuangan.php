@@ -34,7 +34,10 @@ Route::middleware('auth')->group(function (){
     Route::get('kasir/penerimaan/penjualan', PenerimaanPenjualanIndex::class)->name('kasir.penerimaan.penjualan');
     Route::get('kasir/penerimaan/penjualan/baru', PenerimaanPenjualanForm::class)->name('kasir.penerimaan.penjualan.baru');
     Route::get('kasir/penerimaan/piutangpenjualan', DaftarPiutangPenjualan::class)->name('kasir.piutang.penjualan');
-    Route::get('kasir/penerimaan/piutangpenjualan/{customer_id}', [PiutangPenjualanController::class, 'showDetailPenjualan'])->name('kasir.piutang.penjualan.detail');
+    Route::get('kasir/penerimaan/piutangpenjualan/{customer_id}', [PiutangPenjualanController::class, 'showDetailPenjualan'])
+        ->name('kasir.piutang.penjualan.detail');
+    Route::get('kasir/penerimaan/penjualan/print/{penerimaan_id}')
+        ->name('kasir.penerimaan.penjualan.print');
 
     // kasir - pengeluaran
     Route::get('kasir/pengeluaran/pembelian')->name('kasir.pengeluaran.pembelian');
@@ -62,6 +65,11 @@ Route::middleware('auth')->group(function (){
     Route::get('kasir/piutanginternal/pembayaran/{id}');
     Route::get('kasir/piutanginternal/penerimaan')->name('keuangan.kasir.piutanginternal.penerimaan');
     Route::get('kasir/piutanginternal/penerimaan/{id}');
+
+    // generate retur penjualan to piutang
+    Route::get('kasir/generate/returtopiutang');
+    // generate retur pembelian
+    Route::get('kasir/generate/returtohutang');
 
 
     // saldo piutang penjualan

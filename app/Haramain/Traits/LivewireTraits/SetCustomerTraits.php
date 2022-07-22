@@ -4,7 +4,7 @@ use App\Models\Master\Customer;
 
 trait SetCustomerTraits
 {
-    public $customer_id, $customer_nama, $customer_diskon;
+    public $customer_id, $customer_nama, $customer_diskon, $customer_telepon;
 
     public function setCustomer($customerId): void
     {
@@ -12,5 +12,6 @@ trait SetCustomerTraits
         $this->customer_id = $customer->id;
         $this->customer_nama = $customer->nama;
         $this->customer_diskon = $customer->diskon;
+        $this->customer_telepon = $customer->telepon;
     }
 }
