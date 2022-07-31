@@ -2,6 +2,7 @@
 
 namespace App\Models\Penjualan;
 
+use App\Haramain\Service\SistemKeuangan\Kasir\PiutangPenjualanTrait;
 use App\Haramain\Traits\ModelTraits\{CustomerTraits,
     GudangTraits,
     JurnalTransaksiTraits,
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 class PenjualanRetur extends Model
 {
     use HasFactory, KodeTraits, CustomerTraits, GudangTraits, UserTraits, StockMasukTraits, JurnalTransaksiTraits;
+    use PiutangPenjualanTrait;
     protected $table = 'penjualan_retur';
     protected $fillable = [
         'kode',

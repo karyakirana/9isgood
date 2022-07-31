@@ -2,6 +2,7 @@
 
 namespace App\Models\Penjualan;
 
+use App\Haramain\Service\SistemKeuangan\Kasir\PiutangPenjualanTrait;
 use App\Models\Keuangan\JurnalPenjualan;
 use App\Models\Keuangan\PersediaanTransaksi;
 use App\Models\Keuangan\PiutangPenjualanLama;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 class Penjualan extends Model
 {
     use HasFactory, KodeTraits, CustomerTraits, GudangTraits, UserTraits, StockKeluarTraits;
+    use PiutangPenjualanTrait;
     protected $table = 'haramainv2.penjualan';
     protected $fillable = [
         'kode',

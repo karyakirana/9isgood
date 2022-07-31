@@ -9,5 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 
 trait PiutangPenjualanTrait
 {
-    //
+    public function piutangPenjualan()
+    {
+        return $this->morphMany(PiutangPenjualan::class, 'piutangablePenjualan', 'penjualan_type', 'penjualan_id');
+    }
 }

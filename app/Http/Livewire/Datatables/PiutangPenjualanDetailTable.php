@@ -8,35 +8,28 @@ use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
-class PiutangPenjualanSetTable extends DataTableComponent
+class PiutangPenjualanDetailTable extends DataTableComponent
 {
-    /**
-     * use case :
-     *
-     */
     use DatatablesTraits;
 
     public function columns(): array
     {
         return [
-            Column::make('Jenis'),
-            Column::make('ID'),
             Column::make('Customer'),
-            Column::make('Tgl Nota'),
-            Column::make('Tempo'),
+            Column::make('Jenis'),
+            Column::make('Kode'),
             Column::make('Status'),
             Column::make('Kurang Bayar'),
-            Column::make(''),
         ];
     }
 
     public function query(): Builder
     {
-        return PiutangPenjualan::query()->with('piutangablePenjualan');
+        return PiutangPenjualan::query();
     }
 
     public function rowView(): string
     {
-        return 'livewire-tables.rows.piutang_penjualan_set_table';
+        return 'livewire-tables.rows.piutang_penjualan_detail_table';
     }
 }

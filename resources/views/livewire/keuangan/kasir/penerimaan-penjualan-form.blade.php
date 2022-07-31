@@ -182,7 +182,7 @@
                         </x-atoms.input.group-horizontal>
                     </div>
                     <div class="text-center pb-4 pt-5">
-                        <x-atoms.button.btn-modal color="info" target="#modalDaftarPenjualan">Penjualan</x-atoms.button.btn-modal>
+                        <x-atoms.button.btn-modal color="info" target="#modalPiutangPenjualan">Penjualan</x-atoms.button.btn-modal>
                         <x-atoms.button.btn-modal color="info" target="#modalDaftarPenjualanRetur">Retur</x-atoms.button.btn-modal>
 
                     </div>
@@ -203,6 +203,8 @@
     <x-organisms.modals.daftar-penjualan-retur />
 
     <x-organisms.modals.daftar-customer />
+
+    <x-organisms.modals.daftar-piutang-penjualan />
 
     <livewire:penjualan.penjualan-detail-view />
 

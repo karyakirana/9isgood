@@ -3,6 +3,7 @@
 namespace App\Models\Keuangan;
 
 use App\Haramain\Traits\ModelTraits\PenjualanTraits;
+use App\Models\Master\Customer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -42,5 +43,10 @@ class PiutangPenjualan extends Model
     public function piutangablePenjualan(): MorphTo
     {
         return $this->morphTo(__FUNCTION__, 'penjualan_type', 'penjualan_id');
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class, 'saldo_piutang_penjualan_id');
     }
 }

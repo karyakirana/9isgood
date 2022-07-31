@@ -5,7 +5,14 @@ use App\Http\Livewire\Keuangan\Jurnal\{JurnalTransaksiIndex, JurnalUmumForm, Jur
 use App\Http\Livewire\Keuangan\{JurnalSetPiutangReturForm, JurnalSetPiutangReturIndex };
 use App\Http\Livewire\Keuangan\Neraca\{NeracaSaldoAwalIndex, NeracaSaldoIndex};
 use App\Http\Livewire\Keuangan\Persediaan\{PersediaanIndex, PersediaanTransaksiIndex};
-use App\Http\Livewire\Keuangan\{PersediaanOpnameForm, PersediaanOpnameIndex, PersediaanTempIndex, PiutangPenjualanLamaForm, PiutangPenjualanLamaIndex, SaldoPiutangIndex};
+use App\Http\Livewire\Keuangan\{GenerateReturToHutang,
+    GenerateReturToPiutang,
+    PersediaanOpnameForm,
+    PersediaanOpnameIndex,
+    PersediaanTempIndex,
+    PiutangPenjualanLamaForm,
+    PiutangPenjualanLamaIndex,
+    SaldoPiutangIndex};
 use App\Http\Livewire\KonfigurasiJurnalIndex;
 use App\Http\Livewire\Keuangan\Kasir\{DaftarPiutangPenjualan,
     NeracaSaldoAwal,
@@ -67,13 +74,17 @@ Route::middleware('auth')->group(function (){
     Route::get('kasir/piutanginternal/penerimaan/{id}');
 
     // generate retur penjualan to piutang
-    Route::get('kasir/generate/returtopiutang');
+    Route::get('kasir/generate/returtopiutang', GenerateReturToPiutang::class)->name('generate.returtopiutang');
     // generate retur pembelian
-    Route::get('kasir/generate/returtohutang');
+    Route::get('kasir/generate/returtohutang', GenerateReturToHutang::class);
 
 
     // saldo piutang penjualan
     Route::get('keuangan/penjualan/saldopiutang', SaldoPiutangIndex::class)->name('penjualan.saldopiutang');
+
+    // piutang awal
+    // piutang dari penjualan lama
+    // piutang dari retur penjualan lama
 
     // penerimaan
     Route::get('keuangan/jurnal/penerimaan')->name('keuangan.jurnal.penerimaan');
