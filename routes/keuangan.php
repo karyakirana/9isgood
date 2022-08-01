@@ -32,7 +32,7 @@ Route::middleware('auth')->group(function (){
     Route::get('keuangan/master/rekanan', RekananIndex::class)->name('keuangan.master.rekanan');
 
     // config keuangan
-    Route::get('keuangan/config/akun', KonfigurasiJurnalIndex::class)->name('keuangan.config');
+    Route::get('config/akun', KonfigurasiJurnalIndex::class)->name('config');
 
     // set piutang
     Route::get('kasir/penjualan/setpiutang')->name('keuangan.kasir.penjualan.setpiutang');
