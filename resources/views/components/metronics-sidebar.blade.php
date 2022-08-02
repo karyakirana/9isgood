@@ -887,7 +887,7 @@
                             <!--begin:Menu sub-->
                             <div class="menu-sub menu-sub-accordion menu-active-bg">
                                 <!--begin:Menu item-->
-                                <div data-kt-menu-trigger="click" class="menu-item {{request()->is('keuangan/neraca/awal') ? 'here show' : ''}} menu-accordion">
+                                <div data-kt-menu-trigger="click" class="menu-item {{request()->is('keuangan/neraca/awal*') ? 'here show' : ''}} menu-accordion">
                                     <!--begin:Menu link-->
                                     <span class="menu-link">
 													<span class="menu-bullet">
@@ -902,7 +902,7 @@
                                         <!--begin:Menu item-->
                                         <div class="menu-item">
                                             <!--begin:Menu link-->
-                                            <a class="menu-link {{request()->is('keuangan/master/akuntipe') ? 'active' : ''}}" href="{{route('keuangan.master.akuntipe')}}">
+                                            <a class="menu-link {{request()->is('keuangan/neraca/awal/piutang*') ? 'active' : ''}}" href="{{route('keuangan.neraca.awal.piutang')}}">
                                             <span class="menu-bullet">
                                                 <span class="bullet bullet-dot"></span>
                                             </span>
@@ -923,6 +923,18 @@
                                             <!--end:Menu link-->
                                         </div>
                                         <!--end:Menu item-->
+                                        <!--begin:Menu item-->
+                                        <div class="menu-item">
+                                            <!--begin:Menu link-->
+                                            <a class="menu-link {{request()->is('keuangan/master/akuntipe') ? 'active' : ''}}" href="{{route('keuangan.master.akuntipe')}}">
+                                            <span class="menu-bullet">
+                                                <span class="bullet bullet-dot"></span>
+                                            </span>
+                                                <span class="menu-title">Persediaan</span>
+                                            </a>
+                                            <!--end:Menu link-->
+                                        </div>
+                                        <!--end:Menu item-->
                                     </div>
                                     <!--begin:Menu sub-->
                                 </div>
@@ -937,10 +949,38 @@
 													<span class="menu-bullet">
 														<span class="bullet bullet-dot"></span>
 													</span>
-                                <span class="menu-title">Neraca</span>
+                                <span class="menu-title">Laba Rugi</span>
                                 <span class="menu-arrow"></span>
                             </span>
                             <!--end:Menu link-->
+                            <!--begin:Menu sub-->
+                            <div class="menu-sub menu-sub-accordion menu-active-bg">
+                                <!--begin:Menu item-->
+                                <div class="menu-item">
+                                    <!--begin:Menu link-->
+                                    <a class="menu-link {{request()->is('keuangan/master/akuntipe') ? 'active' : ''}}" href="{{route('keuangan.master.akuntipe')}}">
+                                            <span class="menu-bullet">
+                                                <span class="bullet bullet-dot"></span>
+                                            </span>
+                                        <span class="menu-title">Periodik</span>
+                                    </a>
+                                    <!--end:Menu link-->
+                                </div>
+                                <!--end:Menu item-->
+                                <!--begin:Menu item-->
+                                <div class="menu-item">
+                                    <!--begin:Menu link-->
+                                    <a class="menu-link {{request()->is('keuangan/master/akuntipe') ? 'active' : ''}}" href="{{route('keuangan.master.akuntipe')}}">
+                                            <span class="menu-bullet">
+                                                <span class="bullet bullet-dot"></span>
+                                            </span>
+                                        <span class="menu-title">Berdasarkan Tanggal</span>
+                                    </a>
+                                    <!--end:Menu link-->
+                                </div>
+                                <!--end:Menu item-->
+                            </div>
+                            <!--end:Menu sub-->
                         </div>
                         <!--end:Menu item-->
                     </div>

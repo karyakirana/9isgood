@@ -2,7 +2,7 @@
     {{$row->kode}}
 </x-atoms.table.td>
 <x-atoms.table.td>
-    {{$row->customer->nama}}
+    {{$row->customer->nama ?? null}}
 </x-atoms.table.td>
 <x-atoms.table.td>
     {{tanggalan_format($row->tgl_nota)}}

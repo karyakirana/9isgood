@@ -59,6 +59,7 @@ class PenjualanSetPiutangTable extends DataTableComponent
     public function query(): Builder
     {
         return Penjualan::query()
+            ->with('customer')
             ->where('active_cash', $this->oldClosedCash)
             ->where('customer_id', $this->customer_id);
     }
