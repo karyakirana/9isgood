@@ -96,6 +96,30 @@ Route::middleware('auth')->group(function (){
     Route::get('keuangan/jurnal/pengeluaran/trans')->name('keuangan.jurnal.pengeluaran.trans');
     Route::get('keuangan/jurnal/pengeluaran/trans/{id}');
 
+    /**
+     * Keuangan
+     */
+
+    // neraca awal
+    Route::get('keuangan/neraca/awal')->name('keuangan.neraca.awal');
+    Route::get('keuangan/neraca/awal/piutang')->name('keuangan.neraca.awal.piutang');
+    Route::get('keuangan/neraca/awal/piutang-penjualan')->name('keuangan.neraca.awal.piutang-penjualan');
+    Route::get('keuangan/neraca/awal/piutang-retur')->name('keuangan.neraca.awal.piutang-retur');
+    Route::get('keuangan/neraca/awal/hutang')->name('keuangan.neraca.awal.hutang');
+    Route::get('keuangan/neraca/awal/hutang-pembelian')->name('keuangan.neraca.awal.hutang-pembelian');
+    Route::get('keuangan/neraca/awal/hutang-retur')->name('keuangan.neraca.awal.hutang-retur');
+    Route::get('keuangan/neraca/persediaan')->name('neraca.persediaan');
+    Route::get('keuangan/neraca/persediaan/buku-internal')->name('neraca.persediaan.buku-internal');
+    Route::get('keuangan/neraca/persediaan/buku-luar')->name('neraca.persediaan.buku-luar');
+
+    // neraca saldo
+    Route::get('keuangan/neraca/saldo')->name('keuangan.neraca.saldo');
+
+    // laba rugi
+    Route::get('keuangan/labarugi')->name('keuangan.labarugi');
+    Route::get('keuangan/labarugi/{periode}')->name('keuangan.labarugi.periode');
+    Route::get('keuangan/labarugi/{tglAwal}/{tglAkhir}')->name('keuangan.labarugi.bydate');
+
     // jurnal umum
     Route::get('keuangan/jurnal/umum', JurnalUmumIndex::class)->name('jurnal.umum');
     Route::get('keuangan/jurnal/umum/trans', JurnalUmumForm::class)->name('jurnal.umum.trans');
