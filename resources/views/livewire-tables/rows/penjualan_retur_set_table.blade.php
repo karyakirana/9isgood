@@ -13,7 +13,7 @@
     @endif
 </x-atoms.table.td>
 <x-atoms.table.td>
-    {{$row->jenis_bayar}}
+    {{$row->jenis_retur}}
 </x-atoms.table.td>
 <x-atoms.table.td>
     {{$row->status_bayar}}

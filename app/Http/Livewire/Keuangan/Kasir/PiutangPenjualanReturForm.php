@@ -15,7 +15,8 @@ class PiutangPenjualanReturForm extends Component
     }
 
     protected $listeners = [
-        'set_customer'
+        'set_customer',
+        'setPenjualanRetur'
     ];
 
     public array $data_detail = [];
@@ -53,15 +54,16 @@ class PiutangPenjualanReturForm extends Component
         $this->customer_nama = $customer->nama;
     }
 
-    public function setRetur($id)
+    public function setPenjualanRetur($id)
     {
         $penjualanRetur = PenjualanRetur::query()->find($id);
         $this->data_detail[] = [
             'retur_id'=>$penjualanRetur->id,
-            'retur_kode'=>$penjualanRetur->kode,
-            'retur_ppn'=>$penjualanRetur->ppn,
-            'retur_biaya_lain'=>$penjualanRetur->biaya_lain,
-            'retur_total_bayar'=>$penjualanRetur->total_bayar
+            'kode'=>$penjualanRetur->kode,
+            'jenis'=>$penjualanRetur->jenis_retur,
+            'ppn'=>$penjualanRetur->ppn,
+            'biaya_lain'=>$penjualanRetur->biaya_lain,
+            'total_bayar'=>$penjualanRetur->total_bayar
         ];
     }
 

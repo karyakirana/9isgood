@@ -1,5 +1,8 @@
+@props([
+    'lastsession'=>false
+])
 <x-molecules.modal size="xl" title="Daftar Penjualan" id="modalDaftarPenjualanRetur" wire:ignore.self>
-    <livewire:datatables.penjualan-retur-set-table />
+    <livewire:datatables.penjualan-retur-set-table :last-session="$lastsession" />
     <x-slot name="footer"></x-slot>
 </x-molecules.modal>
 @push('custom-scripts')

@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Datatables;
 
 use App\Haramain\Traits\LivewireTraits\DatatablesTraits;
+use App\Models\ClosedCash;
 use App\Models\Penjualan\PenjualanRetur;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
@@ -17,6 +18,17 @@ class PenjualanReturSetTable extends DataTableComponent
     ];
 
     public $customer_id;
+
+    public $lastSession;
+    public $oldClosedCash;
+
+    public function mount($lastSession = false)
+    {
+        $this->lastSession = $lastSession;
+        $this->oldClosedCash = ClosedCash::query()
+            ->where('closed', session('ClosedCash'))
+            ->first()->active;
+    }
 
     public function set_customer($customer_id = null)
     {
@@ -51,7 +63,11 @@ class PenjualanReturSetTable extends DataTableComponent
         $query = PenjualanRetur::query()->with(['customer', 'gudang', 'users']);
 
         if ($this->customer_id){
-            return $query->where('customer_id', $this->customer_id)->latest();
+            $query->where('customer_id', $this->customer_id);
+        }
+
+        if ($this->lastSession){
+            $query->where('active_cash', $this->oldClosedCash);
         }
 
         return $query->latest();
