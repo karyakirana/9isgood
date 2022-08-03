@@ -1,4 +1,9 @@
 <div>
+    @if(session()->has('storeMessage'))
+        <x-molecules.alert-danger>
+            {{ session('storeMessage') }}
+        </x-molecules.alert-danger>
+    @endif
     <x-molecules.card title="Form Set Piutang Retur">
         <div class="row">
             <div class="col 6">
@@ -11,7 +16,7 @@
             </div>
             <div class="col 6">
                 <x-atoms.input.group-horizontal class="mb-4" label="Tanggal">
-                    <x-atoms.input.singledaterange name="tgl_jurnal" />
+                    <x-atoms.input.singledaterange id="tgl_jurnal" name="tgl_jurnal" />
                 </x-atoms.input.group-horizontal>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDaftarPenjualanRetur">Add Retur</button>
                 <button type="button" class="btn btn-danger btn-active-color-gray-200" wire:click="store">Simpan</button>
@@ -49,4 +54,16 @@
 
     <x-organisms.modals.daftar-customer />
     <x-organisms.modals.daftar-penjualan-retur :lastsession="true"/>
+
+        @push('custom-scripts')
+            <script>
+
+                $('#tglJurnal').on('change', function (e) {
+                    let date = $(this).data("#tgl_nota");
+                    // eval(date).set('tglLahir', $('#tglLahir').val())
+                    console.log(e.target.value);
+                    @this.tgl_jurnal = e.target.value;
+                })
+            </script>
+        @endpush
 </div>

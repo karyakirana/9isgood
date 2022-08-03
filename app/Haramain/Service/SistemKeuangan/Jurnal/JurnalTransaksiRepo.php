@@ -27,7 +27,7 @@ class JurnalTransaksiRepo
             ->first();
     }
 
-    public function createDebet($akunKredit, $jurnalType, $jurnalId, $nominal, $keterangan = null): Model|Builder
+    public function createDebet($akunDebet, $jurnalType, $jurnalId, $nominal, $keterangan = null): Model|Builder
     {
         return JurnalTransaksi::query()
             ->create([
