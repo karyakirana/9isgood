@@ -22,7 +22,6 @@ use App\Http\Livewire\Keuangan\Kasir\{DaftarPiutangPenjualan,
     PenerimaanPenjualanIndex,
     PiutangPenjualanForm,
     PiutangPenjualanIndex,
-    PiutangPenjualanReturForm,
     PiutangPenjualanReturIndex};
 use App\Http\Livewire\Keuangan\Master\{AkunIndex, AkunKategoriIndex, AkunTipeIndex, RekananIndex};
 use Illuminate\Support\Facades\Route;
