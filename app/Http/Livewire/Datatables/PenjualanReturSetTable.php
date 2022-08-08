@@ -14,15 +14,18 @@ class PenjualanReturSetTable extends DataTableComponent
     use DatatablesTraits;
 
     protected $listeners =[
-        'set_customer'
+        'set_customer',
+        'unset_customer',
+        'refreshDatatable' => '$refresh'
     ];
 
     public $customer_id;
 
     public $lastSession;
     public $oldClosedCash;
+    public $setPiutang;
 
-    public function mount($lastSession = false)
+    public function mount($lastSession = false, $setPiutang = false)
     {
         $this->lastSession = $lastSession;
         $this->oldClosedCash = ClosedCash::query()
@@ -33,6 +36,12 @@ class PenjualanReturSetTable extends DataTableComponent
     public function set_customer($customer_id = null)
     {
         $this->customer_id = $customer_id;
+    }
+
+    public function unset_customer()
+    {
+        $this->customer_id = null;
+        $this->emit('$refresh');
     }
 
     public function columns(): array
@@ -68,6 +77,10 @@ class PenjualanReturSetTable extends DataTableComponent
 
         if ($this->lastSession){
             $query->where('active_cash', $this->oldClosedCash);
+        }
+
+        if($this->setPiutang){
+            $query->whereNotIn('status_bayar', ['set_piutang']);
         }
 
         return $query->latest();

@@ -16,7 +16,7 @@ class PenjualanRetur extends Model
 {
     use HasFactory, KodeTraits, CustomerTraits, GudangTraits, UserTraits, StockMasukTraits, JurnalTransaksiTraits;
     use PiutangPenjualanTrait;
-    protected $table = 'penjualan_retur';
+    protected $table = 'haramainv2.penjualan_retur';
     protected $fillable = [
         'kode',
         'active_cash',

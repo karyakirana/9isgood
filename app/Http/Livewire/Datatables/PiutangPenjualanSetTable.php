@@ -32,7 +32,7 @@ class PiutangPenjualanSetTable extends DataTableComponent
 
     public function query(): Builder
     {
-        return PiutangPenjualan::query()->with('piutangablePenjualan');
+        return PiutangPenjualan::query();
     }
 
     public function rowView(): string

@@ -14,6 +14,7 @@ class JurnalSetReturPenjualanAwal extends Model
     protected $table='haramain_keuangan.jurnal_set_retur_penjualan_awal';
     protected $fillable = [
         'active_cash',
+        'jenis',
         'kode',
         'tgl_jurnal',
         'customer_id',

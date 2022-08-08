@@ -5,14 +5,14 @@ use Illuminate\Database\Eloquent\Collection;
 
 class SaldoPiutangPenjualanRepo
 {
-    public function store($customer_id, $type, $nominal): Collection|bool|int|array|null
+    public function store($customer_id, $type, $nominal)
     {
         $nominal = ($type == 'penjualan') ? $nominal : 0 - $nominal;
         $saldoPiutangPenjualan = SaldoPiutangPenjualan::query()->find($customer_id);
         if ($saldoPiutangPenjualan){
-            return $saldoPiutangPenjualan->increment($nominal);
+            return $saldoPiutangPenjualan->increment('saldo', $nominal);
         }
-        return $saldoPiutangPenjualan->create([
+        return SaldoPiutangPenjualan::query()->create([
             'customer_id'=>$customer_id,
             'saldo'=>$nominal
         ]);
@@ -22,6 +22,6 @@ class SaldoPiutangPenjualanRepo
     {
         $nominal = ($type == 'penjualan') ? $nominal : 0 - $nominal;
         $saldoPiutangPenjualan = SaldoPiutangPenjualan::query()->find($customer_id);
-        return $saldoPiutangPenjualan->decrement($nominal);
+        return $saldoPiutangPenjualan->decrement('saldo', $nominal);
     }
 }

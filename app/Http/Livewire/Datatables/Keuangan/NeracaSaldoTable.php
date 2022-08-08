@@ -6,7 +6,6 @@ namespace App\Http\Livewire\Datatables\Keuangan;
 use App\Haramain\Traits\ModelTraits\AkunTrait;
 use App\Haramain\Traits\LivewireTraits\DatatablesTraits;
 use App\Models\Keuangan\NeracaSaldo;
-use App\Models\Keuangan\Akun;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
@@ -14,7 +13,7 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class NeracaSaldoTable extends DataTableComponent
 {
-    
+
     use DatatablesTraits, AkunTrait;
 
     public function columns(): array

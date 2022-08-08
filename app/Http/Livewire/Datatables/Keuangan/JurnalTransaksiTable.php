@@ -15,6 +15,7 @@ class JurnalTransaksiTable extends DataTableComponent
     {
         return [
             Column::make('Type'),
+            Column::make('ID'),
             Column::make('Akun'),
             Column::make('Debet'),
             Column::make('Kredit'),
@@ -23,7 +24,9 @@ class JurnalTransaksiTable extends DataTableComponent
 
     public function query(): Builder
     {
-        return JurnalTransaksi::query();
+        return JurnalTransaksi::query()
+            ->where('active_cash', session('ClosedCash'))
+            ->latest();
     }
 
     public function rowView(): string

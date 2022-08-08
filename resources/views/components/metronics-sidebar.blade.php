@@ -874,6 +874,34 @@
                         </div>
                         <!--end:Menu item-->
                         <!--begin:Menu item-->
+                        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('keuangan/jurnal/*') ? 'here show' : ''}} menu-accordion">
+                            <!--begin:Menu link-->
+                            <span class="menu-link">
+													<span class="menu-bullet">
+														<span class="bullet bullet-dot"></span>
+													</span>
+                                <span class="menu-title">Jurnal</span>
+                                <span class="menu-arrow"></span>
+                            </span>
+                            <!--end:Menu link-->
+                            <!--begin:Menu sub-->
+                            <div class="menu-sub menu-sub-accordion menu-active-bg">
+                                <!--begin:Menu item-->
+                                <div class="menu-item">
+                                    <!--begin:Menu link-->
+                                    <a class="menu-link {{request()->is('keuangan/jurnal/transaksi') ? 'active' : ''}}" href="{{route('jurnal.transaksi')}}">
+                                            <span class="menu-bullet">
+                                                <span class="bullet bullet-dot"></span>
+                                            </span>
+                                        <span class="menu-title">Jurnal Transaksi</span>
+                                    </a>
+                                    <!--end:Menu link-->
+                                </div>
+                                <!--end:Menu item-->
+                            </div>
+                            <!--end:Menu sub-->
+                        </div>
+                        <!--begin:Menu item-->
                         <div data-kt-menu-trigger="click" class="menu-item {{request()->is('keuangan/neraca/*') ? 'here show' : ''}} menu-accordion">
                             <!--begin:Menu link-->
                             <span class="menu-link">
@@ -899,6 +927,18 @@
                                     <!--end:Menu link-->
                                     <!--begin:Menu sub-->
                                     <div class="menu-sub menu-sub-accordion menu-active-bg">
+                                        <!--begin:Menu item-->
+                                        <div class="menu-item">
+                                            <!--begin:Menu link-->
+                                            <a class="menu-link {{request()->is('keuangan/neraca/awal') ? 'active' : ''}}" href="{{route('keuangan.neraca.awal')}}">
+                                            <span class="menu-bullet">
+                                                <span class="bullet bullet-dot"></span>
+                                            </span>
+                                                <span class="menu-title">Index</span>
+                                            </a>
+                                            <!--end:Menu link-->
+                                        </div>
+                                        <!--end:Menu item-->
                                         <!--begin:Menu item-->
                                         <div class="menu-item">
                                             <!--begin:Menu link-->
@@ -937,6 +977,35 @@
                                         <!--end:Menu item-->
                                     </div>
                                     <!--begin:Menu sub-->
+                                </div>
+                                <!--end:Menu item-->
+                                <!--begin:Menu item-->
+                                <div data-kt-menu-trigger="click" class="menu-item {{request()->is('keuangan/neraca/saldo*') ? 'here show' : ''}} menu-accordion">
+                                    <!--begin:Menu link-->
+                                    <span class="menu-link">
+													<span class="menu-bullet">
+														<span class="bullet bullet-dot"></span>
+													</span>
+                                        <span class="menu-title">Neraca Saldo</span>
+                                        <span class="menu-arrow"></span>
+                                    </span>
+                                    <!--end:Menu link-->
+                                    <!--begin:Menu sub-->
+                                    <div class="menu-sub menu-sub-accordion menu-active-bg">
+                                        <!--begin:Menu item-->
+                                        <div class="menu-item">
+                                            <!--begin:Menu link-->
+                                            <a class="menu-link {{request()->is('keuangan/neraca/saldo/index') ? 'active' : ''}}" href="{{route('keuangan.neraca.saldo')}}">
+                                            <span class="menu-bullet">
+                                                <span class="bullet bullet-dot"></span>
+                                            </span>
+                                                <span class="menu-title">Index</span>
+                                            </a>
+                                            <!--end:Menu link-->
+                                        </div>
+                                        <!--end:Menu item-->
+                                    </div>
+                                    <!--end:Menu sub-->
                                 </div>
                                 <!--end:Menu item-->
                             </div>

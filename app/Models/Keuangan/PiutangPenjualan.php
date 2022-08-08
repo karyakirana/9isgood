@@ -14,7 +14,7 @@ class PiutangPenjualan extends Model
 {
     use HasFactory, PenjualanTraits;
     protected $connection = 'mysql2';
-    protected $table = 'piutang_penjualan';
+    protected $table = 'haramain_keuangan.piutang_penjualan';
 
     protected $fillable = [
         'saldo_piutang_penjualan_id',

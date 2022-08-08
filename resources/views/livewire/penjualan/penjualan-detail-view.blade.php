@@ -111,7 +111,7 @@
     @push('custom-scripts')
         <script>
             let modal_penjualan_detail = document.getElementById('penjualan-detail');
-            let modalPenjualanDetail = new bootstrap.Modal(modal_penjualan_detail);
+            var modalPenjualanDetail = new bootstrap.Modal(modal_penjualan_detail);
 
             Livewire.on('hidePenjualanDetail', function (){
                 modalPenjualanDetail.hide()

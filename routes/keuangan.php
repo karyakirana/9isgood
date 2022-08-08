@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Kasir\PiutangPenjualanController;
+use App\Http\Controllers\Keuangan\JurnalPiutangPenjualanAwalController;
 use App\Http\Controllers\Keuangan\Neraca\PiutangPenjualanAwalController;
 use App\Http\Livewire\Keuangan\Jurnal\{JurnalTransaksiIndex, JurnalUmumForm, JurnalUmumIndex};
 use App\Http\Livewire\Keuangan\{JurnalSetPiutangReturForm, JurnalSetPiutangReturIndex };
@@ -21,7 +22,8 @@ use App\Http\Livewire\Keuangan\Kasir\{DaftarPiutangPenjualan,
     PenerimaanPenjualanIndex,
     PiutangPenjualanForm,
     PiutangPenjualanIndex,
-    PiutangPenjualanReturForm};
+    PiutangPenjualanReturForm,
+    PiutangPenjualanReturIndex};
 use App\Http\Livewire\Keuangan\Master\{AkunIndex, AkunKategoriIndex, AkunTipeIndex, RekananIndex};
 use Illuminate\Support\Facades\Route;
 
@@ -103,20 +105,21 @@ Route::middleware('auth')->group(function (){
      */
 
     // neraca awal
-    Route::get('keuangan/neraca/awal')->name('keuangan.neraca.awal');
+    Route::get('keuangan/neraca/awal', NeracaSaldoAwalIndex::class)->name('keuangan.neraca.awal');
     // halaman index piutang awal
     Route::get('keuangan/neraca/awal/piutang', [PiutangPenjualanAwalController::class, 'index'])
         ->name('keuangan.neraca.awal.piutang');
     // piutang penjualan awal
     Route::get('keuangan/neraca/awal/piutang-penjualan', PiutangPenjualanIndex::class)
         ->name('keuangan.neraca.awal.piutang-penjualan');
-    Route::get('keuangan/neraca/awal/piutang-penjualan/baru', PiutangPenjualanForm::class)
+    Route::get('keuangan/neraca/awal/piutang-penjualan/baru', [JurnalPiutangPenjualanAwalController::class, 'createForPenjualan'])
         ->name('keuangan.neraca.awal.piutang-penjualan.baru');
-    Route::get('keuangan/neraca/awal/piutang-penjualan/edit/{jurnalSetPiutangId}', PiutangPenjualanForm::class)
+    Route::get('keuangan/neraca/awal/piutang-penjualan/edit/{id}', [JurnalPiutangPenjualanAwalController::class, 'edit'])
         ->name('keuangan.neraca.awal.piutang-penjualan.edit');
     // piutang penjualan retur awal
-    Route::get('keuangan/neraca/awal/piutang-retur/baru', PiutangPenjualanReturForm::class)->name('keuangan.neraca.awal.piutang-retur.baru');
-    Route::get('keuangan/neraca/awal/piutang-retur/edit/{piutangReturId}', PiutangPenjualanReturForm::class)->name('keuangan.neraca.awal.piutang-retur');
+    Route::get('keuangan/neraca/awal/piutang-retur', PiutangPenjualanReturIndex::class)->name('keuangan.neraca.awal.piutang-retur');
+    Route::get('keuangan/neraca/awal/piutang-retur/baru', [JurnalPiutangPenjualanAwalController::class, 'createForRetur'])->name('keuangan.neraca.awal.piutang-retur.baru');
+    Route::get('keuangan/neraca/awal/piutang-retur/edit/{id}', [JurnalPiutangPenjualanAwalController::class, 'edit'])->name('keuangan.neraca.awal.piutang-retur.edit');
     // halaman index hutang awal
     Route::get('keuangan/neraca/awal/hutang')->name('keuangan.neraca.awal.hutang');
     // hutang pembelian awal
@@ -129,7 +132,10 @@ Route::middleware('auth')->group(function (){
     Route::get('keuangan/neraca/awal/persediaan/buku-luar')->name('neraca.persediaan.buku-luar');
 
     // neraca saldo
-    Route::get('keuangan/neraca/saldo')->name('keuangan.neraca.saldo');
+    Route::get('keuangan/neraca/saldo/index', NeracaSaldoIndex::class)->name('keuangan.neraca.saldo');
+
+    // jurnal transaksi
+    Route::get('keuangan/jurnal/transaksi', JurnalTransaksiIndex::class)->name('jurnal.transaksi');
 
     // laba rugi
     Route::get('keuangan/labarugi')->name('keuangan.labarugi');
@@ -144,9 +150,6 @@ Route::middleware('auth')->group(function (){
     Route::get('keuangan/jurnal/penyesuaian')->name('keuangan.jurnal.penyesuaian');
     Route::get('keuangan/jurnal/penyesuaian/trans')->name('keuangan.jurnal.penyesuaian.trans');
     Route::get('keuangan/jurnal/penyesuaian/trans/{id}');
-
-    // Jurnal transaksi
-    Route::get('keuangan/jurnal/transaksi', JurnalTransaksiIndex::class)->name('jurnal.transaksi');
 
     // persediaan
     Route::get('keuangan/tester/index', PersediaanIndex::class)->name('keuangan.persediaan');
@@ -164,8 +167,6 @@ Route::middleware('auth')->group(function (){
     // neraca
     Route::get('neraca/awal', NeracaSaldoAwalIndex::class)->name('keuangan.neraca');
     Route::get('neraca/saldo/awal', NeracaSaldoAwal::class)->name('keuangan.neraca.saldoawal');
-
-    Route::get('neraca/saldo/index', NeracaSaldoIndex::class)->name('neraca.saldo');
 
     // neraca piutang
     Route::get('neraca/asset/penjualan/piutang', PiutangPenjualanIndex::class)->name('penjualan.piutang');

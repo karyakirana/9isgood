@@ -6,6 +6,7 @@ use App\Haramain\Service\SistemKeuangan\Neraca\PiutangPenjualanReturService;
 use App\Models\KonfigurasiJurnal;
 use App\Models\Master\Customer;
 use App\Models\Penjualan\PenjualanRetur;
+use Illuminate\Http\RedirectResponse;
 use Livewire\Component;
 
 class PiutangPenjualanReturForm extends Component
@@ -33,9 +34,14 @@ class PiutangPenjualanReturForm extends Component
 
     public $retur_id, $retur_jenis, $retur_kode, $retur_ppn, $retur_biaya_lain, $retur_total_bayar;
     public $total_bayar, $total_bayar_rupiah;
+    public $keterangan;
 
     public $mode = 'create';
     public $type = 'retur';
+
+    // validation
+    public array $validationCreate;
+    public array $validationUpdate;
 
     public function __construct($id = null)
     {
@@ -45,8 +51,27 @@ class PiutangPenjualanReturForm extends Component
 
     public function mount($piutangReturId = null)
     {
-                $this->tgl_jurnal = tanggalan_format(now('ASIA/JAKARTA'));
+        $this->tgl_jurnal = tanggalan_format(now('ASIA/JAKARTA'));
         $this->setForJurnalTransaksi();
+        if ($piutangReturId)
+        {
+            // initiate
+            $data = $this->piutangPenjualanReturService->handleEdit($piutangReturId);
+            // master
+            $this->customer_id = $data->customer->id;
+            $this->customer_nama = $data->customer->nama;
+            // detail
+            foreach ($data->piutang_penjualan as $item) {
+                $this->data_detail[] = [
+                    'retur_id'=>$item->id,
+                    'kode'=>$item->kode,
+                    'jenis'=>$item->jenis_retur,
+                    'ppn'=>$item->ppn,
+                    'biaya_lain'=>$item->biaya_lain,
+                    'total_bayar'=>$item->total_bayar
+                ];
+            }
+        }
     }
 
     protected function setForJurnalTransaksi()
@@ -65,6 +90,11 @@ class PiutangPenjualanReturForm extends Component
         $this->customer_nama = $customer->nama;
     }
 
+    protected function totalBayar()
+    {
+        $this->total_bayar = collect($this->data_detail)->sum('total_bayar');
+    }
+
     public function setPenjualanRetur($id)
     {
         $penjualanRetur = PenjualanRetur::query()->find($id);
@@ -76,30 +106,55 @@ class PiutangPenjualanReturForm extends Component
             'biaya_lain'=>$penjualanRetur->biaya_lain,
             'total_bayar'=>$penjualanRetur->total_bayar
         ];
+        $this->totalBayar();
     }
 
     public function unsetRowTable($index)
     {
         unset($this->data_detail[$index]);
         $this->data_detail = array_values($this->data_detail);
+        $this->totalBayar();
     }
 
-    public function store()
+    public function setValidationCreate()
     {
-        $data = $this->validate($this->piutangPenjualanReturService->handleValidation);
-        dd($data);
+        //
+    }
+
+    public function setValidationUpdate()
+    {
+        //
+    }
+
+    public function store(): ?RedirectResponse
+    {
+        $data = (object) $this->validate($this->piutangPenjualanReturService->handleValidation);
+        //dd($data->data_detail);
         $store = $this->piutangPenjualanReturService->handleStore($data);
         if ($store->status){
             // redirect
-            return redirect()->to('/keuangan/neraca/awal/piutang-penjualan');
+            session()->flash('storeMessage', 'Data Sukses Disimpan dengan Kode '.$store->keterangan->kode);
+            return redirect()->to('/keuangan/neraca/awal/piutang-retur');
         } else {
             // session flash
             session()->flash('storeMessage', $store->keterangan);
         }
+        return null;
     }
 
     public function update()
     {
-        //
+        $data = (object) $this->validate($this->piutangPenjualanReturService->handleValidation);
+        //dd($data->data_detail);
+        $store = $this->piutangPenjualanReturService->handleUpdate($data);
+        if ($store->status){
+            // redirect
+            session()->flash('storeMessage', 'Data Sukses Di-update dengan Kode '.$store->keterangan->kode);
+            return redirect()->to('/keuangan/neraca/awal/piutang-retur');
+        } else {
+            // session flash
+            session()->flash('storeMessage', $store->keterangan);
+        }
+        return null;
     }
 }

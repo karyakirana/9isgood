@@ -3,16 +3,16 @@
 namespace App\Http\Livewire\Datatables\Keuangan;
 
 use App\Haramain\Traits\LivewireTraits\DatatablesTraits;
-use App\Models\Keuangan\JurnalSetPiutangAwal;
+use App\Models\Keuangan\JurnalSetReturPenjualanAwal;
 use App\Models\Master\Customer;
-use App\Haramain\Traits\ModelTraits\CustomerTraits;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
-class JurnalSetPiutangAwalTable extends DataTableComponent
+class PiutangPenjualanReturAwalTable extends DataTableComponent
 {
-    use DatatablesTraits, CustomerTraits;
+    use DatatablesTraits;
+
     public function columns(): array
     {
         return [
@@ -23,25 +23,25 @@ class JurnalSetPiutangAwalTable extends DataTableComponent
                 ->sortable(),
             Column::make('Tgl Jurnal', 'tgl_jurnal')
                 ->sortable(),
-                Column::make('Customer', 'customer.nama')
-                    ->searchable()
-                    ->sortable(function(Builder $query, $direction) {
-                        return $query->orderBy(Customer::query()->select('nama')->whereColumn('customer.id', 'jurnal_set_piutang_awal.customer_id'), $direction);
-                    }),
+            Column::make('Customer', 'customer.nama')
+                ->searchable()
+                ->sortable(function(Builder $query, $direction) {
+                    return $query->orderBy(Customer::query()->select('nama')->whereColumn('customer.id', 'jurnal_set_retur_penjualan_awal.customer_id'), $direction);
+                }),
             Column::make('Pembuat'),
-            Column::make('Total'),
+            Column::make('Keterangan'),
             Column::make(''),
         ];
     }
 
     public function query(): Builder
     {
-        return JurnalSetPiutangAwal::query()
+        return JurnalSetReturPenjualanAwal::query()
             ->where('active_cash', session('ClosedCash'));
     }
 
     public function rowView(): string
     {
-        return 'livewire-tables.rows.jurnal_set_piutang_awal_table';
+        return 'livewire-tables.rows.piutang_penjualan_retur_awal_table';
     }
 }

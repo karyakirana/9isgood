@@ -15,6 +15,7 @@ class JurnalSetPiutangAwal extends Model
     protected $fillable = [
         'active_cash',
         'kode',
+        'jenis',
         'tgl_jurnal',
         'customer_id',
         'user_id',
