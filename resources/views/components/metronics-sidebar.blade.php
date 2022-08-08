@@ -942,7 +942,7 @@
                                         <!--begin:Menu item-->
                                         <div class="menu-item">
                                             <!--begin:Menu link-->
-                                            <a class="menu-link {{request()->is('keuangan/neraca/awal/piutang/penjualan') ? 'active' : ''}}" href="{{route('keuangan.neraca.awal.piutang-penjualan')}}">
+                                            <a class="menu-link {{request()->is('keuangan/neraca/awal/piutang-penjualan') ? 'active' : ''}}" href="{{route('keuangan.neraca.awal.piutang-penjualan')}}">
                                             <span class="menu-bullet">
                                                 <span class="bullet bullet-dot"></span>
                                             </span>
