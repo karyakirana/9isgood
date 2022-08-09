@@ -25,10 +25,10 @@
 </x-atoms.table.td>
 <x-atoms.table.td>
     @if($row->penjualan_type === 'App\Models\Penjualan\Penjualan')
-        <x-atoms.button.btn-icon color="dark" onclick="Livewire.emit('showPenjualanDetail', {{$row->id}})"><i class="fas fa-indent"></i></x-atoms.button.btn-icon>
-        <x-atoms.button.btn-icon color="info" onclick="Livewire.emit('setPenjualan', {{$row->id}})"><i class="fas fa-pen"></i></x-atoms.button.btn-icon>
+        <x-atoms.button.btn-icon color="dark" onclick="Livewire.emit('showPenjualanDetail', {{$row->penjualan_id}})"><i class="fas fa-indent"></i></x-atoms.button.btn-icon>
+        <x-atoms.button.btn-icon color="info" onclick="Livewire.emit('setPenjualan', {{$row->penjualan_id}})"><i class="fas fa-pen"></i></x-atoms.button.btn-icon>
     @elseif($row->penjualan_type === 'App\Models\Penjualan\PenjualanRetur')
-        <x-atoms.button.btn-icon color="dark" onclick="Livewire.emit('showPenjualanReturDetail', {{$row->id}})"><i class="fas fa-indent"></i></x-atoms.button.btn-icon>
-        <x-atoms.button.btn-icon color="info" onclick="Livewire.emit('setPenjualanRetur', {{$row->id}})"><i class="fas fa-pen"></i></x-atoms.button.btn-icon>
+        <x-atoms.button.btn-icon color="dark" onclick="Livewire.emit('showPenjualanReturDetail', {{$row->penjualan_id}})"><i class="fas fa-indent"></i></x-atoms.button.btn-icon>
+        <x-atoms.button.btn-icon color="info" onclick="Livewire.emit('setPenjualanRetur', {{$row->penjualan_id}})"><i class="fas fa-pen"></i></x-atoms.button.btn-icon>
     @endif
 </x-atoms.table.td>

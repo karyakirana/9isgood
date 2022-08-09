@@ -34,7 +34,7 @@ class JurnalTransaksiRepo
                 'active_cash'=>session('ClosedCash'),
                 'jurnal_type'=>$jurnalType,
                 'jurnal_id'=>$jurnalId,
-                'akun_id'=>$akunKredit,
+                'akun_id'=>$akunDebet,
                 'nominal_kredit'=>$nominal,
                 'keterangan'=>$keterangan
             ]);

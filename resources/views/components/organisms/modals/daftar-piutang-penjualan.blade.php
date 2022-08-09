@@ -1,4 +1,4 @@
-<x-molecules.modal size="xl" title="Daftar Piutang" id="modalPiutangPenjualan">
+<x-molecules.modal size="xl" title="Daftar Piutang" id="modalPiutangPenjualan" wire:ignore>
     <livewire:datatables.piutang-penjualan-set-table />
 </x-molecules.modal>
 
@@ -10,9 +10,16 @@
         let piutang_penjualan_modal = document.getElementById('modalPiutangPenjualan');
         let piutangPenjualanModal = new bootstrap.Modal(piutang_penjualan_modal);
 
+        Livewire.on('modalPiutangShow',() =>{
+            piutangPenjualanModal.show();
+        });
+
         Livewire.on('setPenjualanRetur', function (){
             piutangPenjualanModal.hide();
-        })
+        });
+        Livewire.on('setPenjualan', function (){
+            piutangPenjualanModal.hide();
+        });
 
         // initiate penjualan detail view
         let penjualanDetailView = document.getElementById('penjualan-detail');

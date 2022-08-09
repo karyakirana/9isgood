@@ -1,4 +1,20 @@
 <div>
+    {{-- alert store --}}
+    @if(session()->has('storeMessage'))
+        <x-molecules.alert-danger>
+            {{ session('storeMessage') }}
+        </x-molecules.alert-danger>
+    @endif
+    {{-- alert validation --}}
+    @if($errors->all())
+        <x-molecules.alert-danger>
+            <ul>
+                @foreach($errors->all() as $messages)
+                    <li>{{$messages}}</li>
+                @endforeach
+            </ul>
+        </x-molecules.alert-danger>
+    @endif
     <div class="row mb-5">
         <div class="col-6">
             <x-molecules.card class="card-flush">
@@ -23,7 +39,7 @@
         <div class="col-6">
             <x-molecules.card class="card-flush">
                 <div class="row">
-                    <div class="col-9">
+                    <div class="col-12">
                         <div class="row mb-5">
                             <div class="col-4">
                                 <span class="fw-bolder fs-4">Total Piutang</span>
@@ -40,9 +56,6 @@
                                 <span class="fw-bolder fs-4">{{isset($totalSisaPiutangRupiah) ? 'Rp. '.$totalSisaPiutangRupiah : '-'}}</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-3">
-                        <x-atoms.button.btn-link-primary class="btn-flex" data-bs-toggle="modal" data-bs-target="#customer_modal">Customer</x-atoms.button.btn-link-primary>
                     </div>
                 </div>
             </x-molecules.card>
@@ -70,20 +83,36 @@
             </div>
         </x-slot>
         <div class="row">
-            <div class="col-8">
+            <div class="col-12">
                 <form>
                     <div class="row mb-5">
                         <div class="col-6">
-                            <x-atoms.input.group label="Akun Kas" required="required">
+                            <x-atoms.input.group-horizontal label="Akun Kas" name="akun_kas" required="required">
                                 <x-atoms.input.select>
                                     <x-molecules.select.akun-kas-list />
                                 </x-atoms.input.select>
-                            </x-atoms.input.group>
+                            </x-atoms.input.group-horizontal>
                         </div>
                         <div class="col-6">
-                            <x-atoms.input.group label="Nominal Kas" required="required">
+                            <x-atoms.input.group-horizontal label="Nominal Kas" name="akun_kas" required="required">
                                 <x-atoms.input.text id="tgl_jurnal"/>
-                            </x-atoms.input.group>
+                            </x-atoms.input.group-horizontal>
+                        </div>
+
+                    </div>
+                    <div class="row mb-5">
+                        <div class="col-4 text-center">
+                            <x-atoms.button.btn-link-primary class="btn-flex ml-5" data-bs-toggle="modal" data-bs-target="#customer_modal">Customer</x-atoms.button.btn-link-primary>
+                        </div>
+                        <div class="col-4 text-center">
+                            <x-atoms.button.btn-primary color="info" wire:click="addPiutangData">Add Piutang</x-atoms.button.btn-primary>
+                        </div>
+                        <div class="col-4 text-center">
+                            @if($update)
+                                <button type="button" class="btn btn-success" wire:click="updateLine">update Data</button>
+                            @else
+                                <button type="button" class="btn btn-success" wire:click="addLine">Save Data</button>
+                            @endif
                         </div>
                     </div>
                 </form>
@@ -135,70 +164,69 @@
                     </x-slot>
                 </x-atoms.table>
             </div>
-            <div class="col-4">
-                <form class="mt-5 p-5 border">
-                    <div class="mb-5">
-                        <x-atoms.input.group-horizontal label="ID">
-                            <x-atoms.input.text name="penjualan_id" wire:model.defer="penjualan_kode"/>
-                        </x-atoms.input.group-horizontal>
-                    </div>
-                    <div class="mb-5">
-                        <x-atoms.input.group-horizontal label="Tipe">
-                            <x-atoms.input.text name="penjualan_type" wire:model.defer="penjualan_type"/>
-                        </x-atoms.input.group-horizontal>
-                    </div>
-                    <div class="mb-5">
-                        <x-atoms.input.group-horizontal label="Total Penjualan">
-                            <x-atoms.input.text wire:model.defer="total_penjualan_rupiah" readonly/>
-                        </x-atoms.input.group-horizontal>
-                    </div>
-                    <div class="mb-5">
-                        <x-atoms.input.group-horizontal label="Akun Biaya">
-                            <x-atoms.input.select>
-                                <x-molecules.select.akun-biaya-usaha-list />
-                            </x-atoms.input.select>
-                        </x-atoms.input.group-horizontal>
-                    </div>
-                    <div class="mb-5">
-                        <x-atoms.input.group-horizontal label="Biaya Lain">
-                            <x-atoms.input.text name="biaya_lain" wire:model.defer="biaya_lain" readonly/>
-                        </x-atoms.input.group-horizontal>
-                    </div>
-                    <div class="mb-5">
-                        <x-atoms.input.group-horizontal label="Akun PPN">
-                            <x-atoms.input.select>
-                                <x-molecules.select.akun-ppn-list />
-                            </x-atoms.input.select>
-                        </x-atoms.input.group-horizontal>
-                    </div>
-                    <div class="mb-5">
-                        <x-atoms.input.group-horizontal label="PPN">
-                            <x-atoms.input.text name="ppn" wire:model.defer="ppn" readonly/>
-                        </x-atoms.input.group-horizontal>
-                    </div>
-                    <div class="mb-5">
-                        <x-atoms.input.group-horizontal label="Total Tagihan">
-                            <x-atoms.input.text name="total_tagihan" wire:model.defer="total_tagihan_rupiah" readonly="" />
-                        </x-atoms.input.group-horizontal>
-                    </div>
-                    <div class="mb-5">
-                        <x-atoms.input.group-horizontal label="Total Bayar">
-                            <x-atoms.input.text name="total_bayar" wire:model.defer="total_bayar" readonly="" />
-                        </x-atoms.input.group-horizontal>
-                    </div>
-                    <div class="text-center pb-4 pt-5">
-                        <x-atoms.button.btn-modal color="info" target="#modalPiutangPenjualan">ADD Data</x-atoms.button.btn-modal>
-                        @if($update)
-                            <button type="button" class="btn btn-primary" wire:click="updateLine">update Data</button>
-                        @else
-                            <button type="button" class="btn btn-primary" wire:click="addLine">Save Data</button>
-                        @endif
-
-                    </div>
-                </form>
-            </div>
         </div>
     </x-molecules.card>
+
+    <x-molecules.modal title="Form Piutang" size="xl" id="modalFormPiutang" wire:ignore>
+        <div class="mb-5">
+            <x-atoms.input.group-horizontal label="ID">
+                <x-atoms.input.text name="penjualan_id" wire:model.defer="penjualan_kode"/>
+            </x-atoms.input.group-horizontal>
+        </div>
+        <div class="mb-5">
+            <x-atoms.input.group-horizontal label="Tipe">
+                <x-atoms.input.text name="penjualan_type" wire:model.defer="penjualan_type"/>
+            </x-atoms.input.group-horizontal>
+        </div>
+        <div class="mb-5">
+            <x-atoms.input.group-horizontal label="Total Penjualan">
+                <x-atoms.input.text wire:model.defer="total_penjualan_rupiah" readonly/>
+            </x-atoms.input.group-horizontal>
+        </div>
+        <div class="mb-5">
+            <x-atoms.input.group-horizontal label="Akun Biaya">
+                <x-atoms.input.select>
+                    <x-molecules.select.akun-biaya-usaha-list />
+                </x-atoms.input.select>
+            </x-atoms.input.group-horizontal>
+        </div>
+        <div class="mb-5">
+            <x-atoms.input.group-horizontal label="Biaya Lain">
+                <x-atoms.input.text name="biaya_lain" wire:model.defer="biaya_lain" readonly/>
+            </x-atoms.input.group-horizontal>
+        </div>
+        <div class="mb-5">
+            <x-atoms.input.group-horizontal label="Akun PPN">
+                <x-atoms.input.select>
+                    <x-molecules.select.akun-ppn-list />
+                </x-atoms.input.select>
+            </x-atoms.input.group-horizontal>
+        </div>
+        <div class="mb-5">
+            <x-atoms.input.group-horizontal label="PPN">
+                <x-atoms.input.text name="ppn" wire:model.defer="ppn" readonly/>
+            </x-atoms.input.group-horizontal>
+        </div>
+        <div class="mb-5">
+            <x-atoms.input.group-horizontal label="Total Tagihan">
+                <x-atoms.input.text name="total_tagihan" wire:model.defer="total_tagihan_rupiah" readonly="" />
+            </x-atoms.input.group-horizontal>
+        </div>
+        <div class="mb-5">
+            <x-atoms.input.group-horizontal label="Total Bayar">
+                <x-atoms.input.text name="total_bayar" wire:model.defer="total_bayar"/>
+            </x-atoms.input.group-horizontal>
+        </div>
+        <div class="text-center pb-4 pt-5">
+            <x-atoms.button.btn-modal color="info" target="#modalPiutangPenjualan">ADD Data</x-atoms.button.btn-modal>
+            @if($update)
+                <button type="button" class="btn btn-primary" wire:click="updateLine">update Data</button>
+            @else
+                <button type="button" class="btn btn-primary" wire:click="addLine">Save Data</button>
+            @endif
+
+        </div>
+    </x-molecules.modal>
 
     <x-organisms.modals.daftar-customer />
 
@@ -208,10 +236,28 @@
         <script>
 
             $('#tgl_jurnal').on('change', function (e) {
-                let date = $(this).data("#tgl_jurnal");
-                // eval(date).set('tglLahir', $('#tglLahir').val())
+
                 console.log(e.target.value);
                 @this.tgl_jurnal = e.target.value;
+            })
+
+            let modalFormPiutang = document.getElementById('modalFormPiutang');
+            let modalsFormPiutang = new bootstrap.Modal(modalFormPiutang);
+
+            // show modalsFormPiutang if setPenjualan or setPenjualanRetur
+            Livewire.on('setPenjualan', function (){
+                modalsFormPiutang.show();
+            })
+            Livewire.on('setPenjualanRetur', function (){
+                modalsFormPiutang.show();
+            })
+
+            // hidden modalsFormPiutang if addTableData or updateTableData
+            Livewire.on('addTableData', function (){
+                modalsFormPiutang.hide();
+            })
+            Livewire.on('updateTableData', function (){
+                modalsFormPiutang.hide();
             })
 
         </script>

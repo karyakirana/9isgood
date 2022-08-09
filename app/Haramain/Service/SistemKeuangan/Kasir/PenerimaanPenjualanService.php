@@ -4,6 +4,9 @@ use App\Haramain\Service\SistemKeuangan\Jurnal\JurnalTransaksiRepo;
 use App\Haramain\Service\SistemKeuangan\Jurnal\KasRepo;
 use App\Haramain\Service\SistemKeuangan\Neraca\NeracaSaldoRepository;
 use App\Models\Keuangan\PenerimaanPenjualan;
+use DB;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PenerimaanPenjualanService
@@ -51,39 +54,29 @@ class PenerimaanPenjualanService
         $this->keterangan = $data->keterangan ?? null;
     }
 
-    public function handleRulesValidation():array
-    {
-        return [];
-    }
-
-    public function handleMessagesValidation(): array
-    {
-        return [];
-    }
-
     public function handleStore($data): object
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             // create penerimaan penjualan
-            $penerimaanPenjualan = $this->penerimaanPenjualanRepo->store($data);
+            $penerimaanPenjualan = $this->store();
+            // store penerimaan penjualan detail
+            $this->storeDetail($penerimaanPenjualan);
             // update piutang penjualan and status penjualan or penjualan_retur
-            foreach ($data->detail as $item) {
-                $this->piutangPenjualanRepo->updateStatusPenjualan($item->piutang_penjualan_id, $item->status, $item->kurang_bayar);
-            }
+            $this->updateStatusPiutangPenjualan();
             // create jurnal transaksi and update neraca saldo
-            $this->storeJurnalAndNeraca($data, $penerimaanPenjualan);
+            $this->storeJurnalAndNeraca($penerimaanPenjualan);
             // create kas debet (update saldo)
-            $this->kasRepo->store(PenerimaanPenjualan::class, $penerimaanPenjualan->id, $data);
+            $this->storeKas($penerimaanPenjualan);
             // return id kas masuk
-            \DB::commit();
+            DB::commit();
             return (object)[
                 'status'=>true,
                 'keterangan'=>$penerimaanPenjualan
             ];
         } catch (ModelNotFoundException $e)
         {
-            \DB::rollBack();
+            DB::rollBack();
             return (object)[
                 'status'=>false,
                 'keterangan'=>$e
@@ -113,6 +106,9 @@ class PenerimaanPenjualanService
         //
     }
 
+    /**
+     * @return string
+     */
     protected function handleKode()
     {
         $query = PenerimaanPenjualan::query()
@@ -122,6 +118,9 @@ class PenerimaanPenjualanService
         return sprintf("%05s", $num) . "/PP/" . date('Y');
     }
 
+    /**
+     * @return Builder|Model
+     */
     protected function store()
     {
         return PenerimaanPenjualan::query()
@@ -136,6 +135,9 @@ class PenerimaanPenjualanService
             ]);
     }
 
+    /**
+     * @return bool|int
+     */
     protected function update()
     {
         $penerimaanPenjualan = PenerimaanPenjualan::query()->find($this->penerimaan_penjualan_id);
@@ -148,17 +150,38 @@ class PenerimaanPenjualanService
         ]);
     }
 
+    /**
+     * @param $penerimaanPenjualan
+     * @return void
+     */
     protected function storeDetail($penerimaanPenjualan)
     {
         $penerimaanPenjualanDetail = $penerimaanPenjualan->penerimaanPenjualanDetail();
         foreach ($this->data_detail as $item) {
+            // store piutang_penerimaan_penjualan
             $penerimaanPenjualanDetail->create([
                 'nominal_dibayar',
                 'kurang_bayar'=>$item->kurang_bayar,
             ]);
+            // update status piutang penjualan
+            $this->piutangPenjualanRepo->updateStatusPenjualan($item->piutang_penjualan_id, $item->status_bayar, $item->kurang_bayar);
         }
     }
 
+    /**
+     * @return void
+     */
+    protected function updateStatusPiutangPenjualan()
+    {
+        foreach ($this->data_detail as $item) {
+            $this->piutangPenjualanRepo->updateStatusPenjualan($item->piutang_penjualan_id, $item->status, $item->kurang_bayar);
+        }
+    }
+
+    /**
+     * @param $penerimaanPenjualan
+     * @return Builder|Model
+     */
     protected function storeKas($penerimaanPenjualan)
     {
         return $this->kasRepo->store(
@@ -173,12 +196,16 @@ class PenerimaanPenjualanService
         );
     }
 
-    protected function storeJurnalAndNeraca($data, $penerimaanPenjualan)
+    /**
+     * @param $penerimaanPenjualan
+     * @return void
+     */
+    protected function storeJurnalAndNeraca($penerimaanPenjualan)
     {
-        $this->jurnalTransaksiRepo->createDebet($data->akunDebet, PenerimaanPenjualan::class, $penerimaanPenjualan->id, $data->nominal);
-        $this->neracaSaldo->updateDebet($data->akunDebet, $data->nominal);
-        $this->jurnalTransaksiRepo->createKredit($data->akunKredit, PenerimaanPenjualan::class, $penerimaanPenjualan->id, $data->nominal);
-        $this->neracaSaldo->updateKredit($data->akunKredit, $data->nominal);
+        $this->jurnalTransaksiRepo->createDebet($this->akun_kas_id, PenerimaanPenjualan::class, $penerimaanPenjualan->id, $this->nominal_kas);
+        $this->neracaSaldo->updateDebet($this->akun_kas_id, $this->nominal_kas);
+        $this->jurnalTransaksiRepo->createKredit($this->akun_piutang_id, PenerimaanPenjualan::class, $penerimaanPenjualan->id, $this->nominal_piutang);
+        $this->neracaSaldo->updateKredit($this->akun_piutang_id, $this->nominal_piutang);
     }
 
     protected function rollback()

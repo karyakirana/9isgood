@@ -4,10 +4,10 @@ namespace App\Http\Livewire\Keuangan\Kasir;
 
 use App\Haramain\Repository\Jurnal\PiutangPenjualanRepo;
 use App\Models\Keuangan\JurnalSetPiutangAwal;
-use App\Models\Keuangan\PiutangPenjualan;
 use App\Models\KonfigurasiJurnal;
 use App\Models\Master\Customer;
 use App\Models\Penjualan\Penjualan;
+use DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Component;
 
@@ -71,10 +71,10 @@ class PiutangPenjualanForm extends Component
     protected function setAkunJurnal()
     {
         // set aku from config
-        $this->modal_piutang_awal = KonfigurasiJurnal::find('modal_piutang_awal')->akun_id;
-        $this->piutang_usaha = KonfigurasiJurnal::find('piutang_usaha')->akun_id;
-        $this->ppn_penjualan = KonfigurasiJurnal::find('ppn_penjualan')->akun_id;
-        $this->biaya_penjualan = KonfigurasiJurnal::find('biaya_penjualan')->akun_id;
+        $this->modal_piutang_awal = KonfigurasiJurnal::query()->find('modal_piutang_awal')->akun_id;
+        $this->piutang_usaha = KonfigurasiJurnal::query()->find('piutang_usaha')->akun_id;
+        $this->ppn_penjualan = KonfigurasiJurnal::query()->find('ppn_penjualan')->akun_id;
+        $this->biaya_penjualan = KonfigurasiJurnal::query()->find('biaya_penjualan')->akun_id;
     }
 
     public function setCustomer(Customer $customer)
@@ -125,14 +125,15 @@ class PiutangPenjualanForm extends Component
             'penjualan_sum_total_bayar'=>'required'
         ]);
 
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             $piutang_penjualan = (new PiutangPenjualanRepo())->store((object)$data);
-            \DB::commit();
+            DB::commit();
             return redirect()->to(route('penjualan.piutang'));
         } catch (ModelNotFoundException $e){
             session()->flash('message', $e);
-            \DB::rollBack();
+            DB::rollBack();
+            return null;
         }
     }
 
@@ -152,14 +153,14 @@ class PiutangPenjualanForm extends Component
             'penjualan_sum_total_bayar'=>'required'
         ]);
 
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             $piutang_penjualan = (new PiutangPenjualanRepo())->update((object)$data);
-            \DB::commit();
+            DB::commit();
             return redirect()->to(route('penjualan.piutang'));
         } catch (ModelNotFoundException $e){
             session()->flash('message', $e);
-            \DB::rollBack();
+            DB::rollBack();
         }
     }
 }

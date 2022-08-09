@@ -238,6 +238,12 @@ class PenerimaanPenjualanForm extends Component
         $this->dibayar = $this->nominal_kas;
     }
 
+    public function addPiutangData()
+    {
+         $this->validate(['customer_nama'=>'required']);
+         $this->emit('modalPiutangShow');
+    }
+
     /**
      * set data penjualan
      * @param $penjualan
