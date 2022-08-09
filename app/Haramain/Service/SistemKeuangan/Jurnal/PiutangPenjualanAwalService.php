@@ -88,7 +88,7 @@ class PiutangPenjualanAwalService
     {
         DB::beginTransaction();
         try {
-            $piutangSetAwal = JurnalSetPiutangAwal::query()->find(['piutangSetAwalId']);
+            $piutangSetAwal = JurnalSetPiutangAwal::query()->find($data['piutangSetAwalId']);
             // rollback transaction
             $this->rollbackTransaction($piutangSetAwal, 'retur');
             // update piutang awal
@@ -166,7 +166,7 @@ class PiutangPenjualanAwalService
         return [
             'active_cash'=>$this->closedCash,
             'kode'=>$this->getKode('retur'),
-            'jenis'=>'penjualan',
+            'jenis'=>'retur',
             'tgl_jurnal'=>tanggalan_database_format($data->tgl_jurnal, 'd-M-Y'),
             'customer_id'=>$data->customer_id,
             'user_id'=> Auth::id(),
@@ -183,7 +183,7 @@ class PiutangPenjualanAwalService
             'tgl_jurnal'=>tanggalan_database_format($data->tgl_jurnal, 'd-M-Y'),
             'customer_id'=>$data->customer_id,
             'user_id'=> Auth::id(),
-            'total_piutang'=>$data->total_piutang,
+            'total_piutang'=>0 - (int)$data->total_piutang,
             'keterangan'=>$data->keterangan,
             'data_detail'=>$data->data_detail,
         ];

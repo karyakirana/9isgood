@@ -16,6 +16,25 @@ class PiutangPenjualanSetTable extends DataTableComponent
      */
     use DatatablesTraits;
 
+    protected $listeners = [
+        'refreshDatatable' => '$refresh',
+        'set_customer',
+        'unset_customer'
+    ];
+
+    protected $customer_id;
+
+    public function set_customer($customer_id)
+    {
+        $this->customer_id = $customer_id;
+    }
+
+    public function unset_customer()
+    {
+        unset($this->customer_id);
+        $this->emit('refreshDatatable');
+    }
+
     public function columns(): array
     {
         return [
@@ -32,7 +51,11 @@ class PiutangPenjualanSetTable extends DataTableComponent
 
     public function query(): Builder
     {
-        return PiutangPenjualan::query();
+        $query = PiutangPenjualan::query();
+        if ($this->customer_id){
+            return $query->where('saldo_piutang_penjualan_id', $this->customer_id);
+        }
+        return $query;
     }
 
     public function rowView(): string

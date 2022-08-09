@@ -17,8 +17,6 @@ use phpDocumentor\Reflection\Types\Integer;
 
 class PenerimaanPenjualanForm extends Component
 {
-    use SetCustomerTraits;
-
     /**
      * Goals :
      * Melakukan pembayaran tunai atau yg lain untuk membayar piutang
@@ -37,7 +35,7 @@ class PenerimaanPenjualanForm extends Component
      * @var string[]
      */
     protected $listeners = [
-        'set_customer'=>'customer',
+        'set_customer'=>'setCustomer',
         'setPenjualan',
         'setPenjualanRetur'
     ];
@@ -59,6 +57,12 @@ class PenerimaanPenjualanForm extends Component
      * @var
      */
     public $penerimaan_penjualan_id; // if needed
+
+    /**
+     * customer data
+     * @var
+     */
+    public $customer_id, $customer_nama, $customer_diskon, $customer_telepon;
 
     /**
      * akun_kas untuk field akun kas
@@ -124,7 +128,13 @@ class PenerimaanPenjualanForm extends Component
     public $akun_ppn, $ppn;
 
     /**
-     * total_bayar adalah jumlah total_penjualan + biaya_lain + ppn
+     * total_tagihan adalah jumlah total_penjualan + biaya_lain + ppn
+     * @var
+     */
+    public $total_tagihan;
+
+    /**
+     * total bayar adalah total yang dibayarkan
      * @var
      */
     public $total_bayar;
@@ -133,7 +143,7 @@ class PenerimaanPenjualanForm extends Component
      * rekayasa tampilan penggunaan format rupiah
      * @var
      */
-    public $total_penjualan_rupiah, $total_bayar_rupiah;
+    public $total_penjualan_rupiah, $total_tagihan_rupiah;
 
     /**
      * Saldo piutang customer
@@ -146,9 +156,9 @@ class PenerimaanPenjualanForm extends Component
      * $total_tunai seluruh jumlah yang dibayarkan
      * $total_piutang seluruh jumlah piutang yang belum dibayar
      * $sisa_piutang adalah selisih dari piutang dan nominal kas
-     * @var int|null
+     * @var
      */
-    public ?int $total_nota, $total_tunai, $total_piutang, $sisa_piutang;
+    public $total_nota, $total_tunai, $total_piutang, $sisa_piutang;
 
     /**
      * variabel manipulasi dalam bentuk rupiah (string) dari integer
@@ -192,10 +202,16 @@ class PenerimaanPenjualanForm extends Component
      * set data customer
      * @param $customer
      */
-    public function customer($customer):void
+    public function setCustomer($customer):void
     {
         // dd($customer);
-        $this->setCustomer($customer);
+        // customer initiate
+        $customer = Customer::query()->find($customer);
+        // set data customer
+        $this->customer_id = $customer->id;
+        $this->customer_nama = $customer->nama;
+        $this->customer_diskon = $customer->diskon;
+        $this->customer_telepon = $customer->telepon;
 
         // get_saldo_piutang_penjualan
         $this->saldo_piutang = SaldoPiutangPenjualan::query()
@@ -224,36 +240,38 @@ class PenerimaanPenjualanForm extends Component
 
     /**
      * set data penjualan
-     * @param Penjualan $penjualan
+     * @param $penjualan
      */
-    public function setPenjualan(Penjualan $penjualan):void
+    public function setPenjualan($penjualan):void
     {
+        $penjualan = Penjualan::query()->find($penjualan);
         $this->penjualan_type = 'penjualan';
-        $this->penjualan_id = $penjualan->id;
-        $this->penjualan_kode = $penjualan->kode;
-        $this->biaya_lain = ($penjualan->biaya_lain > 0) ? $penjualan->biaya_lain : null;
-        $this->ppn =( $penjualan->ppn > 0) ? $penjualan->ppn : null;
-        $this->total_penjualan = $penjualan->total_bayar - ($penjualan->biaya_lain ?? 0) - ($penjualan->ppn ?? 0);
-        $this->total_penjualan_rupiah = rupiah_format($this->total_penjualan);
-        $this->total_bayar = $penjualan->total_bayar;
-        $this->total_bayar_rupiah = rupiah_format($this->total_bayar);
+        $this->setData($penjualan);
+        $this->total_tagihan = $penjualan->total_tagihan;
+        $this->total_tagihan_rupiah = rupiah_format($this->total_bayar);
     }
 
     /**
      * set data penjualan_retur
-     * @param PenjualanRetur $penjualanRetur
+     * @param $penjualanRetur
      */
-    public function setPenjualanRetur(PenjualanRetur $penjualanRetur):void
+    public function setPenjualanRetur($penjualanRetur):void
     {
+        $penjualanRetur = PenjualanRetur::query()->find($penjualanRetur);
         $this->penjualan_type = 'penjualan_retur';
-        $this->penjualan_id = $penjualanRetur->id;
-        $this->penjualan_kode = $penjualanRetur->kode;
-        $this->biaya_lain = ($penjualanRetur->biaya_lain > 0) ? $penjualanRetur->biaya_lain : null;
-        $this->ppn =( $penjualanRetur->ppn > 0) ? $penjualanRetur->ppn : null;
-        $this->total_penjualan = $penjualanRetur->total_bayar - ($penjualanRetur->biaya_lain ?? 0) - ($penjualanRetur->ppn ?? 0);
+        $this->setData($penjualanRetur);
+        $this->total_tagihan = 0 - $penjualanRetur->total_tagihan;
+        $this->total_tagihan_rupiah = rupiah_format($this->total_bayar);
+    }
+
+    protected function setData($data)
+    {
+        $this->penjualan_id = $data->id;
+        $this->penjualan_kode = $data->kode;
+        $this->biaya_lain = ($data->biaya_lain > 0) ? $data->biaya_lain : null;
+        $this->ppn =( $data->ppn > 0) ? $data->ppn : null;
+        $this->total_penjualan = $data->total_bayar - ($data->biaya_lain ?? 0) - ($data->ppn ?? 0);
         $this->total_penjualan_rupiah = rupiah_format($this->total_penjualan);
-        $this->total_bayar = 0 - $penjualanRetur->total_bayar;
-        $this->total_bayar_rupiah = rupiah_format($this->total_bayar);
     }
 
     /**
@@ -262,13 +280,17 @@ class PenerimaanPenjualanForm extends Component
     public function resetForm()
     {
         $this->reset([
-            'penjualan_id', 'penjualan_kode', 'akun_biaya', 'biaya_lain', 'akun_ppn', 'ppn', 'total_bayar',
-            'total_penjualan_rupiah', 'total_bayar_rupiah'
+            'penjualan_id', 'penjualan_kode', 'akun_biaya', 'biaya_lain', 'akun_ppn', 'ppn', 'total_tagihan',
+            'total_penjualan_rupiah', 'total_bayar', 'total_tagihan_rupiah'
         ]);
     }
 
     public function addLine():void
     {
+        $this->validate([
+            'penjualan_id'=>'required',
+            'total_bayar'=>'required'
+        ]);
         $this->detail[] = [
             'penjualan_kode'=>$this->penjualan_kode,
             'penjualan_type'=>$this->penjualan_type,
@@ -278,8 +300,9 @@ class PenerimaanPenjualanForm extends Component
             'biaya_lain'=>$this->biaya_lain,
             'akun_ppn'=>$this->akun_ppn,
             'ppn'=>$this->ppn,
+            'total_tagihan'=>$this->total_tagihan,
+            'total_bayar_rupiah'=>$this->total_tagihan_rupiah,
             'total_bayar'=>$this->total_bayar,
-            'total_bayar_rupiah'=>$this->total_bayar_rupiah,
         ];
         $this->resetForm();
     }
@@ -296,12 +319,17 @@ class PenerimaanPenjualanForm extends Component
         $this->biaya_lain = $this->detail[$index]['biaya_lain'];
         $this->akun_ppn = $this->detail[$index]['akun_ppn'];
         $this->ppn = $this->detail[$index]['ppn'];
+        $this->total_tagihan = $this->detail[$index]['total_tagihan'];
+        $this->total_tagihan_rupiah = $this->detail[$index]['total_tagihan_rupiah'];
         $this->total_bayar = $this->detail[$index]['total_bayar'];
-        $this->total_bayar_rupiah = $this->detail[$index]['total_bayar_rupiah'];
     }
 
     public function updateLine()
     {
+        $this->validate([
+            'penjualan_id'=>'required',
+            'total_bayar'=>'required'
+        ]);
         $this->update = false;
         $index = $this->index;
         $this->detail[$index]['penjualan_kode'] = $this->penjualan_kode;
@@ -312,8 +340,9 @@ class PenerimaanPenjualanForm extends Component
         $this->detail[$index]['biaya_lain'] = $this->biaya_lain;
         $this->detail[$index]['akun_ppn'] = $this->akun_ppn;
         $this->detail[$index]['ppn'] = $this->ppn;
+        $this->detail[$index]['total_tagihan'] = $this->total_tagihan;
+        $this->detail[$index]['total_tagihan_rupiah'] = $this->total_tagihan_rupiah;
         $this->detail[$index]['total_bayar'] = $this->total_bayar;
-        $this->detail[$index]['total_bayar_rupiah'] = $this->total_bayar_rupiah;
         $this->resetForm();
     }
 

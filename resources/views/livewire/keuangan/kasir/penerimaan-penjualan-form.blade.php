@@ -177,38 +177,32 @@
                         </x-atoms.input.group-horizontal>
                     </div>
                     <div class="mb-5">
+                        <x-atoms.input.group-horizontal label="Total Tagihan">
+                            <x-atoms.input.text name="total_tagihan" wire:model.defer="total_tagihan_rupiah" readonly="" />
+                        </x-atoms.input.group-horizontal>
+                    </div>
+                    <div class="mb-5">
                         <x-atoms.input.group-horizontal label="Total Bayar">
-                            <x-atoms.input.text name="total_bayar" wire:model.defer="total_bayar_rupiah" readonly="" />
+                            <x-atoms.input.text name="total_bayar" wire:model.defer="total_bayar" readonly="" />
                         </x-atoms.input.group-horizontal>
                     </div>
                     <div class="text-center pb-4 pt-5">
-                        <x-atoms.button.btn-modal color="info" target="#modalPiutangPenjualan">Penjualan</x-atoms.button.btn-modal>
-                        <x-atoms.button.btn-modal color="info" target="#modalDaftarPenjualanRetur">Retur</x-atoms.button.btn-modal>
-
-                    </div>
-                    <div class="text-center pb-4 pt-5">
+                        <x-atoms.button.btn-modal color="info" target="#modalPiutangPenjualan">ADD Data</x-atoms.button.btn-modal>
                         @if($update)
                             <button type="button" class="btn btn-primary" wire:click="updateLine">update Data</button>
                         @else
                             <button type="button" class="btn btn-primary" wire:click="addLine">Save Data</button>
                         @endif
+
                     </div>
                 </form>
             </div>
         </div>
     </x-molecules.card>
 
-    <x-organisms.modals.daftar-penjualan />
-
-    <x-organisms.modals.daftar-penjualan-retur />
-
     <x-organisms.modals.daftar-customer />
 
     <x-organisms.modals.daftar-piutang-penjualan />
-
-    <livewire:penjualan.penjualan-detail-view />
-
-    <livewire:penjualan.penjualan-retur-detail-view />
 
     @push('custom-scripts')
         <script>

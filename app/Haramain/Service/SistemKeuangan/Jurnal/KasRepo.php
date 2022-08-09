@@ -31,6 +31,14 @@ class KasRepo
         //
     }
 
+    public function getLastValue()
+    {
+        return JurnalKas::query()
+            ->where('active_cash', session('ClosedCash'))
+            ->latest()
+            ->first('nominal_saldo');
+    }
+
     public function store($jurnalType, $jurnalId, $data): Model|Builder
     {
         return JurnalKas::query()

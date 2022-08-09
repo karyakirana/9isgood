@@ -71,16 +71,17 @@ class JurnalPiutangPenjualanAwalForm extends Component
             $this->tgl_jurnal = tanggalan_format($data->tgl_jurnal);
             $this->customer_id = $data->customer_id;
             $this->customer_nama = $data->customer->nama;
-            $this->total_piutang = $data->total_piutang;
             $this->keterangan = $data->keterangan;
-            if ($mode == 'penjualan'){
+            if ($this->mode == 'penjualan'){
                 foreach ($data->piutang_penjualan as $item) {
                     $this->setTablePenjualan($item->penjualan_id);
                 }
+                $this->total_piutang = $data->total_piutang;
             } else {
                 foreach ($data->piutang_penjualan as $item) {
                     $this->setTablePenjualanRetur($item->penjualan_id);
                 }
+                $this->total_piutang = abs($data->total_piutang);
             }
         }
     }

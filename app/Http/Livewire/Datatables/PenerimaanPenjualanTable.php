@@ -2,24 +2,31 @@
 
 namespace App\Http\Livewire\Datatables;
 
-use App\Models\Keuangan\KasirPenjualan;
+use App\Haramain\Traits\LivewireTraits\DatatablesTraits;
+use App\Models\Keuangan\PenerimaanPenjualan;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class PenerimaanPenjualanTable extends DataTableComponent
 {
+    use DatatablesTraits;
 
     public function columns(): array
     {
         return [
-            Column::make('Column Name'),
+            Column::make('ID'),
+            Column::make('Tgl'),
+            Column::make('Customer'),
+            Column::make('Nominal'),
+            Column::make(''),
         ];
     }
 
     public function query(): Builder
     {
-        return KasirPenjualan::query();
+        return PenerimaanPenjualan::query()
+            ->where('active_cash', session('ClosedCash'));
     }
 
     public function rowView(): string

@@ -12,7 +12,6 @@ class PenerimaanPenjualanDetail extends Model
     protected $fillable = [
         'penerimaan_penjualan_id',
         'piutang_penjualan_id',
-        'piutang_penjualan_type',
         'nominal_dibayar',
         'kurang_bayar',
     ];
@@ -20,10 +19,5 @@ class PenerimaanPenjualanDetail extends Model
     public function penerimaanPenjualan()
     {
         return $this->belongsTo(PenerimaanPenjualan::class, 'penerimaan_penjualan_id');
-    }
-
-    public function piutangPenjualan()
-    {
-        return $this->morphTo(__FUNCTION__, 'piutang_penjualan_type', 'piutang_penjualan_id');
     }
 }

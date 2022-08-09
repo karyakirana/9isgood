@@ -17,6 +17,7 @@ class PenerimaanPenjualan extends Model
     protected $fillable = [
         'active_cash',
         'kode',
+        'tgl_penerimaan',
         'customer_id',
         'akun_kas_id',
         'nominal_kas',
