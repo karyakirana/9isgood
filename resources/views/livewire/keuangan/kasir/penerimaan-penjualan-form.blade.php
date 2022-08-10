@@ -120,21 +120,34 @@
                 <x-atoms.table>
                     <x-slot name="head">
                         <tr>
-                            <th>Id</th>
-                            <th>Total Penjualan</th>
-                            <th>Biaya</th>
-                            <th>PPN</th>
+                            <th>Jenis</th>
+                            <th>Item</th>
                             <th>Total Bayar</th>
+                            <th>Dibayar</th>
                             <th style="width: 15%"></th>
                         </tr>
                     </x-slot>
                     @forelse($detail as $index=>$item)
                         <tr class="align-middle">
-                            <x-atoms.table.td width="15%">{{$item['penjualan_kode']}}</x-atoms.table.td>
-                            <x-atoms.table.td align="end" width="20%">{{$item['total_penjualan']}}</x-atoms.table.td>
-                            <x-atoms.table.td align="end" width="20%">{{$item['biaya_lain']}}</x-atoms.table.td>
-                            <x-atoms.table.td align="end" width="20%">{{$item['ppn']}}</x-atoms.table.td>
-                            <x-atoms.table.td align="end" width="20%">{{$item['total_bayar']}}</x-atoms.table.td>
+                            <x-atoms.table.td>
+                                {{$item['penjualan_type']}}
+                            </x-atoms.table.td>
+                            <x-atoms.table.td>
+                                <div class="row">
+                                    <div class="col-6">ID</div>
+                                    <div class="col-6">{{$item['penjualan_kode']}}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">ID</div>
+                                    <div class="col-6">{{$item['penjualan_kode']}}</div>
+                                </div>
+                            </x-atoms.table.td>
+                            <x-atoms.table.td>
+                                {{$item['total_tagihan']}}
+                            </x-atoms.table.td>
+                            <x-atoms.table.td>
+                                {{$item['total_bayar']}}
+                            </x-atoms.table.td>
                             <x-atoms.table.td width="15%">
                                 <button type="button" class="btn btn-flush btn-active-color-info" wire:click="editLine({{$index}})"><i class="la la-edit fs-2"></i></button>
                                 <button type="button" class="btn btn-flush btn-active-color-info" wire:click="destroyLine({{$index}})"><i class="la la-trash fs-2"></i></button>
