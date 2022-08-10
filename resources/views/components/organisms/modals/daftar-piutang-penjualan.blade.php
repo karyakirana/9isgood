@@ -10,7 +10,7 @@
         let piutang_penjualan_modal = document.getElementById('modalPiutangPenjualan');
         let piutangPenjualanModal = new bootstrap.Modal(piutang_penjualan_modal);
 
-        Livewire.on('modalPiutangShow',() =>{
+        Livewire.on('showPiutangPenjualanModal',() =>{
             piutangPenjualanModal.show();
         });
 

@@ -160,11 +160,11 @@ class PenerimaanPenjualanService
         foreach ($this->data_detail as $item) {
             // store piutang_penerimaan_penjualan
             $penerimaanPenjualanDetail->create([
-                'nominal_dibayar',
-                'kurang_bayar'=>$item->kurang_bayar,
+                'nominal_dibayar'=>$item['total_tagihan'] - $item['kurang_bayar'],
+                'kurang_bayar'=>$item['kurang_bayar'],
             ]);
             // update status piutang penjualan
-            $this->piutangPenjualanRepo->updateStatusPenjualan($item->piutang_penjualan_id, $item->status_bayar, $item->kurang_bayar);
+            $this->piutangPenjualanRepo->updateStatusPenjualan($item['piutang_penjualan_id'], $item['status_bayar'], $item['kurang_bayar']);
         }
     }
 
@@ -174,7 +174,7 @@ class PenerimaanPenjualanService
     protected function updateStatusPiutangPenjualan()
     {
         foreach ($this->data_detail as $item) {
-            $this->piutangPenjualanRepo->updateStatusPenjualan($item->piutang_penjualan_id, $item->status, $item->kurang_bayar);
+            $this->piutangPenjualanRepo->updateStatusPenjualan($item['piutang_penjualan_id'], $item['status_bayar'], $item['kurang_bayar']);
         }
     }
 
@@ -198,14 +198,25 @@ class PenerimaanPenjualanService
 
     /**
      * @param $penerimaanPenjualan
+     * @param $data
      * @return void
      */
-    protected function storeJurnalAndNeraca($penerimaanPenjualan)
+    protected function storeJurnalAndNeraca($penerimaanPenjualan, $data)
     {
         $this->jurnalTransaksiRepo->createDebet($this->akun_kas_id, PenerimaanPenjualan::class, $penerimaanPenjualan->id, $this->nominal_kas);
         $this->neracaSaldo->updateDebet($this->akun_kas_id, $this->nominal_kas);
         $this->jurnalTransaksiRepo->createKredit($this->akun_piutang_id, PenerimaanPenjualan::class, $penerimaanPenjualan->id, $this->nominal_piutang);
         $this->neracaSaldo->updateKredit($this->akun_piutang_id, $this->nominal_piutang);
+    }
+
+    protected function sumBiayaLain()
+    {
+        //
+    }
+
+    protected function sumPPN()
+    {
+        //
     }
 
     protected function rollback()

@@ -87,15 +87,15 @@
                 <form>
                     <div class="row mb-5">
                         <div class="col-6">
-                            <x-atoms.input.group-horizontal label="Akun Kas" name="akun_kas" required="required">
+                            <x-atoms.input.group-horizontal label="Akun Kas" name="akun_kas_id" required="required">
                                 <x-atoms.input.select>
-                                    <x-molecules.select.akun-kas-list />
+                                    <x-molecules.select.akun-kas-list wire:model.defer="akun_kas_id" />
                                 </x-atoms.input.select>
                             </x-atoms.input.group-horizontal>
                         </div>
                         <div class="col-6">
-                            <x-atoms.input.group-horizontal label="Nominal Kas" name="akun_kas" required="required">
-                                <x-atoms.input.text id="tgl_jurnal"/>
+                            <x-atoms.input.group-horizontal label="Nominal Kas" name="nominal_kas" required="required">
+                                <x-atoms.input.text wire:model.defer="nominal_kas"/>
                             </x-atoms.input.group-horizontal>
                         </div>
 
@@ -105,7 +105,7 @@
                             <x-atoms.button.btn-link-primary class="btn-flex ml-5" data-bs-toggle="modal" data-bs-target="#customer_modal">Customer</x-atoms.button.btn-link-primary>
                         </div>
                         <div class="col-4 text-center">
-                            <x-atoms.button.btn-primary color="info" wire:click="addPiutangData">Add Piutang</x-atoms.button.btn-primary>
+                            <x-atoms.button.btn-primary color="info" wire:click="piutangPenjualanShow">Add Piutang</x-atoms.button.btn-primary>
                         </div>
                         <div class="col-4 text-center">
                             @if($update)
@@ -127,7 +127,7 @@
                             <th style="width: 15%"></th>
                         </tr>
                     </x-slot>
-                    @forelse($detail as $index=>$item)
+                    @forelse($data_detail as $index=>$item)
                         <tr class="align-middle">
                             <x-atoms.table.td>
                                 {{$item['penjualan_type']}}
@@ -221,13 +221,18 @@
             </x-atoms.input.group-horizontal>
         </div>
         <div class="mb-5">
-            <x-atoms.input.group-horizontal label="Total Tagihan">
-                <x-atoms.input.text name="total_tagihan" wire:model.defer="total_tagihan_rupiah" readonly="" />
+            <x-atoms.input.group-horizontal label="Tagihan">
+                <x-atoms.input.text name="tagihan" wire:model.defer="tagihan" readonly="" />
             </x-atoms.input.group-horizontal>
         </div>
         <div class="mb-5">
-            <x-atoms.input.group-horizontal label="Total Bayar">
-                <x-atoms.input.text name="total_bayar" wire:model.defer="total_bayar"/>
+            <x-atoms.input.group-horizontal label="Nominal Bayar">
+                <x-atoms.input.text name="nominal_bayar" wire:model.defer="nominal_bayar"/>
+            </x-atoms.input.group-horizontal>
+        </div>
+        <div class="mb-5">
+            <x-atoms.input.group-horizontal label="Kurang Bayar">
+                <x-atoms.input.text name="kurang_bayar" wire:model.defer="kurang_bayar"/>
             </x-atoms.input.group-horizontal>
         </div>
         <div class="text-center pb-4 pt-5">
