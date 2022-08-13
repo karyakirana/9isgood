@@ -7,7 +7,12 @@ use App\Models\Keuangan\JurnalPenjualan;
 use App\Models\Keuangan\PersediaanTransaksi;
 use App\Models\Keuangan\PiutangPenjualanLama;
 use App\Models\Keuangan\PiutangPenjualanLamaDetail;
-use App\Haramain\Traits\ModelTraits\{CustomerTraits, GudangTraits, KodeTraits, StockKeluarTraits, UserTraits};
+use App\Haramain\Traits\ModelTraits\{CustomerTraits,
+    GudangTraits,
+    JurnalTransaksiTraits,
+    KodeTraits,
+    StockKeluarTraits,
+    UserTraits};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,6 +20,7 @@ class Penjualan extends Model
 {
     use HasFactory, KodeTraits, CustomerTraits, GudangTraits, UserTraits, StockKeluarTraits;
     use PiutangPenjualanTrait;
+    use JurnalTransaksiTraits;
     protected $table = 'haramainv2.penjualan';
     protected $fillable = [
         'kode',
@@ -37,11 +43,6 @@ class Penjualan extends Model
     public function penjualanDetail()
     {
         return $this->hasMany(PenjualanDetail::class, 'penjualan_id');
-    }
-
-    public function jurnal_penjualan()
-    {
-        return $this->hasOne(JurnalPenjualan::class, 'penjualan_id');
     }
 
     public function persediaan_transaksi()

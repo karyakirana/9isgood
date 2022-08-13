@@ -35,4 +35,9 @@ class PersediaanTransaksi extends Model
     {
         return $this->hasMany(PersediaanTransaksiDetail::class, 'persediaan_transaksi_id');
     }
+
+    public function jurnal_transaksi()
+    {
+        return $this->morphToMany(JurnalTransaksi::class, 'jurnalable_transaksi', 'jurnal_type', 'jurnal_id');
+    }
 }

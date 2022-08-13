@@ -203,20 +203,28 @@ class PenerimaanPenjualanService
      */
     protected function storeJurnalAndNeraca($penerimaanPenjualan, $data)
     {
+        // store debet first
         $this->jurnalTransaksiRepo->createDebet($this->akun_kas_id, PenerimaanPenjualan::class, $penerimaanPenjualan->id, $this->nominal_kas);
         $this->neracaSaldo->updateDebet($this->akun_kas_id, $this->nominal_kas);
+        // store kredit after
         $this->jurnalTransaksiRepo->createKredit($this->akun_piutang_id, PenerimaanPenjualan::class, $penerimaanPenjualan->id, $this->nominal_piutang);
         $this->neracaSaldo->updateKredit($this->akun_piutang_id, $this->nominal_piutang);
     }
 
-    protected function sumBiayaLain()
+    protected function setBiayaLain()
     {
-        //
+        /**
+         * mengkategorikan dan menjumlahkan per kategori jenis biaya_lain
+         * dari data_detail
+         */
     }
 
-    protected function sumPPN()
+    protected function setPPN()
     {
-        //
+        /**
+         * mengkategorikan dan menjumlahkan per kategori jenis biaya_lain
+         * dari data_detail
+         */
     }
 
     protected function rollback()
