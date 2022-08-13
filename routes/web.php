@@ -65,6 +65,10 @@ Route::middleware('auth')->group(function (){
     Route::get('penjualan/trans', \App\Http\Livewire\Penjualan\PenjualanForm::class)->name('penjualan.trans');
     Route::get('penjualan/trans/{penjualan}', \App\Http\Livewire\Penjualan\PenjualanForm::class);
 
+    // testing penjualan
+    Route::get('testingpenjualan', \App\Http\Livewire\Testing\TestingPenjualanIndex::class)->name('testingpenjualan');
+    Route::get('testingpenjualan/trans', \App\Http\Livewire\Testing\TestingPenjualanForm::class)->name('testingpenjualan.trans');
+
     Route::get('penjualan/print/{penjualan}', [\App\Http\Controllers\Sales\ReceiptController::class, 'penjualanDotMatrix']);
 
     Route::get('penjualan/pdf/{penjualan}/report', [\App\Http\Controllers\Pdf\ReportPdfController::class, 'penjualanPdf']);
@@ -117,6 +121,11 @@ Route::middleware('auth')->group(function (){
     Route::get('stock/card/{produk_id}/{gudang_id}', \App\Http\Livewire\Stock\StockCardIndex::class)->name('stock.card');
 
     Route::get('stock/print/stockopname', [\App\Http\Controllers\Stock\StockOpnameController::class, 'reportStockByProduk'])->name('stock.print.stockopname');
+
+    // testing stock
+    Route::get('testing/stockmasuk/index', \App\Http\Livewire\Testing\TestingStockMasukIndex::class)->name('testing.stockmasuk.index');
+    Route::get('testing/stockmasuk/form', \App\Http\Livewire\Pembelian\PembelianInternalForm::class)->name('testing.stockmasuk.form');
+
 
     // stock transaksi
     Route::get('stock/transaksi/masuk', \App\Http\Livewire\Pembelian\PembelianInternalIndex::class)->name('stock.masuk');
