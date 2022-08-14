@@ -24,21 +24,21 @@ class PersediaanRepository
         // get data by produk_id
         $persediaan = Persediaan::query()
             ->where('active_cash', session('ClosedCash'))
-            ->where('produk_id', $dataItem['produk_id']);
+            ->where('produk_id', $dataDetail['produk_id']);
         $persediaanSum = $persediaan->sum('jumlah');
         $persediaanCount = $persediaan->count();
         // get persediaan
         $persediaanGet = $persediaan->oldest('tgl_input')->get();
         // loop persediaan
         $setData = [];
-        $jumlahProduk = $dataItem['jumlah'];
+        $jumlahProduk = $dataDetail['jumlah'];
         for ($count = 0; $count < $persediaanCount; $count++){
             $jumlahField = $persediaanGet[$count]->stock_saldo;
             $hargaField = $persediaanGet[$count]->harga;
             if ($jumlahProduk > $jumlahField){
                 // continue
                 $setData[] = [
-                    'produk_id'=>$dataItem['produk_id'],
+                    'produk_id'=>$dataDetail['produk_id'],
                     'jumlah'=>$jumlahField,
                     'harga_persediaan'=>$hargaField
                 ];
@@ -46,8 +46,8 @@ class PersediaanRepository
             }
             // break
             $setData[] = [
-                'produk_id'=>$dataItem['produk_id'],
-                'jumlah'=>$dataItem['jumlah'],
+                'produk_id'=>$dataDetail['produk_id'],
+                'jumlah'=>$dataDetail['jumlah'],
                 'harga_persediaan'=>$hargaField
             ];
             break;
