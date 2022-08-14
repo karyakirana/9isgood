@@ -65,10 +65,14 @@ Route::middleware('auth')->group(function (){
     Route::get('penjualan/trans', \App\Http\Livewire\Penjualan\PenjualanForm::class)->name('penjualan.trans');
     Route::get('penjualan/trans/{penjualan}', \App\Http\Livewire\Penjualan\PenjualanForm::class);
 
+    // testing stock mutasi
+    Route::get('testing/stockmutasi', [\App\Http\Controllers\Testing\TestingStockMutasi::class, 'testingstockMutasi']);
+
     // testing penjualan
     Route::get('testing/penjualan', \App\Http\Livewire\Testing\TestingPenjualanIndex::class)->name('testingpenjualan');
     Route::get('testing/penjualan/trans', \App\Http\Livewire\Testing\TestingPenjualanForm::class)->name('testingpenjualan.trans');
-    Route::get('testing/generate/penjualan/', \App\Http\Livewire\Datatables\Testing\GeneratePenjualanToStockMasuk::class)->name('testing.generate.penjualan');
+    Route::get('testing/generate/penjualan/stockmasuk', [\App\Http\Controllers\Testing\TestingPenjualanToStockMasuk::class, 'testinggeneratePenjualan']);
+    Route::get('testing/generate/penjualan/persediaan', [\App\Http\Controllers\Testing\TestingPenjualanToPersediaan::class, 'testingPenjualanToPersediaan']);
 
 
     Route::get('penjualan/print/{penjualan}', [\App\Http\Controllers\Sales\ReceiptController::class, 'penjualanDotMatrix']);

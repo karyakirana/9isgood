@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Http\Livewire\Datatables\Stock;
+namespace App\Http\Livewire\Datatables\Testing;
 
 use App\Haramain\Traits\LivewireTraits\DatatablesTraits;
+use App\Models\Penjualan\Penjualan;
 use App\Models\Stock\StockMutasi;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
-class StockMutasiTable extends DataTableComponent
+class GenerateStockMutasi extends DataTableComponent
 {
 //    use DatatablesTraits;
 //    public $jenisMutasi;
@@ -42,17 +43,12 @@ class StockMutasiTable extends DataTableComponent
 
     public function query(): Builder
     {
-        $query = StockMutasi::query()
+        return StockMutasi::query()
             ->where('active_cash', session('ClosedCash'));
-        if ($this->jenisMutasi == null){
-            return $query;
-        }
-
-        return $query->where('jenis_mutasi', $this->jenisMutasi);
     }
 
     public function rowView(): string
     {
-        return 'livewire-tables.testing.testing_stock_mutasi';
+        return 'livewire-tables.Testing.testing_stock_mutasi';
     }
 }
