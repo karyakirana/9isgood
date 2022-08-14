@@ -66,8 +66,8 @@ Route::middleware('auth')->group(function (){
     Route::get('penjualan/trans/{penjualan}', \App\Http\Livewire\Penjualan\PenjualanForm::class);
 
     // testing penjualan
-    Route::get('testingpenjualan', \App\Http\Livewire\Testing\TestingPenjualanIndex::class)->name('testingpenjualan');
-    Route::get('testingpenjualan/trans', \App\Http\Livewire\Testing\TestingPenjualanForm::class)->name('testingpenjualan.trans');
+    Route::get('testing/penjualan', \App\Http\Livewire\Testing\TestingPenjualanIndex::class)->name('testingpenjualan');
+    Route::get('testing/penjualan/trans', \App\Http\Livewire\Testing\TestingPenjualanForm::class)->name('testingpenjualan.trans');
 
     Route::get('penjualan/print/{penjualan}', [\App\Http\Controllers\Sales\ReceiptController::class, 'penjualanDotMatrix']);
 

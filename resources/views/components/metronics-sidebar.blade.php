@@ -898,6 +898,30 @@
                                     <!--end:Menu link-->
                                 </div>
                                 <!--end:Menu item-->
+                                <!--begin:Menu item-->
+                                <div class="menu-item">
+                                    <!--begin:Menu link-->
+                                    <a class="menu-link {{request()->is('keuangan/jurnal/persediaan/jurnal') ? 'active' : ''}}" href="{{route('persediaan.jurnal')}}">
+                                            <span class="menu-bullet">
+                                                <span class="bullet bullet-dot"></span>
+                                            </span>
+                                        <span class="menu-title">Jurnal Persediaan</span>
+                                    </a>
+                                    <!--end:Menu link-->
+                                </div>
+                                <!--end:Menu item-->
+                                <!--begin:Menu item-->
+                                <div class="menu-item">
+                                    <!--begin:Menu link-->
+                                    <a class="menu-link {{request()->is('keuangan/jurnal/transaksi') ? 'active' : ''}}" href="{{route('persediaan')}}">
+                                            <span class="menu-bullet">
+                                                <span class="bullet bullet-dot"></span>
+                                            </span>
+                                        <span class="menu-title">Persediaan</span>
+                                    </a>
+                                    <!--end:Menu link-->
+                                </div>
+                                <!--end:Menu item-->
                             </div>
                             <!--end:Menu sub-->
                         </div>

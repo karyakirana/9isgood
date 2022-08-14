@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Kasir\PiutangPenjualanController;
+use App\Http\Controllers\Keuangan\Jurnal\JurnalPersediaanController;
 use App\Http\Controllers\Keuangan\JurnalPiutangPenjualanAwalController;
 use App\Http\Controllers\Keuangan\Neraca\PiutangPenjualanAwalController;
 use App\Http\Livewire\Keuangan\Jurnal\{JurnalTransaksiIndex, JurnalUmumForm, JurnalUmumIndex};
@@ -135,6 +136,10 @@ Route::middleware('auth')->group(function (){
 
     // jurnal transaksi
     Route::get('keuangan/jurnal/transaksi', JurnalTransaksiIndex::class)->name('jurnal.transaksi');
+
+    // jurnal persediaan
+    Route::get('keuangan/jurnal/persediaan', [JurnalPersediaanController::class, 'indexPersediaan'])->name('persediaan');
+    Route::get('keuangan/jurnal/persediaan/jurnal', [JurnalPersediaanController::class, 'index'])->name('persediaan.jurnal');
 
     // laba rugi
     Route::get('keuangan/labarugi')->name('keuangan.labarugi');
