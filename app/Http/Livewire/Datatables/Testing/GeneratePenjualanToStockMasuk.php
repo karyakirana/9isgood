@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Livewire\Testing;
+namespace App\Http\Livewire\Datatables\Testing;
 
+use App\Models\Penjualan\Penjualan;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
@@ -24,6 +25,6 @@ class GeneratePenjualanToStockMasuk extends DataTableComponent
 
     public function rowView(): string
     {
-        return 'livewire-tables.testing.testing_penjualan_to_stock_masuk_table';
+        return 'livewire-tables.testing.testing_penjualan_to_stock_masuk';
     }
 }
