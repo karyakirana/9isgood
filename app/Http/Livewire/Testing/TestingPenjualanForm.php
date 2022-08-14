@@ -262,7 +262,7 @@ class TestingPenjualanForm extends Component
             'akunPiutangId'=>'required',
             'akunPendapatanPenjualan'=>'required',
             'pendapatan'=>'required',
-            'biaya_lain'=>( (int)$this->biayaLain > 0) ?'required' : 'nullable',
+            'baiayaLain'=>( (int)$this->biayaLain > 0) ?'required' : 'nullable',
             'akunHutangBiayaLain'=>( (int)$this->biayaLain > 0) ?'required' : 'nullable',
             'ppn'=>( (int)$this->ppn > 0) ?'required' : 'nullable',
             'akunHutangPPNId'=>( (int)$this->ppn > 0) ?'required' : 'nullable',

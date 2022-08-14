@@ -1,5 +1,7 @@
 <?php namespace App\Haramain\Service\SistemPenjualan;
 
+use App\Haramain\Service\SistemKeuangan\Jurnal\JurnalPersediaanService;
+use App\Haramain\Service\SistemKeuangan\Jurnal\PersediaanRepository;
 use App\Haramain\Service\SistemKeuangan\Neraca\NeracaSaldoRepository;
 use App\Haramain\Service\SistemKeuangan\Neraca\SaldoPiutangPenjualanRepo;
 use App\Haramain\Service\SistemStock\StockKeluarRepo;
@@ -10,6 +12,8 @@ class PenjualanService
 {
     // initiate on construct
     protected $stockKeluarRepo;
+    protected $jurnalPersediaanService;
+    protected $persediaanRepo;
 
     // initiate variabel
     protected $penjualan;
@@ -21,6 +25,7 @@ class PenjualanService
     protected $persediaan;
     protected $jurnalTransaksi;
     protected $neracaSaldo;
+    protected $jurnalPersediaan;
 
     // database variabel
     public $penjualanId;
@@ -40,7 +45,11 @@ class PenjualanService
     protected $keterangan;
     public $print;
 
+    // database stock dan persediaan
+    public $kondisi;
+
     protected $dataDetail;
+    protected $dataDetailOut;
 
     // jurnal config variable
     protected $akun_piutang_id;
@@ -56,12 +65,21 @@ class PenjualanService
         $this->stockKeluarRepo = new StockKeluarRepo();
         $this->saldoPiutangPenjualan = new SaldoPiutangPenjualanRepo();
         $this->neracaSaldo = new NeracaSaldoRepository();
+        $this->jurnalPersediaanService = new JurnalPersediaanService();
+        $this->persediaanRepo = new PersediaanRepository();
     }
 
     public function handleStore($data)
     {
         // exception jumlah barang yang tidak tersedia
         // atau barang kurang dari persediaan
+        $checkPersediaan = $this->jurnalPersediaanService->handleException($data['dataDetail'], 'baik');
+        if (!$checkPersediaan){
+            return [
+                'status'=>false,
+                'keterangan'=>'Jumlah salah satu produk kurang / tidak tersedia'
+            ];
+        }
         // set data
         $this->setData($data);
         // simpan penjualan
@@ -86,6 +104,8 @@ class PenjualanService
         // simpan jurnal transaksi dan neraca saldo
         $this->storeJurnalTransaksi();
         // proses persediaan
+        $this->jurnalPersediaan = $penjualan->persediaan_transaksi();
+        $this->dataDetailOut = $this->persediaanRepo->getPersediaanToOut($this->dataDetail);
         // return penjualan id
     }
 
@@ -118,32 +138,35 @@ class PenjualanService
     {
         $this->mode = $data['mode'];
         if ($this->mode == 'update'){
-            $this->penjualanId = $data['penjualan_id'];
+            $this->penjualanId = $data['penjualanId'];
         } else{
             $this->activeCash = session('ClosedCash');
             $this->kode = $this->getKode();
         }
-        $this->tglNota = tanggalan_database_format($data['tgl_nota'], 'd-M-Y');
-        $this->jenisbayar = $data['jenis_bayar'];
-        $this->tglTempo = ($this->jenisbayar == 'cash' || $this->jenisbayar == 'Tunai') ? null : tanggalan_database_format($data['tgl_nota'], 'd-M-Y');
-        $this->customerId = $data['customer_id'];
-        $this->gudangId = $data['gudang_id'];
+        $this->tglNota = tanggalan_database_format($data['tglNota'], 'd-M-Y');
+        $this->jenisbayar = $data['jenisBayar'];
+        $this->tglTempo = ($this->jenisbayar == 'cash' || $this->jenisbayar == 'Tunai') ? null : tanggalan_database_format($data['tglTempo'], 'd-M-Y');
+        $this->customerId = $data['customerId'];
+        $this->gudangId = $data['gudangId'];
         $this->userId = Auth::id();
         $this->statusBayar = 'belum';
-        $this->jumlahBarang = $data['jumlah_barang'];
-        $this->biayaLain = $data['biaya_lain'];
+        $this->jumlahBarang = $data['totalBarang'];
+        $this->biayaLain = $data['biayaLain'];
         $this->ppn = $data['ppn'];
-        $this->totalBayar = $data['total_bayar'];
-        $this->totalPendapatan = $data['total_bayar'] - (int)$data['biaya_lain'] - (int)$data['ppn'];
+        $this->totalBayar = $data['totalBayar'];
+        $this->totalPendapatan = $data['pendapatan'];
         $this->keterangan = $data['keterangan'];
-        $this->dataDetail = $data['data_detail'];
+        $this->dataDetail = $data['dataDetail'];
         $this->print = $data['print'];
 
+        // stock
+        $this->kondisi = 'baik';
+
         // akun pendapatan
-        $this->akun_pendapatan_id = $data['akun_pendapatan_id'];
-        $this->akun_piutang_id = $data['akun_piutang_id'];
-        $this->akun_hutang_biaya_lain_id = $data['akun_biaya_lain_id'];
-        $this->akun_hutang_biaya_lain_id = $data['akun_ppn_id'];
+        $this->akun_pendapatan_id = $data['akunPendapatanPenjualan'];
+        $this->akun_piutang_id = $data['akunPiutangId'];
+        $this->akun_hutang_biaya_lain_id = $data['akunHutangBiayaLain'];
+        $this->akun_hutang_ppn_id = $data['akunHutangPPNId'];
     }
 
     protected function store()
@@ -246,6 +269,26 @@ class PenjualanService
                 'keterangan'=>$this->keterangan
             ]);
             $this->neracaSaldo->updateKredit($this->akun_hutang_ppn_id, $this->ppn);
+        }
+    }
+
+    protected function storeJurnalPersediaanTransaksi()
+    {
+        $jurnal = $this->jurnalPersediaan->create([
+            'active_cash'=>$this->activeCash,
+            'kode'=>$this->kode,
+            'jenis'=>'keluar', // masuk atau keluar
+            'kondisi'=>$this->kondisi, // baik atau rusak
+            'gudang_id'=>$this->gudangId,
+        ]);
+        $jurnalDetail = $jurnal->persediaan_transaksi_detail();
+        foreach ($this->dataDetailOut as $item) {
+            $jurnalDetail->create([
+                'produk_id'=>$item['produk_id'],
+                'harga'=>$item['harga_persediaan'],
+                'jumlah'=>$item['jumlah'],
+                'sub_total'=>$item['harga_persediaan'] * $item['jumlah'],
+            ]);
         }
     }
 }

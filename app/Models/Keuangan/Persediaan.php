@@ -14,6 +14,7 @@ class Persediaan extends Model
     protected $fillable = [
         'active_cash',
         'jenis',// baik or buruk
+        'tgl_input',
         'gudang_id',
         'produk_id',
         'harga',

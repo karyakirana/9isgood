@@ -38,6 +38,6 @@ class PersediaanTransaksi extends Model
 
     public function jurnal_transaksi()
     {
-        return $this->morphToMany(JurnalTransaksi::class, 'jurnalable_transaksi', 'jurnal_type', 'jurnal_id');
+        return $this->morphMany(JurnalTransaksi::class, 'jurnalable_transaksi', 'jurnal_type', 'jurnal_id');
     }
 }
