@@ -4,6 +4,8 @@ use App\Http\Controllers\Kasir\PiutangPenjualanController;
 use App\Http\Controllers\Keuangan\Jurnal\JurnalPersediaanController;
 use App\Http\Controllers\Keuangan\JurnalPiutangPenjualanAwalController;
 use App\Http\Controllers\Keuangan\Neraca\PiutangPenjualanAwalController;
+use App\Http\Controllers\Keuangan\PersediaanController;
+use App\Http\Livewire\Config\ConfigJurnalForm;
 use App\Http\Livewire\Keuangan\Jurnal\{JurnalTransaksiIndex, JurnalUmumForm, JurnalUmumIndex};
 use App\Http\Livewire\Keuangan\{JurnalSetPiutangReturForm, JurnalSetPiutangReturIndex };
 use App\Http\Livewire\Keuangan\Neraca\{NeracaSaldoAwalIndex, NeracaSaldoIndex};
@@ -36,7 +38,7 @@ Route::middleware('auth')->group(function (){
     Route::get('keuangan/master/rekanan', RekananIndex::class)->name('keuangan.master.rekanan');
 
     // config keuangan
-    Route::get('config/akun', KonfigurasiJurnalIndex::class)->name('config');
+    Route::get('config/akun', ConfigJurnalForm::class)->name('config');
 
     // set piutang
     Route::get('kasir/penjualan/setpiutang')->name('keuangan.kasir.penjualan.setpiutang');
@@ -202,5 +204,9 @@ Route::middleware('auth')->group(function (){
 
     // kasir piutang penjualan
     Route::get('kasir/jurnal/piutangpenjualan', DaftarPiutangPenjualan::class)->name('keuangan.jurnal.piutangpenjualan'); // daftar piutang by customer
+
+    // keuangan log
+    Route::get('persediaan/log')->name('persediaan.log');
+    Route::get('persediaan/log/inventory', [PersediaanController::class, 'log'])->name('persediaan.log.transaksi');
 
 });

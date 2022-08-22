@@ -9,6 +9,7 @@ class JurnalPersediaanService
     // initiate
     protected $persediaanTransaksi;
     protected $persediaanTransaksiDetail;
+    protected $persediaanRepository;
     protected $jurnalTransaksi;
     protected $neracaSaldo;
 
@@ -37,6 +38,7 @@ class JurnalPersediaanService
     {
         $this->persediaanTransaksi = new PersediaanTransaksi();
         $this->neracaSaldo = new NeracaSaldoRepository();
+        $this->persediaanRepository = new PersediaanRepository();
     }
 
     public function handleException($data_detail, $kondisi)
@@ -46,7 +48,7 @@ class JurnalPersediaanService
         // jika item lebih dari persediaan maka akan menghasilkan exception
         $a = 0;
         foreach ($data_detail as $item) {
-            $a =+ $this->checkItem($item, $kondisi);
+            $a += $this->checkItem($item, $kondisi);
         }
         // jika salah satu item tidak ada atau kurang data
         // maka false
@@ -56,10 +58,11 @@ class JurnalPersediaanService
         return true;
     }
 
-    public function handleStore($data)
+    public function handleStoreOut($data, $dataOut = null)
     {
         // set data
         $this->setData($data);
+        $this->setDataOut($dataOut);
         // store data persediaan_transaksi
         $persediaanTransaksi = $this->store();
         // store data persediaan_transaksi_detail
@@ -85,11 +88,15 @@ class JurnalPersediaanService
         $this->activeCash = session('ClosedCash');
         $this->kode = $data['kode'];
         $this->jenis = $data['jenis'];
-        $this->tglInput = $data['tgl_input'];
+        $this->tglInput = $data['tglNota'];
         $this->kondisi = $data['kondisi'];
-        $this->gudangId = $data['gudang_id'];
-        $this->dataDetail = $data['data_detail'];
-        $this->dataDetailOut = $data['data_detail_out'];
+        $this->gudangId = $data['gudangId'];
+        $this->dataDetail = $data['dataDetail'];
+    }
+
+    protected function setDataOut($dataOut)
+    {
+        $this->dataDetailOut = $dataOut;
     }
 
     protected function setKode($jenis, $kondisi = 'baik')
@@ -171,40 +178,9 @@ class JurnalPersediaanService
         return 1;
     }
 
-    protected function getPersediaanToOut($dataItem, $field)
+    public function getPersediaanToOut($dataItem, $kondisi)
     {
-        // get data by produk_id
-        $persediaan = Persediaan::query()
-            ->where('active_cash', $this->activeCash)
-            ->where('produk_id', $dataItem['produk_id']);
-        $persediaanSum = $persediaan->sum('jumlah');
-        $persediaanCount = $persediaan->count();
-        // get persediaan
-        $persediaanGet = $persediaan->oldest('tgl_input')->get();
-        // loop persediaan
-        $setData = [];
-        $jumlahProduk = $dataItem['jumlah'];
-        for ($count = 0; $count < $persediaanCount; $count++){
-            $jumlahField = $persediaanGet[$count]->{$field};
-            $hargaField = $persediaanGet[$count]->harga;
-            if ($jumlahProduk > $jumlahField){
-                // continue
-                $setData[] = [
-                    'produk_id'=>$dataItem['produk_id'],
-                    'jumlah'=>$jumlahField,
-                    'harga_persediaan'=>$hargaField
-                ];
-                continue;
-            }
-            // break
-            $setData[] = [
-                'produk_id'=>$dataItem['produk_id'],
-                'jumlah'=>$dataItem['jumlah'],
-                'harga_persediaan'=>$hargaField
-            ];
-            break;
-        }
-        return $setData;
+        return $this->persediaanRepository->getPersediaanToOut($dataItem, $kondisi);
     }
 
     protected function storeJurnalTransaksiAndNeracaSaldoIn()

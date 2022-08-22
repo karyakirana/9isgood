@@ -6,7 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 trait StockInventoryTrait
 {
-    private function stockIncrement($jenis, $gudang_id, $produk_id, $field, $jumlah): Model|Builder|int
+    protected function stockInIncrement()
+    {
+        //
+    }
+
+    private function stockIncrement($jenis, $gudang_id, $produk_id, $field, $jumlah)
     {
         $builder = StockInventory::query()
             ->where('active_cash', session('ClosedCash'))
@@ -30,7 +35,7 @@ trait StockInventoryTrait
         return $builder->increment('stock_saldo', $jumlah);
     }
 
-    private function stockRollback($jenis, $gudang_id, $produk_id, $field, $jumlah): int
+    private function stockRollback($jenis, $gudang_id, $produk_id, $field, $jumlah)
     {
         $builder = StockInventory::query()
             ->where('active_cash', session('ClosedCash'))

@@ -1,0 +1,21 @@
+<x-atoms.table.td>
+    {{$row->stockMutasi->kode}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->stockMutasi->gudangAsal->nama}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->stockMutasi->gudangTujuan->nama}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->stockMutasi->tgl_mutasi}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->produk->kode_lokal}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->produk->nama}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->jumlah}}
+</x-atoms.table.td>

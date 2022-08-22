@@ -1,0 +1,19 @@
+<x-atoms.table.td>
+    {{$row->stockMasuk->stockable_masuk->kode}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->stockMasuk->stockable_masuk_type}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->stockMasuk->stockable_masuk->tgl_nota}}
+    {{$row->stockMasuk->stockable_masuk->tgl_mutasi}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->produk->kode_lokal}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->produk->nama}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->jumlah}}
+</x-atoms.table.td>

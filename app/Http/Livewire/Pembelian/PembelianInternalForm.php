@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Pembelian;
 
 use App\Haramain\Repository\Pembelian\PembelianCobaRepo;
 use App\Haramain\Repository\Pembelian\PembelianInternalRepo;
+use App\Haramain\Service\SistemPembelian\PembelianInternalService;
 use App\Models\Keuangan\HargaHppALL;
 use App\Models\KonfigurasiJurnal;
 use App\Models\Master\Gudang;
@@ -15,20 +16,109 @@ use Livewire\Component;
 
 class PembelianInternalForm extends Component
 {
-    use PembelianFormTraits;
-
-    public function render()
-    {
-        return view('livewire.pembelian.pembelian-internal-form');
-    }
-
     protected $listeners = [
         'set_supplier'=>'setSupplier',
         'set_produk'=>'setProduk'
     ];
 
-    // var master
+    // initiate
+    protected $pembelianInternalService;
+    public $update = false;
+    public $mode = 'create';
+
+    // var pembelian
+    public $pembelianId;
+    public $nomorNota = '-', $suratJalan = '-';
+    public $supplierId, $supplierNama;
+    public $gudangId;
+    public $userId;
+    public $tglNota, $tglTempo;
+    public $jenisBayar = 'tunai';
+    public $totalBarang;
+    public $totalPembelian;
+    public $ppn, $biayaLain;
+    public $totalBayar;
+    public $keterangan;
+
+    public $dataDetail = [];
+
+    // var pembelian internal
     public $jenis = 'INTERNAL', $kondisi='baik';
+
+    // var pembelian detail
+    public $produk_id, $harga, $jumlah, $diskon, $sub_total;
+    public $produk_kode_lokal, $produk_nama, $produk_harga;
+    public $hpp, $harga_setelah_hpp;
+
+    // var jurnal transaksi
+    public $akunHutangPembelianId, $akunPembelianId, $akunPPNPembelianId, $akunBiayaLainPembelianId;
+    public $akunPersediaanId;
+
+    // var stock masuk
+    public $tglMasuk, $nomorPo;
+
+    // var persediaan
+    public $jenisPersediaan = 'masuk';
+    public $tglInput;
+
+    public function __construct($id = null)
+    {
+        parent::__construct($id);
+        $this->pembelianInternalService = new PembelianInternalService();
+    }
+
+    public function mount($pembelianId = null)
+    {
+        $this->mode = 'update';
+        // set tanggal
+        $this->tglNota = tanggalan_format(now('ASIA/JAKARTA'));
+        $this->tglTempo = tanggalan_format(now('ASIA/JAKARTA')->addMonth(2));
+        // set akun
+        $this->akunHutangPembelianId = KonfigurasiJurnal::query()->find('biaya_pembelian')->akun_id ?? '';
+        $this->akunPPNPembelianId = KonfigurasiJurnal::query()->find('ppn_pembelian')->akun_id ?? '';
+        if ($this->jenis == 'internal'){
+            $this->akunHutangPembelianId = KonfigurasiJurnal::query()->find('hutang_dagang_internal')->akun_id ?? '';
+        } else {
+            $this->akunHutangPembelianId = KonfigurasiJurnal::query()->find('hutang_dagang')->akun_id ?? '';
+        }
+        $this->akunPersediaanId = KonfigurasiJurnal::query()->find('persediaan')->akun_id ?? '';
+
+        // load hpp
+        $this->hpp = HargaHppALL::query()->latest()->first()->persen;
+        if ($pembelianId){
+            // untuk kepentingan edit
+            $pembelian = $this->pembelianInternalService->handleEdit($pembelianId);
+            $this->pembelianId = $pembelian->id;
+            $this->supplierId = $pembelian->supplier_id;
+            $this->supplierNama = $pembelian->supplier->nama;
+            $this->gudangId = $pembelian->gudang_id;
+            $this->userId = $pembelian->users->id;
+            $this->tglNota = tanggalan_format($pembelian->tgl_nota);
+            $this->tglTempo = ($pembelian->jenis_bayar == 'tempo') ? tanggalan_format($pembelian->tgl_tempo) : $this->tglTempo;
+            $this->jenisBayar = $pembelian->jenis_bayar;
+            $this->ppn = $pembelian->ppn;
+            $this->biayaLain = $pembelian->biaya_lain;
+            $this->totalBayar = $pembelian->total_bayar;
+            $this->keterangan = $pembelian->keterangan;
+
+            foreach ($pembelian->pembelianDetail as $item) {
+                $this->dataDetail[] = [
+                    'produk_id'=>$item->produk_id,
+                    'produk_kode_lokal'=>$item->produk->kode_lokal,
+                    'produk_nama'=>$item->produk->nama,
+                    'produk_harga'=>$item->produk->harga,
+                    'diskon'=>$item->diskon,
+                    'harga'=>$item->harga,
+                    'jumlah'=>$item->jumlah,
+                    'sub_total'=>$item->sub_total
+                ];
+            }
+
+            $this->totalBarang = array_sum(array_column($this->dataDetail, 'jumlah'));
+            $this->totalPembelian = array_sum(array_column($this->dataDetail, 'sub_total'));
+            $this->totalBayar = $this->totalPembelian + (int) $this->ppn + (int) $this->biayaLain;
+        }
+    }
 
     public function setProduk(Produk $produk)
     {
@@ -38,6 +128,12 @@ class PembelianInternalForm extends Component
         $this->produk_harga = $produk->harga;
         $this->hitungHpp();
         //dd($this->produk_harga);
+    }
+
+    public function setSupplier(Supplier $supplier)
+    {
+        $this->supplierId = $supplier->id;
+        $this->supplierNama = $supplier->nama;
     }
 
     public function hitungHpp()
@@ -50,23 +146,33 @@ class PembelianInternalForm extends Component
         $this->sub_total = $this->harga_setelah_hpp * $this->jumlah;
     }
 
+    public function resetFormDetail()
+    {
+        $this->reset([
+            'produk_id', 'produk_kode_lokal', 'produk_harga', 'diskon',
+            'harga', 'harga_setelah_hpp', 'jumlah', 'sub_total'
+        ]);
+    }
+
     public function addLine()
     {
         $this->validate([
             'produk_nama'=>'required',
-            'jumlah'=>'required'
+            'jumlah'=>'required',
+            'hpp'=>'required'
         ]);
         $this->hitungSubTotal();
-        $this->data_detail[] = [
+        $this->dataDetail[] = [
             'produk_id'=>$this->produk_id,
             'produk_kode_lokal'=>$this->produk_kode_lokal,
             'produk_nama'=>$this->produk_nama,
             'produk_harga'=>$this->produk_harga,
-            'diskon'=>null,
+            'diskon'=>0,
             'harga'=>$this->harga_setelah_hpp,
             'jumlah'=>$this->jumlah,
             'sub_total'=>$this->sub_total
         ];
+
         // dd($this->harga_setelah_hpp);
         $this->reset(['produk_id', 'produk_kode_lokal', 'produk_nama', 'produk_harga', 'harga_setelah_hpp', 'jumlah', 'sub_total']);
     }
@@ -75,13 +181,13 @@ class PembelianInternalForm extends Component
     {
         $this->update = true;
         $this->index_detail = $index;
-        $this->produk_id = $this->data_detail[$index]['produk_id'];
-        $this->produk_kode_lokal = $this->data_detail[$index]['produk_kode_lokal'];
-        $this->produk_nama = $this->data_detail[$index]['produk_nama'];
-        $this->produk_harga = $this->data_detail[$index]['produk_harga'];
-        $this->harga_setelah_hpp = $this->data_detail[$index]['harga'];
-        $this->jumlah = $this->data_detail[$index]['jumlah'];
-        $this->sub_total = $this->data_detail[$index]['sub_total'];
+        $this->produk_id = $this->dataDetail[$index]['produk_id'];
+        $this->produk_kode_lokal = $this->dataDetail[$index]['produk_kode_lokal'];
+        $this->produk_nama = $this->dataDetail[$index]['produk_nama'];
+        $this->produk_harga = $this->dataDetail[$index]['produk_harga'];
+        $this->harga_setelah_hpp = $this->dataDetail[$index]['harga'];
+        $this->jumlah = $this->dataDetail[$index]['jumlah'];
+        $this->sub_total = $this->dataDetail[$index]['sub_total'];
     }
 
     public function updateLine()
@@ -92,13 +198,13 @@ class PembelianInternalForm extends Component
         ]);
         $this->hitungSubTotal();
         $index = $this->index_detail;
-        $this->data_detail[$index]['produk_id'] = $this->produk_id;
-        $this->data_detail[$index]['produk_kode_lokal'] = $this->produk_kode_lokal;
-        $this->data_detail[$index]['produk_nama'] = $this->produk_nama;
-        $this->data_detail[$index]['produk_harga'] = $this->produk_harga;
-        $this->data_detail[$index]['harga'] = $this->harga_setelah_hpp;
-        $this->data_detail[$index]['jumlah'] = $this->jumlah;
-        $this->data_detail[$index]['sub_total'] = $this->sub_total;
+        $this->dataDetail[$index]['produk_id'] = $this->produk_id;
+        $this->dataDetail[$index]['produk_kode_lokal'] = $this->produk_kode_lokal;
+        $this->dataDetail[$index]['produk_nama'] = $this->produk_nama;
+        $this->dataDetail[$index]['produk_harga'] = $this->produk_harga;
+        $this->dataDetail[$index]['harga'] = $this->harga_setelah_hpp;
+        $this->dataDetail[$index]['jumlah'] = $this->jumlah;
+        $this->dataDetail[$index]['sub_total'] = $this->sub_total;
         $this->update = false;
         $this->reset(['produk_id', 'produk_kode_lokal', 'produk_nama', 'produk_harga', 'harga_setelah_hpp', 'jumlah', 'sub_total']);
     }
@@ -106,17 +212,77 @@ class PembelianInternalForm extends Component
     public function destroyLine($index)
     {
         // remove line transaksi
-        unset($this->data_detail[$index]);
-        $this->data_detail = array_values($this->data_detail);
+        unset($this->dataDetail[$index]);
+        $this->dataDetail = array_values($this->dataDetail);
+    }
+
+    protected function setDataValidate()
+    {
+        $this->totalBarang = array_sum(array_column($this->dataDetail, 'jumlah'));
+        $this->totalPembelian = array_sum(array_column($this->dataDetail, 'sub_total'));
+        $this->totalBayar = $this->totalPembelian + (int) $this->ppn + (int) $this->biayaLain;
+        $this->userId = \Auth::id();
+        $this->tglInput = $this->tglNota;
+        $this->tglMasuk = $this->tglNota;
+        return $this->validate([
+            'pembelianId'=>($this->pembelianId) ? 'required' : 'nullable',
+            'nomorNota'=>'nullable',
+            'suratJalan'=>'nullable',
+            'jenis'=>'required',
+            'supplierId'=>'required',
+            'supplierNama'=>'required',
+            'gudangId'=>'required',
+            'userId'=>'required',
+            'tglNota'=>'required|date:d-M-Y',
+            'tglTempo'=>($this->jenisBayar == 'tempo') ? 'required|date:d-M-Y' : 'nullable',
+            'jenisBayar'=>'required',
+            'totalBarang'=>'required',
+            'totalPembelian'=>'required',
+            'ppn'=>((int)$this->ppn > 0) ? 'required' : 'nullable',
+            'biayaLain'=>((int)$this->biayaLain > 0) ? 'required' : 'nullable',
+            'totalBayar'=>'required',
+            'keterangan'=>'nullable',
+
+            // data detail
+            'dataDetail'=>'required',
+
+            // akun
+            'akunHutangPembelianId'=>'required',
+            'akunPersediaanId'=>'required',
+            'akunPPNPembelianId'=>((int)$this->ppn > 0) ? 'required' : 'nullable',
+            'akunBiayaLainPembelianId'=>((int)$this->biayaLain > 0) ? 'required' : 'nullable',
+
+            // stock masuk
+            'kondisi'=>'required',
+            'nomorPo'=>'nullable',
+            'tglMasuk'=>'required|date:d-M-Y',
+
+            // jenis persediaan
+            'tglInput'=>'required|date:d-M-Y',
+            'jenisPersediaan'=>'required',
+        ]);
     }
 
     public function store()
     {
-        //dd($this->data_detail);
-        $data = $this->getTotalBarang();
+        $data = $this->setDataValidate();
+        //dd($data);
+        $store = $this->pembelianInternalService->handleStore($data);
+        if ($store->status){
+            // redirect
+            session()->flash('storeMessage', $store->keterangan);
+            return redirect()->to(route('stock.masuk'));
+        }
+        session()->flash('storeMessage', $store->keterangan);
+        return null;
+    }
+    public function update()
+    {
+        // dd($this->dataDetail);
+        $data = $this->setDataValidate();
+        //dd($data);
         try {
-            $pembelian = (new PembelianInternalRepo())->store((object)$data);
-            //$pembelian = (new PembelianCobaRepo())->store((object)$data);
+            $pembelian = $this->pembelianInternalService->handleUpdate($data);
             \DB::commit();
             return redirect()->to(route('stock.masuk'));
         } catch (ModelNotFoundException $e){
@@ -124,18 +290,10 @@ class PembelianInternalForm extends Component
         }
         return null;
     }
-    public function update()
+
+    public function render()
     {
-        //dd($this->data_detail);
-        $data = $this->getTotalBarang();
-        try {
-            $pembelian = (new PembelianInternalRepo())->update((object)$data);
-            \DB::commit();
-            return redirect()->to(route('stock.masuk'));
-        } catch (ModelNotFoundException $e){
-            \DB::rollBack();
-        }
-        return null;
+        return view('livewire.pembelian.pembelian-internal-form');
     }
 
 }

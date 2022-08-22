@@ -4,6 +4,7 @@ namespace App\Models\Purchase;
 
 use App\Models\Keuangan\HutangPembelian;
 use App\Models\Keuangan\PersediaanTransaksi;
+use App\Models\Stock\StockMasuk;
 use App\Haramain\Traits\ModelTraits\{JurnalTransaksiTraits,
     KodeTraits,
     SupplierTraits,

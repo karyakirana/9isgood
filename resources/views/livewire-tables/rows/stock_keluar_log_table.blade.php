@@ -1,0 +1,18 @@
+<x-atoms.table.td>
+    {{$row->stockKeluar->stockable_keluar->kode}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->stockKeluar->stockable_keluar_type}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->stockKeluar->stockable_keluar->tgl_nota}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->produk->kode_lokal}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->produk->nama}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->jumlah}}
+</x-atoms.table.td>

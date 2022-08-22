@@ -118,6 +118,10 @@ Route::middleware('auth')->group(function (){
     // stock report
     Route::get('stock/report', \App\Http\Livewire\Stock\RefreshStock::class);
 
+    // stock index
+    Route::get('stock/log', [\App\Http\Controllers\Stock\StockLogController::class, 'index'])->name('stock.index');
+    Route::get('stock/log/inventory', [\App\Http\Controllers\Stock\StockLogController::class, 'inventory'])->name('stock.index');
+
     // daftar inventory
     Route::get('stock/inventory', \App\Http\Livewire\Stock\InventoryIndex::class)->name('inventory');
     Route::get('stock/inventory/{jenis}/{gudang}', \App\Http\Livewire\Stock\InventoryByJenisIndex::class);
@@ -137,9 +141,9 @@ Route::middleware('auth')->group(function (){
 
 
     // stock transaksi
-    Route::get('stock/transaksi/masuk', \App\Http\Livewire\Pembelian\PembelianInternalIndex::class)->name('stock.masuk');
-    Route::get('stock/transaksi/masuk/transaksi', \App\Http\Livewire\Pembelian\PembelianInternalForm::class)->name('stock.masuk.trans');
-    Route::get('stock/transaksi/masuk/transaksi/{pembelianId}', \App\Http\Livewire\Pembelian\PembelianInternalForm::class)->name('stock.masuk.trans.edit');
+    Route::get('stock/masuk', \App\Http\Livewire\Pembelian\PembelianInternalIndex::class)->name('stock.masuk');
+    Route::get('stock/masuk/form', \App\Http\Livewire\Pembelian\PembelianInternalForm::class)->name('stock.masuk.trans');
+    Route::get('stock/masuk/form/{pembelianId}', \App\Http\Livewire\Pembelian\PembelianInternalForm::class)->name('stock.masuk.trans.edit');
     Route::get('stock/transaksi/masuk/{kondisi}', \App\Http\Livewire\Stock\StockMasukIndex::class);
     Route::get('stock/transaksi/masuk/trans/{kondisi}', \App\Http\Livewire\Stock\StockMasukForm::class);
     Route::get('stock/transaksi/masuk/trans/{kondisi}/{stockmasuk}', \App\Http\Livewire\Stock\StockMasukForm::class);

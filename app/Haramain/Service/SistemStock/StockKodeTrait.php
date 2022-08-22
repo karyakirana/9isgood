@@ -24,29 +24,6 @@ trait StockKodeTrait
         return 'rusak';
     }
 
-    private function kodeStockMasuk($kondisi = null, $jenisMutasi = null): string
-    {
-        if ($jenisMutasi){
-            $kondisi = $this->setKondisiMasuk($jenisMutasi);
-        }
-
-        // query
-        $query = StockMasuk::query()
-            ->where('active_cash', session('ClosedCash'))
-            ->where('kondisi', $kondisi)
-            ->latest('kode');
-
-        $kodeKondisi = ($kondisi == 'baik') ? 'SM' : 'SMR';
-
-        // check last num
-        if ($query->doesntExist()){
-            return "0001/{$kodeKondisi}/".date('Y');
-        }
-
-        $num = (int) $query->first()->last_num_trans + 1;
-        return sprintf("%04s", $num)."/{$kodeKondisi}/".date('Y');
-    }
-
     private function kodeStockKeluar($kondisi = null, $jenisMutasi = null): string
     {
         if ($jenisMutasi){

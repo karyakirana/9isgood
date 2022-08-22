@@ -538,7 +538,7 @@
                         </div>
                         <!--end:Menu item-->
                         <!--begin:Menu item-->
-                        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('stock/transaksi/masuk*') ? 'here show' : ''}} menu-accordion mb-1">
+                        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('stock/masuk*') ? 'here show' : ''}} menu-accordion mb-1">
                             <!--begin:Menu link-->
                             <span class="menu-link">
 													<span class="menu-bullet">
@@ -553,7 +553,7 @@
                                 <!--begin:Menu item-->
                                 <div class="menu-item">
                                     <!--begin:Menu link-->
-                                    <a class="menu-link {{request()->is('stock/transaksi/masuk') ? 'active' : ''}}" href="{{url('/').'/stock/transaksi/masuk'}}">
+                                    <a class="menu-link {{request()->is('stock/masuk') ? 'active' : ''}}" href="{{url('/').'/stock/masuk'}}">
                                                 <span class="menu-bullet">
                                                     <span class="bullet bullet-dot"></span>
                                                 </span>
@@ -562,38 +562,24 @@
                                     <!--end:Menu link-->
                                 </div>
                                 <!--end:Menu item-->
-                                @foreach($kondisi as $item)
-                                    <!--begin:Menu item-->
-                                    <div class="menu-item">
-                                        <!--begin:Menu link-->
-                                        <a class="menu-link {{request()->is('stock/transaksi/masuk/'.$item['kondisi']) ? 'active' : ''}}" href="{{url('/').'/stock/transaksi/masuk/'.$item['kondisi']}}">
-                                            <span class="menu-bullet">
-                                                <span class="bullet bullet-dot"></span>
-                                            </span>
-                                            <span class="menu-title">Stock Masuk {{ucwords($item['kondisi'])}}</span>
-                                        </a>
-                                        <!--end:Menu link-->
-                                    </div>
-                                    <!--end:Menu item-->
-                                    <!--begin:Menu item-->
-                                    <div class="menu-item">
-                                        <!--begin:Menu link-->
-                                        <a class="menu-link {{request()->is('stock/transaksi/masuk/trans/'.$item['kondisi']) ? 'active' : ''}}" href="{{url('/').'/stock/transaksi/masuk/trans/'.$item['kondisi']}}">
-                                        <span class="menu-bullet">
-                                            <span class="bullet bullet-dot"></span>
-                                        </span>
-                                            <span class="menu-title">Stock Masuk {{ucwords($item['kondisi'])}} Baru</span>
-                                        </a>
-                                        <!--end:Menu link-->
-                                    </div>
-                                    <!--end:Menu item-->
-                                @endforeach
+                                <!--begin:Menu item-->
+                                <div class="menu-item">
+                                    <!--begin:Menu link-->
+                                    <a class="menu-link {{request()->is('stock/masuk/form*') ? 'active' : ''}}" href="{{url('/').'/stock/masuk/form'}}">
+                                                <span class="menu-bullet">
+                                                    <span class="bullet bullet-dot"></span>
+                                                </span>
+                                        <span class="menu-title">Stock Masuk Baru</span>
+                                    </a>
+                                    <!--end:Menu link-->
+                                </div>
+                                <!--end:Menu item-->
                             </div>
                             <!--end:Menu sub-->
                         </div>
                         <!--end:Menu item-->
                         <!--begin:Menu item-->
-                        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('stock/transaksi/keluar*') ? 'here show' : ''}} menu-accordion">
+                        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('stock/keluar*') ? 'here show' : ''}} menu-accordion">
                             <!--begin:Menu link-->
                             <span class="menu-link">
 													<span class="menu-bullet">
