@@ -128,9 +128,12 @@ Route::middleware('auth')->group(function (){
 
     Route::get('stock/print/stockopname', [\App\Http\Controllers\Stock\StockOpnameController::class, 'reportStockByProduk'])->name('stock.print.stockopname');
 
-    // testing stock
+    // testing stock masuk
     Route::get('testing/stockmasuk/index', \App\Http\Livewire\Testing\TestingStockMasukIndex::class)->name('testing.stockmasuk.index');
     Route::get('testing/stockmasuk/form', \App\Http\Livewire\Pembelian\PembelianInternalForm::class)->name('testing.stockmasuk.form');
+
+    // testing stock mutasi
+    Route::get('testing/stock/transaksi/mutasi/baik_baik/trans',  \App\Http\Livewire\Testing\TestingStockMutasiForm::class)->name('testing.stock.mutasi.baikbaik.trans');
 
 
     // stock transaksi
