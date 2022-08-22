@@ -1,23 +1,30 @@
 <?php namespace App\Haramain\Repository\Stock;
 
 use App\Models\Stock\StockMasuk;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Stock\StockMasukDetail;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class StockMasukRepo
 {
-    protected $stockInventory;
+    protected $stockMasuk;
+    protected $stockMasukDetail;
+    protected $stockInventoryRepo;
 
     public function __construct()
     {
-        $this->stockInventory = new StockInventoryRepo();
+        $this->stockMasuk = new StockMasuk();
+        $this->stockMasukDetail = new StockMasukDetail();
+        $this->stockInventoryRepo = new StockInventoryRepo();
     }
 
-    public function kode($kondisi = 'baik', $jenisMutasi = null)
+    /**
+     * mengambil atau men-generate kode sesuai dengan active_cash dan kondisi
+     * @param $kondisi
+     * @return string
+     */
+    public function getKode($kondisi)
     {
-        if ($jenisMutasi){
-            $kondisi = $this->setKondisi($jenisMutasi);
-        }
-
         // query
         $query = StockMasuk::query()
             ->where('active_cash', session('ClosedCash'))
@@ -35,91 +42,121 @@ class StockMasukRepo
         return sprintf("%04s", $num)."/{$kodeKondisi}/".date('Y');
     }
 
-    public function setKondisi($kondisi)
+    /**
+     * menyimpan data stock masuk
+     * menyimpan data stock masuk detail
+     * menyimpan data stock inventory
+     * @param $data
+     * @param $stockableType
+     * @param $stockableId
+     * @return Builder|Model
+     */
+    public function store($data, $stockableType, $stockableId)
     {
-        if ($kondisi == 'baik_rusak'|| $kondisi == 'rusak_rusak'){
-            return 'rusak';
-        }
-
-        return 'baik';
-    }
-
-    public function storeFromRelation(object $stockMasuk, $data)
-    {
-        $tglMasuk = $data->tgl_masuk ?? $data->tgl_nota ?? $data->tgl_mutasi;
-
-        //kondisi
-        if (isset($data->jenis_mutasi)){
-            $kondisi = $this->setKondisi($data->jenis_mutasi);
-        }
-
-        $kode = $this->kode($data->kondisi ?? null, $data->jenis_mutasi);
-
-        // store stock masuk
-        $stockMasuk = $stockMasuk->create([
-            'kode'=>$kode,
-            'active_cash'=>session('ClosedCash'),
-            'kondisi'=>$kondisi ?? $data->kondisi,
-            'gudang_id'=>$data->gudang_id ?? $data->gudang_tujuan_id,
-            'supplier_id'=>$data->supplier_id ?? null,
-            'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
-            'user_id'=>Auth::id(),
-            'nomor_po'=>null,
-            'nomor_surat_jalan'=>$data->nomor_surat_jalan ?? $kode,
-            'keterangan'=>$data->keterangan,
-        ]);
-        // store detail
-        foreach ($data->data_detail as $item)
-        {
-            $stockMasuk->stockMasukDetail()->create([
-                'produk_id'=>$item['produk_id'],
-                'jumlah'=>$item['jumlah'],
+        // store stock masuk and return object as create
+        $tglMasuk = (isset($data['tglMasuk'])) ? tanggalan_database_format($data['tglMasuk'], 'd-M-Y') : null;
+        $stockMasuk = $this->stockMasuk->newQuery()
+            ->create([
+                'kode'=>$this->getKode($data['kondisi']),
+                'active_cash'=>session('ClosedCash'),
+                'stockable_masuk_id'=>$stockableId,
+                'stockable_masuk_type'=>$stockableType,
+                'kondisi'=>$data['kondisi'],
+                'gudang_id'=>$data['gudangId'],
+                'supplier_id'=>$data['supplierId'],
+                'tgl_masuk'=>$tglMasuk,
+                'user_id'=>\Auth::id(),
+                'nomor_po'=>$data['nomorPo'],
+                'nomor_surat_jalan'=>$data['suratJalan'] ?? '-',
+                'keterangan'=>$data['keterangan'],
             ]);
-            // stock inventory
-            $this->stockInventory->incrementArrayData($item, $data->gudang_id ?? $data->gudang_tujuan_id, $kondisi ?? $data->kondisi, 'stock_masuk');
-        }
-
+        $stockMasukId = $stockMasuk->id;
+        $this->storeDetail($data['dataDetail'], $stockMasukId, $data['gudangId'], $data['kondisi']);
         return $stockMasuk;
     }
 
-    public function updateFromRelation(object $stockMasuk, $data)
+    /**
+     * asumsi sebelumnya sudah di rollback dahulu
+     * update data sesuai dengan stock masuk
+     * menyimpan stock masuk detail
+     * menyimpan stock inventory
+     * @param $data
+     * @param $stockableType
+     * @param $stockableId
+     * @return Builder|Model|object|null
+     */
+    public function update($data, $stockableType, $stockableId)
     {
-        $stockMasuk = $stockMasuk->first();
-        // rollback
-        foreach ($stockMasuk->stockMasukDetail as $item) {
-            $this->stockInventory->rollback($item, $stockMasuk->gudang_id, $stockMasuk->kondisi, 'stock_masuk');
-        }
-
-        // delete detail
-        $stockMasuk->stockMasukDetail()->delete();
-
-        $tglMasuk = $data->tgl_masuk ?? $data->tgl_nota ?? $data->tgl_mutasi;
-        //kondisi
-        if (isset($data->jenis_mutasi)){
-            $kondisi = $this->setKondisi($data->jenis_mutasi);
-        }
-        $stockMasuk->update([
-            'kondisi'=>$kondisi ?? $data->kondisi,
-            'gudang_id'=>$data->gudang_id ?? $data->gudang_asal_id,
-            'supplier_id'=>$data->supplier_id ?? null,
-            'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
-            'user_id'=>Auth::id(),
-            'nomor_po'=>null,
-            'nomor_surat_jalan'=>$data->nomor_surat_jalan ?? $stockMasuk->kode,
-            'keterangan'=>$data->keterangan,
+        // update stock masuk
+        $stockMasuk = $this->stockMasuk->newQuery()
+            ->where('stockable_masuk_type', $stockableType)
+            ->where('stockable_masuk_id', $stockableId)->first();
+        $stockMasukUpdate = $stockMasuk->update([
+            'kondisi'=>$data['kondisi'],
+            'gudang_id'=>$data['gudangId'],
+            'supplier_id'=>$data['supplierId'],
+            'tgl_masuk'=>$data['tglMasuk'] ?? $data['tglNota'],
+            'user_id'=>\Auth::id(),
+            'nomor_po'=>$data['nomorPo'],
+            'nomor_surat_jalan'=>$data['suratJalan'],
+            'keterangan'=>$data['keterangan'],
         ]);
+        $stockMasukId = $stockMasuk->id;
+        $this->storeDetail($data['dataDetail'], $stockMasukId, $data['gudangId'], $data['kondisi']);
+        return $stockMasuk;
+    }
 
-        // store detail
-        foreach ($data->data_detail as $item)
-        {
-            $stockMasuk->stockMasukDetail()->create([
+    /**
+     * menghapus data stock masuk
+     * me-rollback persediaan
+     * menghapus stock masuk detail
+     * @param $stockableType
+     * @param $stockableId
+     * @return bool|mixed|null
+     */
+    public function destroy($stockableType, $stockableId)
+    {
+        $stockMasuk = $this->stockMasuk->newQuery()
+            ->where('stockable_masuk_type', $stockableType)
+            ->where('stockable_masuk_id', $stockableId)->first();
+        $stockMasukDetail = $this->stockMasukDetail->newQuery()->where('stock_masuk_id', $stockableId);
+        foreach ($stockMasukDetail->get() as $item) {
+            $this->stockInventoryRepo->rollback($item, $stockMasuk->gudang_id, $stockMasuk->kondisi, 'stock_keluar');
+        }
+        $stockMasukDetail->delete();
+        return $stockMasuk->delete();
+    }
+
+    /**
+     * rollback stock inventory
+     * menghapus stock masuk detail
+     * @param $stockableType
+     * @param $stockableId
+     * @return mixed
+     */
+    public function rollback($stockableType, $stockableId)
+    {
+        $stockMasuk = $this->stockMasuk->newQuery()
+            ->where('stockable_masuk_type', $stockableType)
+            ->where('stockable_masuk_id', $stockableId)->first();
+        $stockMasukDetail = $this->stockMasukDetail->newQuery()->where('stock_masuk_id', $stockableId);
+        foreach ($stockMasukDetail->get() as $item) {
+            $this->stockInventoryRepo->rollback($item, $stockMasuk->gudang_id, $stockMasuk->kondisi, 'stock_keluar');
+        }
+        return $stockMasukDetail->delete();
+    }
+
+    protected function storeDetail($dataDetail, $stockMasukId, $gudangId, $kondisi)
+    {
+        foreach ($dataDetail as $item) {
+            // store stock masuk detail
+            $this->stockMasukDetail->newQuery()->create([
+                'stock_masuk_id'=>$stockMasukId,
                 'produk_id'=>$item['produk_id'],
                 'jumlah'=>$item['jumlah'],
             ]);
-            // stock inventory
-            $this->stockInventory->incrementArrayData($item, $data->gudang_id ?? $data->gudang_tujuan_id, $kondisi ?? $data->kondisi, 'stock_masuk');
+            // store stock inventory
+            $this->stockInventoryRepo->incrementArrayData($item, $gudangId, $kondisi, 'stock_masuk');
         }
-
-        return $stockMasuk;
     }
 }

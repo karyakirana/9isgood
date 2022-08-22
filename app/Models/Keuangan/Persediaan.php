@@ -18,11 +18,8 @@ class Persediaan extends Model
         'gudang_id',
         'produk_id',
         'harga',
-        'stock_opname',
         'stock_masuk',
         'stock_keluar',
-        'stock_saldo',
-        'stock_akhir',
-        'stock_lost',
+        'saldo',
     ];
 }

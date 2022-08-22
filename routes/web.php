@@ -118,6 +118,10 @@ Route::middleware('auth')->group(function (){
     // stock report
     Route::get('stock/report', \App\Http\Livewire\Stock\RefreshStock::class);
 
+    // stock index
+    Route::get('stock/log', [\App\Http\Controllers\Stock\StockLogController::class, 'index'])->name('stock.index');
+    Route::get('stock/log/inventory', [\App\Http\Controllers\Stock\StockLogController::class, 'inventory'])->name('stock.index');
+
     // daftar inventory
     Route::get('stock/inventory', \App\Http\Livewire\Stock\InventoryIndex::class)->name('inventory');
     Route::get('stock/inventory/{jenis}/{gudang}', \App\Http\Livewire\Stock\InventoryByJenisIndex::class);

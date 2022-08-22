@@ -1,0 +1,16 @@
+<x-atoms.table.td>
+    {{$row->tgl_input}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->jenis}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->produk->nama}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->harga}}
+</x-atoms.table.td>
+<x-atoms.table.td>
+    {{$row->stock_saldo}}
+</x-atoms.table.td>
+<x-atoms.table.td></x-atoms.table.td>

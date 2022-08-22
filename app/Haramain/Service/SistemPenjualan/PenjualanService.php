@@ -57,6 +57,8 @@ class PenjualanService
     protected $akun_hutang_biaya_lain_id;
     protected $akun_hutang_ppn_id;
 
+    protected $akun_hpp_id, $akun_persediaan_id;
+
     // mode create or update
     protected $mode;
 
@@ -73,40 +75,54 @@ class PenjualanService
     {
         // exception jumlah barang yang tidak tersedia
         // atau barang kurang dari persediaan
-        $checkPersediaan = $this->jurnalPersediaanService->handleException($data['dataDetail'], 'baik');
+        $checkPersediaan = $this->persediaanRepo->handleExceptionOut($data['dataDetail'], 'baik');
         if (!$checkPersediaan){
             return [
                 'status'=>false,
                 'keterangan'=>'Jumlah salah satu produk kurang / tidak tersedia'
             ];
         }
-        // set data
-        $this->setData($data);
-        // simpan penjualan
-        $penjualan = $this->store();
-        // initiate penjualanDetail
-        $penjualanDetail = $penjualan->penjualanDetail();
-        // initiate and store stock
-        $this->stockKeluar = $penjualan->stockKeluarMorph();
-        $this->stockKeluarDetail = $this->storeStockKeluar()->stockKeluarDetail();
-        // proses data detail
-        foreach ($data['data_detail'] as $datum) {
-            // store penjualan detail
-            $this->storeDetail($datum);
-            // store stock
-            $this->storeStockKeluarDetail($datum);
+        \DB::beginTransaction();
+        try {
+            // set data
+            $this->setData($data);
+            // simpan penjualan
+            $penjualan = $this->store();
+            // initiate penjualanDetail
+            $penjualanDetail = $penjualan->penjualanDetail();
+            // initiate and store stock
+            $this->stockKeluar = $penjualan->stockKeluarMorph();
+            $this->stockKeluarDetail = $this->storeStockKeluar()->stockKeluarDetail();
+            // proses data detail
+            foreach ($data['data_detail'] as $datum) {
+                // store penjualan detail
+                $this->storeDetail($datum);
+                // store stock
+                $this->storeStockKeluarDetail($datum);
+            }
+            // initiate piutangPenjualan
+            $this->piutangPenjualan = $penjualan->piutangPenjualan();
+            $this->storePiutangPenjualan();
+            // initiate jurnaltransaksi
+            $this->jurnalTransaksi = $penjualan->jurnal_transaksi();
+            // simpan jurnal transaksi dan neraca saldo
+            $this->storeJurnalTransaksi();
+            // proses persediaan
+            $this->jurnalPersediaan = $penjualan->persediaan_transaksi();
+            $this->dataDetailOut = $this->persediaanRepo->getPersediaanToOut($this->dataDetail, $this->kondisi);
+            // return penjualan id
+            \DB::commit();
+            return [
+                'status'=>false,
+                'keterangan'=>$penjualan
+            ];
+        } catch (\Exception $e){
+            \DB::rollBack();
+            return [
+                'status'=>false,
+                'keterangan'=>$e
+            ];
         }
-        // initiate piutangPenjualan
-        $this->piutangPenjualan = $penjualan->piutangPenjualan();
-        $this->storePiutangPenjualan();
-        // initiate jurnaltransaksi
-        $this->jurnalTransaksi = $penjualan->jurnal_transaksi();
-        // simpan jurnal transaksi dan neraca saldo
-        $this->storeJurnalTransaksi();
-        // proses persediaan
-        $this->jurnalPersediaan = $penjualan->persediaan_transaksi();
-        $this->dataDetailOut = $this->persediaanRepo->getPersediaanToOut($this->dataDetail);
-        // return penjualan id
     }
 
     public function handleUpdate($data)
@@ -167,6 +183,10 @@ class PenjualanService
         $this->akun_piutang_id = $data['akunPiutangId'];
         $this->akun_hutang_biaya_lain_id = $data['akunHutangBiayaLain'];
         $this->akun_hutang_ppn_id = $data['akunHutangPPNId'];
+
+        // akun persediaan
+        $this->akun_persediaan_id = $data['akunPersediaanId'];
+        $this->akun_hpp_id = $data['akunHppId'];
     }
 
     protected function store()
@@ -189,6 +209,10 @@ class PenjualanService
             'print'=>$this->print,
         ]);
     }
+
+    /**
+     * Store helper
+     */
 
     protected function storeDetail($dataItem)
     {
@@ -282,13 +306,43 @@ class PenjualanService
             'gudang_id'=>$this->gudangId,
         ]);
         $jurnalDetail = $jurnal->persediaan_transaksi_detail();
+        $subTotalSum = 0;
         foreach ($this->dataDetailOut as $item) {
+            $subTotal = $item['harga_persediaan'] * $item['jumlah'];
             $jurnalDetail->create([
                 'produk_id'=>$item['produk_id'],
                 'harga'=>$item['harga_persediaan'],
                 'jumlah'=>$item['jumlah'],
-                'sub_total'=>$item['harga_persediaan'] * $item['jumlah'],
+                'sub_total'=>$subTotal,
             ]);
+            $subTotalSum += $subTotal;
+            // update persediaan
+            $this->persediaanRepo->updateStockOut($item, 'stock_keluar', $this->tglNota, $this->gudangId, $this->kondisi);
         }
+
+        // store jurnal transaksi
+        $jurnalTransaksi = $jurnal->jurnal_transaksi();
+
+        // store debet
+        $jurnalTransaksi->create([
+            'active_cash'=>$this->activeCash,
+            'akun_id'=>$this->akun_piutang_id,
+            'nominal_debet'=>$subTotalSum,
+            'nominal_kredit'=>null,
+            'keterangan'=>$this->keterangan
+        ]);
+
+        // store kredit
+        $jurnalTransaksi->create([
+            'active_cash'=>$this->activeCash,
+            'akun_id'=>$this->akun_hpp_id,
+            'nominal_debet'=>null,
+            'nominal_kredit'=>$subTotalSum,
+            'keterangan'=>$this->keterangan
+        ]);
     }
+
+    /**
+     * Update Helper
+     */
 }

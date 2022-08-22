@@ -4,7 +4,6 @@ namespace App\Models\Keuangan;
 
 use App\Haramain\Traits\ModelTraits\GudangTraits;
 use App\Haramain\Traits\ModelTraits\KodeTraits;
-use App\Haramain\Traits\ModelTraits\UserTraits;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,6 +17,7 @@ class PersediaanTransaksi extends Model
         'active_cash',
         'kode',
         'jenis', // masuk atau keluar
+        'tgl_input',
         'kondisi', // baik atau rusak
         'gudang_id',
         'persediaan_type',
@@ -34,6 +34,16 @@ class PersediaanTransaksi extends Model
     public function persediaan_transaksi_detail()
     {
         return $this->hasMany(PersediaanTransaksiDetail::class, 'persediaan_transaksi_id');
+    }
+
+    public function persediaan()
+    {
+        return $this->hasMany(Persediaan::class, 'persediaan_transaksi_id');
+    }
+
+    public function persediaanOut()
+    {
+        return $this->hasMany(PersediaanOut::class, 'persediaan_transaksi_id');
     }
 
     public function jurnal_transaksi()

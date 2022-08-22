@@ -94,8 +94,8 @@ trait PembelianFormTraits
      */
     protected function getTotalBarang(): array
     {
-        $this->total_barang = array_sum(array_column($this->data_detail, 'jumlah'));
-        $this->total_bayar = array_sum(array_column($this->data_detail, 'sub_total'));
+        $this->totalBarang = array_sum(array_column($this->data_detail, 'jumlah'));
+        $this->totalBayar = array_sum(array_column($this->data_detail, 'sub_total'));
         $data = $this->validate([
             'pembelian_id' => 'nullable',
             'supplier_id' => 'required',

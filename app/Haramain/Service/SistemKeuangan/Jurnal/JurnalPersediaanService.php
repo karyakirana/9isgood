@@ -48,7 +48,7 @@ class JurnalPersediaanService
         // jika item lebih dari persediaan maka akan menghasilkan exception
         $a = 0;
         foreach ($data_detail as $item) {
-            $a =+ $this->checkItem($item, $kondisi);
+            $a += $this->checkItem($item, $kondisi);
         }
         // jika salah satu item tidak ada atau kurang data
         // maka false
@@ -178,9 +178,9 @@ class JurnalPersediaanService
         return 1;
     }
 
-    public function getPersediaanToOut($dataItem)
+    public function getPersediaanToOut($dataItem, $kondisi)
     {
-        return $this->persediaanRepository->getPersediaanToOut($dataItem);
+        return $this->persediaanRepository->getPersediaanToOut($dataItem, $kondisi);
     }
 
     protected function storeJurnalTransaksiAndNeracaSaldoIn()

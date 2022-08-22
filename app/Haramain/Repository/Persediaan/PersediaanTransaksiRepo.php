@@ -1,12 +1,24 @@
 <?php namespace App\Haramain\Repository\Persediaan;
 
 use App\Models\Keuangan\PersediaanTransaksi;
+use App\Models\Keuangan\PersediaanTransaksiDetail;
 
 class PersediaanTransaksiRepo
 {
+    protected $persediaanTransaksi;
+    protected $persediaanTransaksiDetail;
+    protected $persediaanRepository;
+
+    public function __construct()
+    {
+        $this->persediaanTransaksi = new PersediaanTransaksi();
+        $this->persediaanTransaksiDetail = new PersediaanTransaksiDetail();
+        $this->persediaanRepository = new PersediaanRepository();
+    }
+
     public function kode()
     {
-        $query = PersediaanTransaksi::query()
+        $query = $this->persediaanTransaksi::query()
             ->where('active_cash', session('ClosedCash'));
 
         if ($query->doesntExist()){
@@ -17,63 +29,67 @@ class PersediaanTransaksiRepo
         return sprintf("%04s", $num)."/PD/".date('Y');
     }
 
-    public function store($data)
+    public function storeIn($data, $persediaanableType, $persediaanableId)
     {
-        $persediaan = PersediaanTransaksi::query()->create([
-            'active_cash'=>session('ClosedCash'),
-            'kode'=>$this->kode(),
-            'jenis'=>$data->jenis, // masuk atau keluar
-            'kondisi'=>$data->kondisi, // baik atau rusak
-            'gudang_id'=>$data->gudang_id,
-            'persediaan_type',
-            'persediaan_id',
-            'debet',
-            'kredit',
-        ]);
-
-        if ($data->jenis == 'keluar'){
-            // persediaan keluar
-        }
-
-        foreach ($data->data_detail as $item) {
-            $persediaan->persediaan_transaksi_detail()->create([
-                'produk_id'=>$item['produk_id'],
-                'harga'=>$item['harga'],
-                'jumlah'=>$item['jumlah'],
-                'sub_total'=>$item['sub_total'] ?? ($item['harga'] * $item['jumlah']),
+        $persediaanTransaksi = $this->persediaanTransaksi->newQuery()
+            ->create([
+                'active_cash'=>session('ClosedCash'),
+                'kode'=>$this->kode(),
+                'jenis'=>$data['jenisPersediaan'], // masuk atau keluar
+                'tgl_input'=>tanggalan_database_format($data['tglInput'], 'd-M-Y'),
+                'kondisi'=>$data['kondisi'], // baik atau rusak
+                'gudang_id'=>$data['gudangId'],
+                'persediaan_type'=>$persediaanableType,
+                'persediaan_id'=>$persediaanableId,
             ]);
-        }
-        return $persediaan;
+        $this->storeDetailIn($data, $persediaanTransaksi->id);
+        return $persediaanTransaksi;
     }
 
-    public function update($data)
+    public function rollbackStoreIn($persediaanableType, $persediaanableId)
+    {
+        // initiate
+        $persediaanTransaksi = $this->persediaanTransaksi->newQuery()
+            ->where('persediaan_type', $persediaanableType)
+            ->where('persediaan_id', $persediaanableId)
+            ->first();
+        $persediaanTransaksiDetail = $this->persediaanTransaksiDetail->newQuery()->where('persediaan_transaksi_id', $persediaanTransaksi->id);
+        // rollback persediaan
+        foreach ($persediaanTransaksiDetail->get() as $item) {
+            $this->persediaanRepository->rollbackIn($persediaanTransaksi->gudang_id, $persediaanTransaksi->kondisi, $persediaanTransaksi->tgl_input, $item);
+        }
+        return $persediaanTransaksi;
+    }
+
+    public function updateIn($data, $persediaanableType, $persediaanableId)
     {
         // inititate
-        $persediaan = PersediaanTransaksi::query()->find($data->persediaan_transaksi_id);
-        $persediaanDetail = $persediaan->persediaan_transaksi_detail();
-
-        // delete detail
-        $persediaanDetail->delete();
-
-        $persediaan->update([
-            'jenis'=>$data->jenis, // masuk atau keluar
-            'kondisi'=>$data->kondisi, // baik atau rusak
-            'gudang_id'=>$data->gudang_id,
-            'persediaan_type',
-            'persediaan_id',
-            'debet',
-            'kredit',
+        $persediaanTransaksi = $this->persediaanTransaksi->newQuery()
+            ->where('persediaan_type', $persediaanableType)
+            ->where('persediaan_id', $persediaanableId)
+            ->first();
+        // update
+        $persediaanTransaksi->update([
+            'tgl_input'=>$data['tglInput'],
+            'kondisi'=>$data['kondisi'], // baik atau rusak
+            'gudang_id'=>$data['gudangId'],
         ]);
+        $this->storeDetailIn($data, $persediaanTransaksi->id);
+        return $persediaanTransaksi;
+    }
 
-        foreach ($data->data_detail as $item) {
-            $persediaanDetail->create([
-                'produk_id'=>$item['produk_id'],
+    protected function storeDetailIn($data, $persediaanId)
+    {
+        foreach ($data['dataDetail'] as $item) {
+            $this->persediaanTransaksiDetail->newQuery()->create([
+                'persediaan_transaksi_id'=>$persediaanId,
+                'produk_id'=>$item['jumlah'],
                 'harga'=>$item['harga'],
                 'jumlah'=>$item['jumlah'],
-                'sub_total'=>$item['sub_total'] ?? ($item['harga'] * $item['jumlah']),
+                'sub_total'=>$item['sub_total'],
             ]);
+            // store persediaan
+            $this->persediaanRepository->storeIn($data['gudangId'], $data['kondisi'], tanggalan_database_format($data['tglInput'], 'd-M-Y'), $item);
         }
-
-        return $persediaan;
     }
 }

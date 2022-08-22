@@ -11,19 +11,23 @@ class PersediaanRepository
         $this->persediaan = new Persediaan();
     }
 
-    protected function queryPersediaan($dataItem)
+    protected function queryPersediaan($dataItem, $kondisi, $gudangId)
     {
         return $this->persediaan->newQuery()
             ->where('active_cash', session('ClosedCash'))
+            ->where('jenis', $kondisi)
+            ->where('gudang_id', $gudangId)
             ->where('produk_id', $dataItem['produk_id'])
             ->where('harga', $dataItem['harga']);
     }
 
-    public function getPersediaanToOut($dataDetail)
+    public function getPersediaanToOut($dataDetail, $kondisi, $gudangId)
     {
         // get data by produk_id
         $persediaan = Persediaan::query()
             ->where('active_cash', session('ClosedCash'))
+            ->where('jenis', $kondisi)
+            ->where('gudang_id', $gudangId)
             ->where('produk_id', $dataDetail['produk_id']);
         $persediaanSum = $persediaan->sum('jumlah');
         $persediaanCount = $persediaan->count();
@@ -57,7 +61,7 @@ class PersediaanRepository
 
     public function updateStockIn($dataItem, $field, $tglInput, $gudangId, $kondisi)
     {
-        $persediaan = $this->queryPersediaan($dataItem);
+        $persediaan = $this->queryPersediaan($dataItem, $kondisi, $gudangId);
         if ($persediaan->exists()){
             // update persediaan
             $persediaan->increment($field, $dataItem['jumlah']);
@@ -75,24 +79,54 @@ class PersediaanRepository
             ]);
     }
 
-    public function updateStockOut($dataItem, $field)
+    public function updateStockOut($dataItem, $field, $gudangId, $kondisi)
     {
-        $persediaan = $this->queryPersediaan($dataItem);
+        $persediaan = $this->queryPersediaan($dataItem, $kondisi, $gudangId);
         $persediaan->increment($field, $dataItem['jumlah']);
         return $persediaan->decrement('stock_saldo', $dataItem['jumlah']);
     }
 
-    public function rollbackStockIn($dataItem, $field)
+    public function rollbackStockIn($dataItem, $field, $gudangId,$kondisi)
     {
-        $persediaan = $this->queryPersediaan($dataItem);
+        $persediaan = $this->queryPersediaan($dataItem, $kondisi, $gudangId);
         $persediaan->decrement($field, $dataItem['jumlah']);
         return $persediaan->decrement('stock_saldo', $dataItem['jumlah']);
     }
 
-    public function rollbackStockOut($dataItem, $field)
+    public function rollbackStockOut($dataItem, $field, $gudangId, $kondisi)
     {
-        $persediaan = $this->queryPersediaan($dataItem);
+        $persediaan = $this->queryPersediaan($dataItem, $kondisi, $gudangId);
         $persediaan->decrement($field, $dataItem['jumlah']);
         return $persediaan->increment('stock_saldo', $dataItem['jumlah']);
+    }
+
+    public function checkStockByItem($dataItem, $kondisi, $gudangId)
+    {
+        $persediaan = Persediaan::query()
+            ->where('active_cash', session('ClosedCash'))
+            ->where('gudang_id', $gudangId)
+            ->where('produk_id', $dataItem['produk_id'])
+            ->where('jenis', $kondisi);
+        if ($persediaan->doesntExist() || $persediaan->sum('stock_saldo') < $dataItem['jumlah']){
+            return 0;
+        }
+        return 1;
+    }
+
+    public function handleExceptionOut($dataDetail, $kondisi, $gudangId)
+    {
+        // check semua item keluar
+        $count = count($dataDetail);
+        // jika item lebih dari persediaan maka akan menghasilkan exception
+        $a = 0;
+        foreach ($dataDetail as $item) {
+            $a += $this->checkStockByItem($item, $kondisi, $gudangId);
+        }
+        // jika salah satu item tidak ada atau kurang data
+        // maka false
+        if ($count < $a){
+            return false;
+        }
+        return true;
     }
 }

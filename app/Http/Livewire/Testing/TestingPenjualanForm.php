@@ -43,6 +43,7 @@ class TestingPenjualanForm extends Component
     public $akunPendapatanPenjualan, $pendapatan;
     public $akunPiutangId; // total bayar
     public $akunHutangBiayaLainId, $biayaLain;
+    public $akunHppId, $akunPersediaanId;
 
     // detail
     public $dataDetail = [];
@@ -66,6 +67,8 @@ class TestingPenjualanForm extends Component
         // initiate default date
         $this->tglNota = tanggalan_format(now('ASIA/JAKARTA'));
         $this->tglTempo = tanggalan_format(now('ASIA/JAKARTA')->addMonth(2));
+        // get akun
+        $this->getAkun();
     }
 
     public function mount($jenisTransaksi = 'penjualan', $transaksiId = null)
@@ -85,16 +88,18 @@ class TestingPenjualanForm extends Component
         $penjualanRetur = $this->penjualanRetur->newQuery()->find($returId);
     }
 
-    protected function getAkunForPenjualan()
+    protected function getAkun()
     {
-        // akun debet
-        // akun kredit
+        $this->akunPiutangId = KonfigurasiJurnal::query()->find('piutang_usaha')->akun_id;
+        $this->akunPendapatanPenjualan = KonfigurasiJurnal::query()->find('penjualan')->akun_id;
+        $this->akunHutangBiayaLainId = KonfigurasiJurnal::query()->find('biaya_penjualan')->akun_id;
+        $this->akunHutangPPNId = KonfigurasiJurnal::query()->find('ppn_penjualan')->akun_id;
     }
 
-    protected function getAkunForRetur()
+    protected function getAkunPersediaan()
     {
-        // akun debet
-        // akun kredit
+        $this->akunHppId = KonfigurasiJurnal::query()->find('hpp_internal')->akun_id;
+        $this->akunPersediaanId = KonfigurasiJurnal::query()->find('persediaan')->akun_id;
     }
 
     public function setCustomer($customerId)
@@ -266,6 +271,8 @@ class TestingPenjualanForm extends Component
             'akunHutangBiayaLain'=>( (int)$this->biayaLain > 0) ?'required' : 'nullable',
             'ppn'=>( (int)$this->ppn > 0) ?'required' : 'nullable',
             'akunHutangPPNId'=>( (int)$this->ppn > 0) ?'required' : 'nullable',
+            'akunHppId'=>'required',
+            'akunPersediaanId'=>'required',
         ]);
     }
 
