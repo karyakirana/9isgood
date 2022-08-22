@@ -27,6 +27,11 @@ class PembelianService
         $this->neracaSaldoRepo = new NeracaSaldoRepo();
     }
 
+    public function getDataById($pembelianId)
+    {
+        return $this->pembelianRepository->getData($pembelianId);
+    }
+
     public function store($data)
     {
         // store pembelian
@@ -107,6 +112,7 @@ class PembelianService
         }
         // jurnal transaksi hutang dagang
         $this->jurnalTransaksiRepo->storeKredit($pembelianableType, $pembelianableId, $data['akunHutangPembelianId'], $data['totalBayar']);
-        $this->neracaSaldoRepo->kreditIncrement($data['akunHutangPembelianId'], $data['totalBayar']);
+        $dd = $this->neracaSaldoRepo->kreditIncrement($data['akunHutangPembelianId'], $data['totalBayar']);
+        //dd($dd);
     }
 }

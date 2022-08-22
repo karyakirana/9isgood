@@ -49,6 +49,7 @@ class NeracaSaldoRepo
                     'kredit'=>$nominal,
                 ]);
         }
+        // dd($akunId);
         return $query->increment('kredit', $nominal);
     }
 

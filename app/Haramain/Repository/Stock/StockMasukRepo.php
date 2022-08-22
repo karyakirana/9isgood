@@ -88,6 +88,7 @@ class StockMasukRepo
     public function update($data, $stockableType, $stockableId)
     {
         // update stock masuk
+        $tglMasuk = (isset($data['tglMasuk'])) ? tanggalan_database_format($data['tglMasuk'], 'd-M-Y') : null;
         $stockMasuk = $this->stockMasuk->newQuery()
             ->where('stockable_masuk_type', $stockableType)
             ->where('stockable_masuk_id', $stockableId)->first();
@@ -95,7 +96,7 @@ class StockMasukRepo
             'kondisi'=>$data['kondisi'],
             'gudang_id'=>$data['gudangId'],
             'supplier_id'=>$data['supplierId'],
-            'tgl_masuk'=>$data['tglMasuk'] ?? $data['tglNota'],
+            'tgl_masuk'=>$tglMasuk,
             'user_id'=>\Auth::id(),
             'nomor_po'=>$data['nomorPo'],
             'nomor_surat_jalan'=>$data['suratJalan'],

@@ -70,7 +70,7 @@ class PersediaanTransaksiRepo
             ->first();
         // update
         $persediaanTransaksi->update([
-            'tgl_input'=>$data['tglInput'],
+            'tgl_input'=>tanggalan_database_format($data['tglInput'], 'd-M-Y'),
             'kondisi'=>$data['kondisi'], // baik atau rusak
             'gudang_id'=>$data['gudangId'],
         ]);
