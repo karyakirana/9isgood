@@ -4,42 +4,53 @@
             {{session('error jumlah')}}
         </x-molecules.alert-danger>
     @endif
-    <x-molecules.card title="Stock Mutasi {{\Livewire\str($jenis_mutasi)->headline()}}">
+    <x-molecules.card>
+
         <div class="row">
             <div class="col-9">
                 <form id="master">
-                    <div class="row mb-5">
+                    <div class="row">
                         <div class="col-6">
-                            <x-atoms.input.group-horizontal label="Gudang Asal" name="gudang_asal_id">
-                                <x-atoms.input.select wire:model="gudang_asal_id">
-                                    <option>Dipilih</option>
-                                    @foreach($gudang_data as $row)
-                                        <option value="{{$row->id}}">{{ucfirst($row->nama)}}</option>
-                                    @endforeach
-                                </x-atoms.input.select>
-                            </x-atoms.input.group-horizontal>
+                            <div class="mb-5">
+                                <x-atoms.input.group-horizontal label="Mutasi" name="jenisMutasi">
+                                    <x-atoms.input.select>
+                                        <option value="baik_baik">Baik</option>
+                                        <option value="rusak_rusak">Rusak</option>
+                                    </x-atoms.input.select>
+                                </x-atoms.input.group-horizontal>
+                            </div>
+                            <div class="mb-5">
+                                <x-atoms.input.group-horizontal label="Gudang Asal" name="gudang_asal_id">
+                                    <x-atoms.input.select wire:model="gudang_asal_id">
+                                        <option>Dipilih</option>
+                                        @foreach($gudang_data as $row)
+                                            <option value="{{$row->id}}">{{ucfirst($row->nama)}}</option>
+                                        @endforeach
+                                    </x-atoms.input.select>
+                                </x-atoms.input.group-horizontal>
+                            </div>
+                            <div class="mb-5">
+                                <x-atoms.input.group-horizontal label="Gudang Tujuan" name="gudang_tujuan_id">
+                                    <x-atoms.input.select wire:model.defer="gudang_tujuan_id">
+                                        <option>Dipilih</option>
+                                        @foreach($gudang_data as $row)
+                                            <option value="{{$row->id}}">{{ucfirst($row->nama)}}</option>
+                                        @endforeach
+                                    </x-atoms.input.select>
+                                </x-atoms.input.group-horizontal>
+                            </div>
                         </div>
                         <div class="col-6">
-                            <x-atoms.input.group-horizontal label="Gudang Tujuan" name="gudang_tujuan_id">
-                                <x-atoms.input.select wire:model.defer="gudang_tujuan_id">
-                                    <option>Dipilih</option>
-                                    @foreach($gudang_data as $row)
-                                        <option value="{{$row->id}}">{{ucfirst($row->nama)}}</option>
-                                    @endforeach
-                                </x-atoms.input.select>
-                            </x-atoms.input.group-horizontal>
-                        </div>
-                    </div>
-                    <div class="row mb-5">
-                        <div class="col-6">
-                            <x-atoms.input.group-horizontal label="Tanggal" name="keterangan">
-                                <x-atoms.input.singledaterange id="tgl_mutasi" wire:model.defer="tgl_mutasi" />
-                            </x-atoms.input.group-horizontal>
-                        </div>
-                        <div class="col-6">
-                            <x-atoms.input.group-horizontal label="Keterangan" name="keterangan">
-                                <x-atoms.input.textarea wire:model.defer="keterangan" />
-                            </x-atoms.input.group-horizontal>
+                            <div class="mb-5">
+                                <x-atoms.input.group-horizontal label="Tanggal" name="keterangan">
+                                    <x-atoms.input.singledaterange id="tgl_mutasi" wire:model.defer="tgl_mutasi" />
+                                </x-atoms.input.group-horizontal>
+                            </div>
+                            <div class="mb-5">
+                                <x-atoms.input.group-horizontal label="Keterangan" name="keterangan">
+                                    <x-atoms.input.textarea wire:model.defer="keterangan" />
+                                </x-atoms.input.group-horizontal>
+                            </div>
                         </div>
                     </div>
                 </form>

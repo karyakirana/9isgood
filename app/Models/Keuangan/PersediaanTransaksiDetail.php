@@ -12,6 +12,7 @@ class PersediaanTransaksiDetail extends Model
     protected $table = 'haramain_keuangan.persediaan_transaksi_detail';
     protected $fillable = [
         'persediaan_transaksi_id',
+        'persediaan_id',
         'produk_id',
         'harga',
         'jumlah',
@@ -21,5 +22,10 @@ class PersediaanTransaksiDetail extends Model
     public function persediaan_transaksi()
     {
         return $this->belongsTo(PersediaanTransaksi::class, 'persediaan_transaksi_id');
+    }
+
+    public function persediaan()
+    {
+        return $this->belongsTo(Persediaan::class, 'persediaan_id');
     }
 }

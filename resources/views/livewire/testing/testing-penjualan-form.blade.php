@@ -1,5 +1,21 @@
 <div>
     <div>
+        {{-- alert store --}}
+        @if(session()->has('storeMessage'))
+            <x-molecules.alert-danger>
+                {{ session('storeMessage') }}
+            </x-molecules.alert-danger>
+        @endif
+        {{-- alert validation --}}
+        @if($errors->all())
+            <x-molecules.alert-danger>
+                <ul>
+                    @foreach($errors->all() as $messages)
+                        <li>{{$messages}}</li>
+                    @endforeach
+                </ul>
+            </x-molecules.alert-danger>
+        @endif
         <x-molecules.card title="Form Penjualan">
             <div class="row">
                 <div class="col-8">
@@ -176,11 +192,11 @@
 
             <x-slot name="footer">
                 <div class="d-flex justify-content-end">
-{{--                    @if($mode == 'update')--}}
+                    @if($mode == 'update')
                         <x-atoms.button.btn-primary >Update All</x-atoms.button.btn-primary>
-{{--                    @else--}}
-                        <x-atoms.button.btn-primary >Save All</x-atoms.button.btn-primary>
-{{--                    @endif--}}
+                    @else
+                        <x-atoms.button.btn-primary wire:click="store">Save All</x-atoms.button.btn-primary>
+                    @endif
                 </div>
             </x-slot>
 

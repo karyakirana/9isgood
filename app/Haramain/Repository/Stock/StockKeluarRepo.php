@@ -1,10 +1,22 @@
 <?php namespace App\Haramain\Repository\Stock;
 
 use App\Models\Stock\StockKeluar;
+use App\Models\Stock\StockKeluarDetail;
 use Illuminate\Support\Facades\Auth;
 
 class StockKeluarRepo
 {
+    protected $stockKeluar;
+    protected $stockKeluarDetail;
+    protected $stockInventoryRepo;
+
+    public function __construct()
+    {
+        $this->stockKeluar = new StockKeluar();
+        $this->stockKeluarDetail = new StockKeluarDetail();
+        $this->stockInventoryRepo = new StockInventoryRepo();
+    }
+
     public function kode($kondisi= 'baik', $jenisMutasi = null)
     {
         if ($jenisMutasi){
@@ -12,7 +24,7 @@ class StockKeluarRepo
         }
 
         // query
-        $query = StockKeluar::query()
+        $query = $this->stockKeluar::query()
             ->where('active_cash', session('ClosedCash'))
             ->where('kondisi', $kondisi)
             ->latest('kode');
@@ -37,71 +49,86 @@ class StockKeluarRepo
         return 'rusak';
     }
 
-    public function storeFromRelation(object $stockKeluar, $data)
+    public function store($data, $stockableType, $stockableId)
     {
-        $tglKeluar = $data->tgl_keluar ?? $data->tgl_nota ?? $data->tgl_mutasi;
+        $tglKeluar = $data['tglKeluar'] ?? $data['tglNota'] ?? $data['tglMutasi'];
+        $databaseTglKeluar = tanggalan_database_format($tglKeluar, 'd-M-Y');
 
-        if (isset($data->jenis_mutasi)){
-            $kondisi = $this->setKondisi($data->jenis_mutasi);
+        if (isset($data['jenisMutasi'])){
+            $kondisi = $this->setKondisi($data['jenisMutasi']);
         }
 
-        $stockKeluar = $stockKeluar->create([
-            'kode'=>$this->kode($data->kondisi ?? null, $data->jenis_mutasi),
-            'supplier_id'=>$data->supplier_id ?? null,
-            'active_cash'=>session('ClosedCash'),
-            'kondisi'=> $kondisi ?? $data->kondisi,
-            'gudang_id'=>$data->gudang_id ?? $data->gudang_asal_id,
-            'tgl_keluar'=>tanggalan_database_format($tglKeluar, 'd-M-Y'),
-            'user_id'=>Auth::id(),
-            'keterangan'=>$data->keterangan,
-        ]);
-
-        foreach ($data->data_detail as $item) {
-            $stockKeluar->stockKeluarDetail()->create([
-                'produk_id'=>$item['produk_id'],
-                'jumlah'=>$item['jumlah']
+        $stockKeluar = $this->stockKeluar->newQuery()
+            ->create([
+                'kode'=>$this->kode($data['kondisi'] ?? null, $data['jenisMutasi'] ?? null),
+                'supplier_id'=>(isset($data['supplierId'])) ? $data['supplierId'] : null,
+                'active_cash'=>session('ClosedCash'),
+                'stockable_keluar_id'=>$stockableId,
+                'stockable_keluar_type'=>$stockableType,
+                'kondisi'=>$data['kondisi'],
+                'gudang_id'=>$data['gudangId'],
+                'tgl_keluar'=>$databaseTglKeluar,
+                'user_id'=>$data['userId'],
+                'keterangan'=>$data['keterangan'],
             ]);
-
-            (new StockInventoryRepo())->incrementArrayData($item, $data->gudang_id ?? $data->gudang_asal_id, $kondisi ?? $data->kondisi, 'stock_keluar');
-        }
+        $this->storeDetail($data, $data['dataDetail'], $stockKeluar->id);
         return $stockKeluar;
     }
 
-    public function updateFromRelation(object $stockKeluar, $data)
+    public function storeDetail($data, $dataItem, $stockKeluarId)
+    {
+        foreach ($dataItem as $item) {
+            $this->stockKeluarDetail->newQuery()
+                ->create([
+                    'stock_keluar_id'=>$stockKeluarId,
+                    'produk_id'=>$item['produk_id'],
+                    'jumlah'=>$item['jumlah'],
+                ]);
+            // update stock inventory
+            $this->stockInventoryRepo->incrementArrayData($item, $data['gudangId'], $data['kondisi'], 'stock_keluar');
+        }
+    }
+
+    public function update($data, $stockableType, $stockableId)
     {
         // initiate
-        $stockKeluar = $stockKeluar->first();
-        // rollback
-        foreach ($stockKeluar->stockKeluarDetail as $item) {
-            (new StockInventoryRepo())->rollback($item, $stockKeluar->gudang_id, $stockKeluar->kondisi, 'stock_keluar');
-        }
-
-        // delete stock detail
-        $stockKeluar->stockKeluarDetail()->delete();
-
-        $tglKeluar = $data->tgl_keluar ?? $data->tgl_nota ?? $data->tgl_mutasi;
-
-        if (isset($data->jenis_mutasi)){
-            $kondisi = $this->setKondisi($data->jenis_mutasi);
-        }
-
-        $stockKeluar->update([
-            'supplier_id'=>$data->supplier_id ?? null,
-            'kondisi'=>$kondisi ?? $data->kondisi,
-            'gudang_id'=>$data->gudang_id ?? $data->gudang_asal_id,
-            'tgl_keluar'=>tanggalan_database_format($tglKeluar, 'd-M-Y'),
-            'user_id'=>Auth::id(),
-            'keterangan'=>$data->keterangan,
+        $tglKeluar = $data['tglKeluar'] ?? $data['tglNota'] ?? $data['tglMutasi'];
+        $databaseTglKeluar = tanggalan_database_format($tglKeluar, 'd-M-Y');
+        $stockKeluar = $this->stockKeluar->newQuery()
+            ->where('stockable_keluar_id', $stockableId)
+            ->where('stockable_keluar_type', $stockableType)
+            ->first();
+        $update = $stockKeluar->update([
+            'supplier_id'=>(isset($data['supplierId'])) ? $data['supplierId'] : null,
+            'kondisi'=>$data['kondisi'],
+            'gudang_id'=>$data['gudangId'],
+            'tgl_keluar'=>$databaseTglKeluar,
+            'user_id'=>$data['userId'],
+            'keterangan'=>$data['keterangan'],
         ]);
-
-        foreach ($data->data_detail as $item) {
-            $stockKeluar->stockKeluarDetail()->create([
-                'produk_id'=>$item['produk_id'],
-                'jumlah'=>$item['jumlah']
-            ]);
-
-            (new StockInventoryRepo())->incrementArrayData($item, $data->gudang_id ?? $data->gudang_asal_id, $kondisi ?? $data->kondisi, 'stock_keluar');
-        }
+        $this->storeDetail($data, $data['dataDetail'], $stockKeluar->id);
         return $stockKeluar;
+    }
+
+    public function rollback($stockableType, $stockableId)
+    {
+        $stockKeluar = $this->stockKeluar->newQuery()
+            ->where('stockable_keluar_id', $stockableId)
+            ->where('stockable_keluar_type', $stockableType)
+            ->first();
+        $stockKeluarDetail = $this->stockKeluarDetail->newQuery()
+            ->where('stock_keluar_id', $stockKeluar->id);
+        // rollback stock inventory
+        foreach ($stockKeluarDetail->get() as $item) {
+            $this->stockInventoryRepo->rollback($item, $stockKeluar->gudang_id, $stockKeluar->kondisi, 'stock_keluar');
+        }
+        $stockKeluarDetail->delete();
+        return $stockKeluar;
+    }
+
+    public function destroy($stockableType, $stockableId)
+    {
+        $rollback = $this->rollback($stockableType, $stockableId);
+        return $rollback->delete();
     }
 }

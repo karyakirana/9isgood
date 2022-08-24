@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Testing;
 
+use App\Haramain\Service\SistemPenjualan\PenjualanService;
 use App\Models\KonfigurasiJurnal;
 use App\Models\Master\Customer;
 use App\Models\Master\Produk;
@@ -12,8 +13,11 @@ use Livewire\Component;
 class TestingPenjualanForm extends Component
 {
     protected $listeners = [
-        'set_produk'=>'setProduk'
+        'set_produk'=>'setProduk',
+        'set_customer'=>'setCustomer'
     ];
+
+    protected $penjualanService;
 
     // initiation
     protected $customer;
@@ -22,28 +26,36 @@ class TestingPenjualanForm extends Component
     protected $penjualanRetur;
     protected $konfigAkun;
     protected $jenisTransaksi; // penjualan, retur baik, retur rusak
-    protected $mode = 'create'; // default create dan bisa update
+    public $mode = 'create'; // default create dan bisa update
 
     // form penjualan
     public $penjualanId;
     public $penjualanReturId;
     public $customerId, $customerNama, $customerDiskon;
+    public $userId;
     public $gudangId;
     public $tglNota;
     public $tglTempo;
     public $jenisBayar;
-    public $statusBayar;
+    public $statusBayar = 'belum';
     public $totalBarang;
     public $totalPenjualan, $totalPenjualanRupiah; // total penjualan = pendapatan
     public $totalBayar, $totalBayarRupiah; // total bayar = piutang
+    public $keterangan;
     public $print;
 
+    // stock keluar
+    public $kondisi = 'baik';
+
+    // persediaan
+    public $tglInput, $jenisPersediaan = 'keluar';
+
     // akuntansi
-    public $akunHutangPPNId, $ppn;
-    public $akunPendapatanPenjualan, $pendapatan;
+    public $akunPPNPenjualan, $ppn;
+    public $akunPenjualanid, $pendapatan;
     public $akunPiutangId; // total bayar
-    public $akunHutangBiayaLainId, $biayaLain;
-    public $akunHppId, $akunPersediaanId;
+    public $akunBiayaLainPenjualanId, $biayaLain;
+    public $akunHPPId, $akunPersediaanId;
 
     // detail
     public $dataDetail = [];
@@ -58,6 +70,8 @@ class TestingPenjualanForm extends Component
     public function __construct($id = null)
     {
         parent::__construct($id);
+
+        $this->penjualanService = new PenjualanService();
         // initaite
         $this->customer = new Customer();
         $this->produk = new Produk();
@@ -73,7 +87,11 @@ class TestingPenjualanForm extends Component
 
     public function mount($jenisTransaksi = 'penjualan', $transaksiId = null)
     {
+        $this->userId = \Auth::id();
         $this->jenisTransaksi = $jenisTransaksi;
+        // initiate akun
+        $this->getAkun();
+        $this->getAkunPersediaan();
     }
 
     protected function getPenjualan($penjualanId)
@@ -91,14 +109,14 @@ class TestingPenjualanForm extends Component
     protected function getAkun()
     {
         $this->akunPiutangId = KonfigurasiJurnal::query()->find('piutang_usaha')->akun_id;
-        $this->akunPendapatanPenjualan = KonfigurasiJurnal::query()->find('penjualan')->akun_id;
-        $this->akunHutangBiayaLainId = KonfigurasiJurnal::query()->find('biaya_penjualan')->akun_id;
-        $this->akunHutangPPNId = KonfigurasiJurnal::query()->find('ppn_penjualan')->akun_id;
+        $this->akunPenjualanid = KonfigurasiJurnal::query()->find('penjualan')->akun_id;
+        $this->akunBiayaLainPenjualanId = KonfigurasiJurnal::query()->find('biaya_penjualan')->akun_id;
+        $this->akunPPNPenjualan = KonfigurasiJurnal::query()->find('ppn_penjualan')->akun_id;
     }
 
     protected function getAkunPersediaan()
     {
-        $this->akunHppId = KonfigurasiJurnal::query()->find('hpp_internal')->akun_id;
+        $this->akunHPPId = KonfigurasiJurnal::query()->find('hpp_internal')->akun_id;
         $this->akunPersediaanId = KonfigurasiJurnal::query()->find('persediaan')->akun_id;
     }
 
@@ -247,13 +265,15 @@ class TestingPenjualanForm extends Component
         $this->hargaDiskonRupiah = rupiah_format((int)$this->hargaDiskon);
     }
 
-    public function store()
+    protected function validateData()
     {
-        $data = $this->validate([
+        $this->tglInput = $this->tglNota;
+        return $this->validate([
             'penjualanId'=>($this->mode == 'update' && $this->jenisTransaksi == 'penjualan') ? 'required' : 'nullable',
             'penjualanReturId'=>($this->mode == 'update' && $this->jenisTransaksi == 'retur') ? 'required' : 'nullable',
             'customerId'=>'required',
             'customerNama'=>'required',
+            'userId'=>'required',
             'gudangId'=>'required',
             'tglNota'=>'required',
             'tglTempo'=>($this->jenisBayar == 'tempo') ? 'required' : 'nullable',
@@ -263,17 +283,38 @@ class TestingPenjualanForm extends Component
             'totalPenjualan'=>'required',
             'totalBayar'=>'required',
             'dataDetail'=>'required',
+            'keterangan'=>'nullable',
+            // stock
+            'kondisi'=>'required',
+            // persediaan
+            'jenisPersediaan'=>'required',
+            'tglInput'=>'required',
+
             // akuntansi
             'akunPiutangId'=>'required',
-            'akunPendapatanPenjualan'=>'required',
+            'akunPenjualanid'=>'required',
             'pendapatan'=>'required',
-            'baiayaLain'=>( (int)$this->biayaLain > 0) ?'required' : 'nullable',
-            'akunHutangBiayaLain'=>( (int)$this->biayaLain > 0) ?'required' : 'nullable',
+            'biayaLain'=>( (int)$this->biayaLain > 0) ?'required' : 'nullable',
+            'akunBiayaLainPenjualanId'=>( (int)$this->biayaLain > 0) ?'required' : 'nullable',
             'ppn'=>( (int)$this->ppn > 0) ?'required' : 'nullable',
-            'akunHutangPPNId'=>( (int)$this->ppn > 0) ?'required' : 'nullable',
-            'akunHppId'=>'required',
+            'akunPPNPenjualan'=>( (int)$this->ppn > 0) ?'required' : 'nullable',
+            'akunHPPId'=>'required',
             'akunPersediaanId'=>'required',
         ]);
+    }
+
+    public function store()
+    {
+        $data = $this->validateData();
+        // dd($data);
+        $store = $this->penjualanService->handleStore($data);
+        if ($store->status){
+            // redirect
+            session()->flash('storeMessage', $store->keterangan);
+            return redirect()->to(route('stock.masuk'));
+        }
+        session()->flash('storeMessage', $store->keterangan);
+        return null;
     }
 
     public function render()

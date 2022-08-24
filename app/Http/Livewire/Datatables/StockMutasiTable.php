@@ -15,6 +15,7 @@ class StockMutasiTable extends DataTableComponent
     use DatatablesTraits;
 
     public $jenis_mutasi;
+    public $activeCash = true;
     protected string $pageName = 'stockMutasi';
     protected string $tableName = 'stockMutasiList';
 
@@ -22,6 +23,11 @@ class StockMutasiTable extends DataTableComponent
     public function mount($jenis_mutasi = null)
     {
         $this->jenis_mutasi = $jenis_mutasi;
+    }
+
+    public function setJenisMutasi($jenisMutasi)
+    {
+        $this->jenis_mutasi = $jenisMutasi;
     }
 
     public function columns(): array
@@ -49,14 +55,17 @@ class StockMutasiTable extends DataTableComponent
     public function query(): Builder
     {
         $stockMutasi = StockMutasi::query()
-            ->with(['gudangAsal', 'gudangTujuan', 'users'])
-            ->where('active_cash', session('ClosedCash'));
+            ->with(['gudangAsal', 'gudangTujuan', 'users']);
 
-        if ($this->jenis_mutasi){
-            return $stockMutasi->where('jenis_mutasi', $this->jenis_mutasi);
+        if ($this->activeCash){
+            $stockMutasi = $stockMutasi->where('active_cash', session('ClosedCash'));
         }
 
-        return $stockMutasi;
+        if ($this->jenis_mutasi){
+            $stockMutasi = $stockMutasi->where('jenis_mutasi', $this->jenis_mutasi);
+        }
+
+        return $stockMutasi->latest();
     }
 
     public function rowView(): string

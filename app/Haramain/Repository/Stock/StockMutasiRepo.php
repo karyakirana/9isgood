@@ -1,10 +1,20 @@
 <?php namespace App\Haramain\Repository\Stock;
 
 use App\Models\Stock\StockMutasi;
+use App\Models\Stock\StockMutasiDetail;
 use Illuminate\Support\Facades\Auth;
 
 class StockMutasiRepo
 {
+    protected $stockMutasi;
+    protected $stockMutasiDetail;
+
+    public function __construct()
+    {
+        $this->stockMutasi = new StockMutasi();
+        $this->stockMutasiDetail = new StockMutasiDetail();
+    }
+
     public function kode($jenis = 'baik_baik')
     {
         $query = StockMutasi::query()
@@ -28,26 +38,29 @@ class StockMutasiRepo
         $mutasi = StockMutasi::query()->create([
             'active_cash'=>session('ClosedCash'),
             'kode'=>$this->kode(),
-            'jenis_mutasi'=>$data->jenis_mutasi,
-            'gudang_asal_id'=>$data->gudang_asal_id,
-            'gudang_tujuan_id'=>$data->gudang_tujuan_id,
-            'tgl_mutasi'=>tanggalan_database_format($data->tgl_mutasi, 'd-M-Y'),
+            'jenis_mutasi'=>$data->jenisMutasi,
+            'gudang_asal_id'=>$data->gudangAsalId,
+            'gudang_tujuan_id'=>$data->gudangTujuanId,
+            'tgl_mutasi'=>tanggalan_database_format($data->tglMutasi, 'd-M-Y'),
             'user_id'=>Auth::id(),
             'keterangan'=>$data->keterangan,
         ]);
 
-        foreach ($data->data_detail as $item) {
-            $mutasi->stockMutasiDetail()->create([
-                'produk_id'=>$item['produk_id'],
-                'jumlah'=>$item['jumlah'],
-            ]);
-        }
-        // stock keluar
-        $stockKeluar = (new StockKeluarRepo())->storeFromRelation($mutasi->stockKeluarMorph(), $data);
-        // stock masuk
-        $stockMasuk = (new StockMasukRepo())->storeFromRelation($mutasi->stockMasukMorph(), $data);
+        $this->storeDetail($mutasi->id, $data['dataDetail']);
 
-        return $mutasi->id;
+        return $mutasi;
+    }
+
+    protected function storeDetail($mutasiId, $dataDetail)
+    {
+        foreach ($dataDetail as $item) {
+            $this->stockMutasiDetail->newQuery()
+                ->create([
+                    'stock_mutasi_id'=>$mutasiId,
+                    'produk_id'=>$item['produk_id'],
+                    'jumlah'=>$item['jumlah'],
+                ]);
+        }
     }
 
     public function update($data)
@@ -60,24 +73,15 @@ class StockMutasiRepo
 
         // update
         $mutasi->update([
-            'jenis_mutasi'=>$data->jenis_mutasi,
-            'gudang_asal_id'=>$data->gudang_asal_id,
-            'gudang_tujuan_id'=>$data->gudang_tujuan_id,
-            'tgl_mutasi'=>tanggalan_database_format($data->tgl_mutasi, 'd-M-Y'),
+            'gudang_asal_id'=>$data->gudangAsalId,
+            'gudang_tujuan_id'=>$data->gudangTujuanId,
+            'tgl_mutasi'=>tanggalan_database_format($data->tglMutasi, 'd-M-Y'),
             'user_id'=>Auth::id(),
             'keterangan'=>$data->keterangan,
         ]);
 
-        foreach ($data->data_detail as $item) {
-            $mutasi->stockMutasiDetail()->create([
-                'produk_id'=>$item['produk_id'],
-                'jumlah'=>$item['jumlah'],
-            ]);
-        }
+        $this->storeDetail($mutasi->id, $data);
 
-        $stockKeluar = (new StockKeluarRepo())->updateFromRelation($mutasi->stockKeluarMorph(), $data);
-        $stockMasuk = (new StockMasukRepo())->updateFromRelation($mutasi->stockMasukMorph(), $data);
-
-        return $mutasi->id;
+        return $mutasi;
     }
 }

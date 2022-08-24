@@ -69,7 +69,7 @@ class PembelianInternalForm extends Component
 
     public function mount($pembelianId = null)
     {
-        $this->mode = 'update';
+
         // set tanggal
         $this->tglNota = tanggalan_format(now('ASIA/JAKARTA'));
         $this->tglTempo = tanggalan_format(now('ASIA/JAKARTA')->addMonth(2));
@@ -87,6 +87,7 @@ class PembelianInternalForm extends Component
         $this->hpp = HargaHppALL::query()->latest()->first()->persen;
         if ($pembelianId){
             // untuk kepentingan edit
+            $this->mode = 'update';
             $pembelian = $this->pembelianInternalService->handleEdit($pembelianId);
             $this->pembelianId = $pembelian->id;
             $this->supplierId = $pembelian->supplier_id;

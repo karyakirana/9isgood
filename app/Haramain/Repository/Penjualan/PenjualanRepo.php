@@ -2,101 +2,108 @@
 
 use App\Haramain\Repository\Stock\StockInventoryRepo;
 use App\Models\Penjualan\Penjualan;
+use App\Models\Penjualan\PenjualanDetail;
 
 class PenjualanRepo
 {
-    protected Penjualan $penjualan;
-    protected $closedCash;
-    protected $user;
-    protected $kondisi, $jenis, $field;
-
-    protected $stockInventoryRepo;
+    protected $penjualan;
+    protected $penjualanDetail;
 
     public function __construct()
     {
-        $this->closedCash = session('ClosedCash');
-        $this->user = \Auth::id();
-        $this->kondisi = 'baik';
-        $this->jenis = 'keluar';
-        $this->field = 'stock_keluar';
-
-        // initiate Stock Inventory Repo
-        $this->stockInventoryRepo = new StockInventoryRepo();
+        $this->penjualan = new Penjualan();
+        $this->penjualanDetail = new PenjualanDetail();
     }
 
     public function kode()
     {
-        return null;
+        $query = $this->penjualan::query()
+            ->where('active_cash', session('ClosedCash'))
+            ->latest('kode');
+
+        // check last num
+        if ($query->doesntExist()){
+            return '0001/PJ/'.date('Y');
+        }
+
+        $num = (int)$query->first()->last_num_trans + 1 ;
+        return sprintf("%04s", $num)."/PJ/".date('Y');
+    }
+
+    public function getDataById($penjualanId)
+    {
+        return $this->penjualan->newQuery()->find($penjualanId);
     }
 
     public function store($data)
     {
         // simpan penjualan
-        $penjualan = Penjualan::query()->create([
+        $penjualan = $this->penjualan->newQuery()->create([
             'kode'=>$this->kode(),
-            'active_cash'=>$this->closedCash,
-            'customer_id'=>$data->customer_id,
-            'gudang_id'=>$data->gudang_id,
-            'user_id'=>$this->user,
-            'tgl_nota'=>$data->tgl_nota,
-            'tgl_tempo'=>($data->jenis_bayar == 'Tempo') ? $data->tgl_tempo : null,
-            'jenis_bayar'=>$data->jenis_bayar,
+            'active_cash'=>session('ClosedCash'),
+            'customer_id'=>$data['customerId'],
+            'gudang_id'=>$data['gudangId'],
+            'user_id'=>$data['userId'],
+            'tgl_nota'=>tanggalan_database_format($data['tglNota'],'d-M-Y'),
+            'tgl_tempo'=>($data['jenisBayar'] == 'tempo') ? tanggalan_database_format($data['tglTempo'], 'd-M-Y') : null,
+            'jenis_bayar'=>$data['jenisBayar'],
             'status_bayar'=>'belum',
-            'total_barang'=>$data->total_barang,
-            'ppn'=>$data->ppn,
-            'biaya_lain'=>$data->biaya_lain,
-            'total_bayar'=>$data->total_bayar,
-            'keterangan'=>$data->keterangan,
-            'print'=>null,
+            'total_barang'=>$data['totalBarang'],
+            'ppn'=>$data['ppn'],
+            'biaya_lain'=>$data['biayaLain'],
+            'total_bayar'=>$data['totalBayar'],
+            'keterangan'=>$data['keterangan'],
+            'print'=>1,
         ]);
+        $this->storeDetail($data['dataDetail'], $penjualan->id);
+        return $penjualan;
+    }
 
-        // simpan stock keluar
-        $stockKeluar = $penjualan->stockKeluarMorph()->create([
-            'kode',
-            'active_cash'=>$this->closedCash,
-            'kondisi'=>$this->kondisi,
-            'gudang_id'=>$data->gudang_id,
-            'tgl_keluar'=>$data->tgl_nota,
-            'user_id'=>$this->user,
-            'keterangan'=>$data->keterangan,
-        ]);
-
-        // hitung barang saja yang keluar
-        $penjualanBersih = $data->total_bayar - (int) $data->ppn - (int) $data->biaya_lain;
-
-        // simpan persediaan transaksi
-        $persediaanTransaksiKeluar = $penjualan->persediaan_transaksi()->create([
-            'active_cash'=>$this->closedCash,
-            'kode',
-            'jenis'=>$this->jenis, // masuk atau keluar
-            'debet'=>null,
-            'kredit'=>$penjualanBersih,
-        ]);
-
-        /**
-         * Simpan data detail
-         * untuk penjualan detail
-         * untuk stock keluar detail
-         * untuk stock inventory
-         */
-        foreach ($data->detail as $item){
-            // penjualan detail
-            $penjualan->penjualanDetail()->create([
-                'produk_id'=>$item['produk_id'],
-                'harga'=>$item['harga'],
-                'jumlah'=>$item['jumlah'],
-                'diskon'=>$item['diskon'],
-                'sub_total'=>$item['sub_total'],
-            ]);
-
-            // stock keluar detail
-            $stockKeluar->stockKeluarDetail()->create([
-                'produk_id'=>$item['produk_id'],
-                'jumlah'=>$item['jumlah'],
-            ]);
-
-            // update stock inventory
-            $this->stockInventoryRepo->incrementArrayData($item, $data->gudang_id, $this->kondisi, $this->field);
+    protected function storeDetail($dataItem, $penjualanId)
+    {
+        foreach ($dataItem as $item) {
+            $this->penjualanDetail->newQuery()
+                ->create([
+                    'penjualan_id'=>$penjualanId,
+                    'produk_id'=>$item['produk_id'],
+                    'harga'=>$item['harga'],
+                    'jumlah'=>$item['jumlah'],
+                    'diskon'=>$item['diskon'],
+                    'sub_total'=>$item['sub_total'],
+                ]);
         }
+    }
+
+    public function update($data)
+    {
+        $penjualan = $this->penjualan->newQuery()->find($data['penjualanId']);
+        $update = $penjualan->update([
+            'customer_id'=>$data['customerId'],
+            'gudang_id'=>$data['gudangId'],
+            'user_id'=>$data['userId'],
+            'tgl_nota'=>tanggalan_database_format($data['tglNota'],'d-M-Y'),
+            'tgl_tempo'=>($data['jenisBayar'] == 'tempo') ? tanggalan_database_format($data['tglTempo'], 'd-M-Y') : null,
+            'jenis_bayar'=>$data['jenisBayar'],
+            'status_bayar'=>'belum',
+            'total_barang'=>$data['totalBarang'],
+            'ppn'=>$data['ppn'],
+            'biaya_lain'=>$data['biayaLain'],
+            'total_bayar'=>$data['totalBayar'],
+            'keterangan'=>$data['keterangan'],
+        ]);
+        $penjualan->increment('print');
+        $this->storeDetail($data['dataDetail'], $penjualan->id);
+        return $penjualan;
+    }
+
+    public function rollback($penjualanId)
+    {
+        return $this->penjualanDetail->newQuery()->where('penjualan_id', $penjualanId)->delete();
+    }
+
+    public function destroy($penjualanId)
+    {
+        $this->rollback($penjualanId);
+        return $this->penjualan->newQuery()->find($penjualanId)->delete();
     }
 }
