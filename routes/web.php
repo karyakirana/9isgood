@@ -157,15 +157,14 @@ Route::middleware('auth')->group(function (){
     Route::get('stock/transaksi/keluar/trans/{kondisi}/{stockkeluar}', \App\Http\Livewire\Stock\StockKeluarForm::class);
 
     // stock mutasi
-    Route::get('stock/mutasi', [\App\Http\Controllers\Stock\StockMutasiController::class, 'index']);
-    Route::get('stock/mutasi/report/{kondisi}', \App\Http\Livewire\Stock\StockMutasiIndex::class);
-    Route::get('stock/mutasi/form', \App\Http\Livewire\Stock\StockMutasiForm::class);
-    Route::get('stock/mutasi/form/{mutasiId}', \App\Http\Livewire\Stock\StockMutasiForm::class);
+    Route::get('stock/mutasi', [\App\Http\Controllers\Stock\StockMutasiController::class, 'index'])->name('stock.mutasi');
+    Route::get('stock/mutasi/report/{kondisi}', [\App\Http\Controllers\Stock\StockMutasiController::class, 'jenisMutasi'])->name('stock.mutasi.kondisi');
+    Route::get('stock/mutasi/form', \App\Http\Livewire\Stock\StockMutasiForm::class)->name('stock.mutasi.form');
+    Route::get('stock/mutasi/form/{mutasiId}', \App\Http\Livewire\Stock\StockMutasiForm::class)->name('stock.mutasi.form.edit');
 
     // stock mutasi dari baik ke rusak
     Route::get('stock/rusak', \App\Http\Livewire\Stoc\StockRusakIndex::class)->name('stock.rusak');
     Route::get('stock/rusak/trans', \App\Http\Livewire\Stoc\StockRusakForm::class)->name('stock.rusak.trans');
-
 
     Route::get('stock/transaksi/opname', \App\Http\Livewire\Stock\StockOpnameIndex::class)->name('stock.opname');
     Route::get('stock/transaksi/opname/{jenis}', \App\Http\Livewire\Stock\StockOpnameIndex::class);

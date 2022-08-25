@@ -15,7 +15,7 @@ class StockMutasiRepo
         $this->stockMutasiDetail = new StockMutasiDetail();
     }
 
-    public function kode($jenis = 'baik_baik')
+    protected function kode($jenis = 'baik_baik')
     {
         $query = StockMutasi::query()
             ->where('active_cash', session('ClosedCash'))
@@ -31,6 +31,11 @@ class StockMutasiRepo
 
         $num = (int) $query->first()->last_num_trans + 1;
         return sprintf("%04s", $num)."/{$kodeKondisi}/".date('Y');
+    }
+
+    public function getDataById($mutasiId)
+    {
+        return $this->stockMutasi->newQuery()->find($mutasiId);
     }
 
     public function store($data)

@@ -15,29 +15,33 @@ use Livewire\Component;
 
 class StockMutasiForm extends Component
 {
-    public ?string $jenisMutasi, $jenis_mutasi;
-
-    public function render()
-    {
-        return view('livewire.stock.stock-mutasi-form');
-    }
-
     protected $listeners = [
         'setProduk'
     ];
 
     public string $mode = 'create';
     public bool $update = false;
+    public $jenisMutasi;
 
     public $mutasi_id;
 
-    public array|object $gudang_data = [];
-    public $gudang_asal_id, $gudang_tujuan_id;
-    public $tgl_mutasi;
+    public $gudang_data = [];
+    public $gudangAsalId, $gudangTujuanId;
+    public $tglMutasi;
+    public $suratJalan;
     public $keterangan;
 
+    // stock masuk
+    public $tglMasuk;
+
+    // stock keluar
+    public $tglKeluar;
+
+    // persediaan transaksi
+    public $tglInput;
+
     public $index;
-    public array $data_detail = [];
+    public array $dataDetail = [];
     public $produk_id;
     public $produk_nama, $produk_kode_lokal, $produk_kategori_harga, $produk_cover;
     public $produk_screen;
@@ -68,7 +72,7 @@ class StockMutasiForm extends Component
             $this->keterangan = $mutasi->keterangan;
 
             foreach ($mutasi->stockMutasiDetail as $item) {
-                $this->data_detail [] = [
+                $this->dataDetail [] = [
                     'produk_id'=>$item->produk_id,
                     'produk_nama'=>$item->produk->nama,
                     'kode_lokal'=>$item->produk->kode_lokal,
@@ -82,7 +86,7 @@ class StockMutasiForm extends Component
 
     public function updatedGudangAsalId()
     {
-        $this->emit('setGudang', $this->gudang_asal_id);
+        $this->emit('setGudang', $this->gudangAsalId);
     }
 
     public function setProduk(Produk $produk)
@@ -185,15 +189,7 @@ class StockMutasiForm extends Component
     public function store()
     {
         $data = $this->validatemaster();
-        DB::beginTransaction();
-        try {
-            (new StockMutasiRepo())->store($data);
-            DB::commit();
-            return redirect()->route('mutasi.baik_baik');
-        } catch (ModelNotFoundException $e){
-            DB::rollBack();
-            session()->flash('error_store', $e);
-        }
+
     }
 
     public function update()
@@ -208,5 +204,10 @@ class StockMutasiForm extends Component
             DB::rollBack();
             session()->flash('error_store', $e);
         }
+    }
+
+    public function render()
+    {
+        return view('livewire.stock.stock-mutasi-form');
     }
 }

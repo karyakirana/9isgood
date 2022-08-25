@@ -20,8 +20,8 @@
                                 </x-atoms.input.group-horizontal>
                             </div>
                             <div class="mb-5">
-                                <x-atoms.input.group-horizontal label="Gudang Asal" name="gudang_asal_id">
-                                    <x-atoms.input.select wire:model="gudang_asal_id">
+                                <x-atoms.input.group-horizontal label="Gudang Asal" name="gudangAsalId">
+                                    <x-atoms.input.select wire:model="gudangAsalId">
                                         <option>Dipilih</option>
                                         @foreach($gudang_data as $row)
                                             <option value="{{$row->id}}">{{ucfirst($row->nama)}}</option>
@@ -30,8 +30,8 @@
                                 </x-atoms.input.group-horizontal>
                             </div>
                             <div class="mb-5">
-                                <x-atoms.input.group-horizontal label="Gudang Tujuan" name="gudang_tujuan_id">
-                                    <x-atoms.input.select wire:model.defer="gudang_tujuan_id">
+                                <x-atoms.input.group-horizontal label="Gudang Tujuan" name="gudangTujuanId">
+                                    <x-atoms.input.select wire:model.defer="gudangTujuanId">
                                         <option>Dipilih</option>
                                         @foreach($gudang_data as $row)
                                             <option value="{{$row->id}}">{{ucfirst($row->nama)}}</option>
@@ -42,8 +42,13 @@
                         </div>
                         <div class="col-6">
                             <div class="mb-5">
-                                <x-atoms.input.group-horizontal label="Tanggal" name="keterangan">
-                                    <x-atoms.input.singledaterange id="tgl_mutasi" wire:model.defer="tgl_mutasi" />
+                                <x-atoms.input.group-horizontal label="Tanggal" name="tglMutasi">
+                                    <x-atoms.input.singledaterange id="tglMutasi" wire:model.defer="tglMutasi" />
+                                </x-atoms.input.group-horizontal>
+                            </div>
+                            <div class="mb-5">
+                                <x-atoms.input.group-horizontal label="Surat Jalan" name="suratJalan">
+                                    <x-atoms.input.text wire:model.defer="suratJalan" />
                                 </x-atoms.input.group-horizontal>
                             </div>
                             <div class="mb-5">
@@ -63,7 +68,7 @@
                             <th width="20%"></th>
                         </tr>
                     </x-slot>
-                    @forelse($data_detail as $index=>$row)
+                    @forelse($dataDetail as $index=>$row)
                         <tr>
                             <x-atoms.table.td align="center">
                                 {{$row['kode_lokal']}}
@@ -138,11 +143,11 @@
                 produkModal.hide();
             })
 
-            $('#tgl_mutasi').on('change', function (e) {
-                let date = $(this).data("#tgl_mutasi");
+            $('#tglMutasi').on('change', function (e) {
+                let date = $(this).data("#tglMutasi");
                 // eval(date).set('tglLahir', $('#tglLahir').val())
                 console.log(e.target.value);
-                @this.tgl_mutasi = e.target.value;
+                @this.tglMutasi = e.target.value;
             })
         </script>
     @endpush

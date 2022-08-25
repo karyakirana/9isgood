@@ -98,7 +98,7 @@ class PersediaanRepository
                     'produk_id'=>$dataItem['produk_id'],
                     'harga'=>$data->harga,
                     'jumlah'=> $jumlah,
-                    'sub_total'=>$dataItem['harga'] * $jumlah
+                    'sub_total'=>$data->harga * $jumlah
                 ];
                 if ($itemJumlah <= 0){
                     // jika item sudah dipenuhi, looping selesai
@@ -119,7 +119,7 @@ class PersediaanRepository
                         'harga'=>$data->harga,
                         'jumlah'=> $itemJumlah,
                         'tgl_input'=> $data->tgl_input,
-                        'sub_total'=>$dataItem['harga'] * $itemJumlah
+                        'sub_total'=>$data->harga * $itemJumlah
                     ];
                     break;
                 }
@@ -130,7 +130,7 @@ class PersediaanRepository
                     'harga'=>$data->harga,
                     'jumlah'=> $data->saldo,
                     'tgl_input'=> $data->tgl_input,
-                    'sub_total'=> $dataItem['harga'] * $data->saldo
+                    'sub_total'=> $data->harga * $data->saldo
                 ];
             }
         }

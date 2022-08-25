@@ -23,6 +23,7 @@ class StockMutasiTable extends DataTableComponent
     public function mount($jenis_mutasi = null)
     {
         $this->jenis_mutasi = $jenis_mutasi;
+        //dd($this->jenis_mutasi);
     }
 
     public function setJenisMutasi($jenisMutasi)

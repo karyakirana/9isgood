@@ -11,4 +11,9 @@ class StockMutasiController extends Controller
     {
         return view('pages.stock.stock-mutasi-index');
     }
+
+    public function jenisMutasi($id)
+    {
+        return view('pages.stock.stock-mutasi-index', ['id'=>$id]);
+    }
 }

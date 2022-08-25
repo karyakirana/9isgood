@@ -55,18 +55,23 @@ class StockMasukRepo
     {
         // store stock masuk and return object as create
         $tglMasuk = (isset($data['tglMasuk'])) ? tanggalan_database_format($data['tglMasuk'], 'd-M-Y') : null;
+        if (isset($data['jenisMutasi'])){
+            $kondisi = \Str::of($data['jenisMutasi'])->before('_');
+        } else {
+            $kondisi = $data['kondisi'];
+        }
         $stockMasuk = $this->stockMasuk->newQuery()
             ->create([
-                'kode'=>$this->getKode($data['kondisi']),
+                'kode'=>$this->getKode($kondisi),
                 'active_cash'=>session('ClosedCash'),
                 'stockable_masuk_id'=>$stockableId,
                 'stockable_masuk_type'=>$stockableType,
-                'kondisi'=>$data['kondisi'],
-                'gudang_id'=>$data['gudangId'],
+                'kondisi'=>$kondisi,
+                'gudang_id'=>$data['gudangId'] ?? $data['gudangTujuanId'],
                 'supplier_id'=>$data['supplierId'],
                 'tgl_masuk'=>$tglMasuk,
                 'user_id'=>\Auth::id(),
-                'nomor_po'=>$data['nomorPo'],
+                'nomor_po'=>$data['nomorPo'] ?? '-',
                 'nomor_surat_jalan'=>$data['suratJalan'] ?? '-',
                 'keterangan'=>$data['keterangan'],
             ]);
@@ -89,17 +94,22 @@ class StockMasukRepo
     {
         // update stock masuk
         $tglMasuk = (isset($data['tglMasuk'])) ? tanggalan_database_format($data['tglMasuk'], 'd-M-Y') : null;
+        if (isset($data['jenisMutasi'])){
+            $kondisi = \Str::of($data['jenisMutasi'])->before('_');
+        } else {
+            $kondisi = $data['kondisi'];
+        }
         $stockMasuk = $this->stockMasuk->newQuery()
             ->where('stockable_masuk_type', $stockableType)
             ->where('stockable_masuk_id', $stockableId)->first();
         $stockMasukUpdate = $stockMasuk->update([
-            'kondisi'=>$data['kondisi'],
-            'gudang_id'=>$data['gudangId'],
+            'kondisi'=>$kondisi,
+            'gudang_id'=>$data['gudangId'] ?? $data['gudangTujuanId'],
             'supplier_id'=>$data['supplierId'],
             'tgl_masuk'=>$tglMasuk,
             'user_id'=>\Auth::id(),
-            'nomor_po'=>$data['nomorPo'],
-            'nomor_surat_jalan'=>$data['suratJalan'],
+            'nomor_po'=>$data['nomorPo'] ?? '-',
+            'nomor_surat_jalan'=>$data['suratJalan'] ?? '-',
             'keterangan'=>$data['keterangan'],
         ]);
         $stockMasukId = $stockMasuk->id;

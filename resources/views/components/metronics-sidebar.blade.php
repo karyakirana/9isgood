@@ -677,7 +677,7 @@
                         </div>
                         <!--end:Menu item-->
                         <!--begin:Menu item-->
-                        <div data-kt-menu-trigger="click" class="menu-item  {{request()->is('stock/transaksi/mutasi*') ? 'here show' : ''}} menu-accordion">
+                        <div data-kt-menu-trigger="click" class="menu-item  {{request()->is('stock/mutasi*') ? 'here show' : ''}} menu-accordion">
                             <!--begin:Menu link-->
                             <span class="menu-link">
 													<span class="menu-bullet">
@@ -691,7 +691,7 @@
                                 <!--begin:Menu item-->
                                 <div class="menu-item">
                                     <!--begin:Menu link-->
-                                    <a class="menu-link {{request()->is('stock/transaksi/mutasi/baik_baik') ? 'active' : ''}}" href="{{route('mutasi.baik_baik')}}">
+                                    <a class="menu-link {{request()->is('stock/mutasi') ? 'active' : ''}}" href="{{route('stock.mutasi')}}">
                                             <span class="menu-bullet">
                                                 <span class="bullet bullet-dot"></span>
                                             </span>
@@ -703,7 +703,7 @@
                                 <!--begin:Menu item-->
                                 <div class="menu-item">
                                     <!--begin:Menu link-->
-                                    <a class="menu-link {{request()->is('stock/transaksi/mutasi/baik_baik') ? 'active' : ''}}" href="{{route('mutasi.baik_baik')}}">
+                                    <a class="menu-link {{request()->is('stock/mutasi/report/baik_baik') ? 'active' : ''}}" href="{{route('stock.mutasi.kondisi', 'baik_baik')}}">
                                             <span class="menu-bullet">
                                                 <span class="bullet bullet-dot"></span>
                                             </span>
@@ -715,7 +715,7 @@
                                 <!--begin:Menu item-->
                                 <div class="menu-item">
                                     <!--begin:Menu link-->
-                                    <a class="menu-link {{request()->is('stock/transaksi/mutasi/rusak_rusak') ? 'active' : ''}}" href="{{route('mutasi.rusak_rusak')}}">
+                                    <a class="menu-link {{request()->is('stock/mutasi/report/rusak_rusak') ? 'active' : ''}}" href="{{route('stock.mutasi.kondisi', 'baik_baik')}}">
                                             <span class="menu-bullet">
                                                 <span class="bullet bullet-dot"></span>
                                             </span>
@@ -727,11 +727,11 @@
                                 <!--begin:Menu item-->
                                 <div class="menu-item">
                                     <!--begin:Menu link-->
-                                    <a class="menu-link {{request()->is('stock/transaksi/mutasi/baik_baik/trans') ? 'active' : ''}}" href="{{route('mutasi.baik_baik.trans')}}">
+                                    <a class="menu-link {{request()->is('stock/mutasi/form*') ? 'active' : ''}}" href="{{route('stock.mutasi.form')}}">
                                             <span class="menu-bullet">
                                                 <span class="bullet bullet-dot"></span>
                                             </span>
-                                        <span class="menu-title">Mutasi Stock Baru</span>
+                                        <span class="menu-title">Mutasi Stock Form</span>
                                     </a>
                                     <!--end:Menu link-->
                                 </div>

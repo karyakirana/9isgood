@@ -55,17 +55,19 @@ class StockKeluarRepo
         $databaseTglKeluar = tanggalan_database_format($tglKeluar, 'd-M-Y');
 
         if (isset($data['jenisMutasi'])){
-            $kondisi = $this->setKondisi($data['jenisMutasi']);
+            $kondisi = \Str::of($data['jenisMutasi'])->after('_');
+        } else {
+            $kondisi = $data['kondisi'];
         }
 
         $stockKeluar = $this->stockKeluar->newQuery()
             ->create([
-                'kode'=>$this->kode($data['kondisi'] ?? null, $data['jenisMutasi'] ?? null),
+                'kode'=>$this->kode($kondisi),
                 'supplier_id'=>(isset($data['supplierId'])) ? $data['supplierId'] : null,
                 'active_cash'=>session('ClosedCash'),
                 'stockable_keluar_id'=>$stockableId,
                 'stockable_keluar_type'=>$stockableType,
-                'kondisi'=>$data['kondisi'],
+                'kondisi'=>$kondisi,
                 'gudang_id'=>$data['gudangId'],
                 'tgl_keluar'=>$databaseTglKeluar,
                 'user_id'=>$data['userId'],
@@ -93,6 +95,11 @@ class StockKeluarRepo
     {
         // initiate
         $tglKeluar = $data['tglKeluar'] ?? $data['tglNota'] ?? $data['tglMutasi'];
+        if (isset($data['jenisMutasi'])){
+            $kondisi = \Str::of($data['jenisMutasi'])->after('_');
+        } else {
+            $kondisi = $data['kondisi'];
+        }
         $databaseTglKeluar = tanggalan_database_format($tglKeluar, 'd-M-Y');
         $stockKeluar = $this->stockKeluar->newQuery()
             ->where('stockable_keluar_id', $stockableId)

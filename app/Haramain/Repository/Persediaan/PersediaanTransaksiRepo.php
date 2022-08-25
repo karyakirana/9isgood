@@ -44,6 +44,21 @@ class PersediaanTransaksiRepo
             ]);
     }
 
+    public function getPersediaanDetailArray($persediaanTransaksiId)
+    {
+        $persediaanTransaksiDetail = $this->persediaanTransaksi->newQuery()->where('persediaan_transaksi_id', $persediaanTransaksiId)->get();
+        $dataDetail = [];
+        foreach ($persediaanTransaksiDetail as $item) {
+            $dataDetail[] = [
+                'produk_id'=>$item->produk_id,
+                'harga'=>$item->harga,
+                'jumlah'=>$item->jumlah,
+                'sub_total'=>$item->sub_total,
+            ];
+        }
+        return $dataDetail;
+    }
+
     public function storeIn($data, $persediaanableType, $persediaanableId)
     {
         $persediaanTransaksi = $this->create($data, $persediaanableType, $persediaanableId);
@@ -54,18 +69,23 @@ class PersediaanTransaksiRepo
     protected function storeDetailIn($data, $persediaanTransaksiId)
     {
         foreach ($data['dataDetail'] as $item) {
-            // store persediaan
-            $persediaan = $this->persediaanRepository->storeIn($data['gudangId'], $data['kondisi'], tanggalan_database_format($data['tglInput'], 'd-M-Y'), $item);
-            // store persediaan_detail
-            $this->persediaanTransaksiDetail->newQuery()->create([
-                'persediaan_transaksi_id'=>$persediaanTransaksiId,
-                'persediaan_id'=>$persediaan->id,
-                'produk_id'=>$item['jumlah'],
-                'harga'=>$item['harga'],
-                'jumlah'=>$item['jumlah'],
-                'sub_total'=>$item['sub_total'],
-            ]);
+            $this->storeItem($data, $item, $persediaanTransaksiId);
         }
+    }
+
+    protected function storeItem($data, $item, $persediaanTransaksiId)
+    {
+        // store persediaan
+        $persediaan = $this->persediaanRepository->storeIn($data['gudangId'], $data['kondisi'], tanggalan_database_format($data['tglInput'], 'd-M-Y'), $item);
+        // store persediaan_detail
+        $this->persediaanTransaksiDetail->newQuery()->create([
+            'persediaan_transaksi_id'=>$persediaanTransaksiId,
+            'persediaan_id'=>$persediaan->id,
+            'produk_id'=>$item['produk_id'],
+            'harga'=>$item['harga'],
+            'jumlah'=>$item['jumlah'],
+            'sub_total'=>$item['sub_total'],
+        ]);
     }
 
     public function rollbackStoreIn($persediaanableType, $persediaanableId)
