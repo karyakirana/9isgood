@@ -43,12 +43,12 @@ class StockMutasiRepo
         $mutasi = StockMutasi::query()->create([
             'active_cash'=>session('ClosedCash'),
             'kode'=>$this->kode(),
-            'jenis_mutasi'=>$data->jenisMutasi,
-            'gudang_asal_id'=>$data->gudangAsalId,
-            'gudang_tujuan_id'=>$data->gudangTujuanId,
-            'tgl_mutasi'=>tanggalan_database_format($data->tglMutasi, 'd-M-Y'),
+            'jenis_mutasi'=>$data['jenisMutasi'],
+            'gudang_asal_id'=>$data['gudangAsalId'],
+            'gudang_tujuan_id'=>$data['gudangTujuanId'],
+            'tgl_mutasi'=>tanggalan_database_format($data['tglMutasi'], 'd-M-Y'),
             'user_id'=>Auth::id(),
-            'keterangan'=>$data->keterangan,
+            'keterangan'=>$data['keterangan'],
         ]);
 
         $this->storeDetail($mutasi->id, $data['dataDetail']);
@@ -78,11 +78,12 @@ class StockMutasiRepo
 
         // update
         $mutasi->update([
-            'gudang_asal_id'=>$data->gudangAsalId,
-            'gudang_tujuan_id'=>$data->gudangTujuanId,
-            'tgl_mutasi'=>tanggalan_database_format($data->tglMutasi, 'd-M-Y'),
+            'jenis_mutasi'=>$data['jenisMutasi'],
+            'gudang_asal_id'=>$data['gudangAsalId'],
+            'gudang_tujuan_id'=>$data['gudangTujuanId'],
+            'tgl_mutasi'=>tanggalan_database_format($data['tglMutasi'], 'd-M-Y'),
             'user_id'=>Auth::id(),
-            'keterangan'=>$data->keterangan,
+            'keterangan'=>$data['keterangan'],
         ]);
 
         $this->storeDetail($mutasi->id, $data);

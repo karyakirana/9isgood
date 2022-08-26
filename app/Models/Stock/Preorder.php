@@ -22,4 +22,9 @@ class Preorder extends Model
         'total_barang',
         'keterangan',
     ];
+
+    public function preorderDetail()
+    {
+        return $this->hasMany(PreorderDetail::class, 'stock_preorder_id');
+    }
 }

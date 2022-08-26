@@ -2,9 +2,26 @@
 
 use App\Haramain\Repository\Neraca\NeracaSaldoRepository;
 use App\Models\Keuangan\PersediaanOpname;
+use App\Models\Keuangan\PersediaanOpnameDetail;
 
 class PersediaanOpnameRepository
 {
+    protected $persediaanOpname;
+    protected $persediaanOpnameDetail;
+
+    public function __construct()
+    {
+        $this->persediaanOpname = new PersediaanOpname();
+        $this->persediaanOpnameDetail = new PersediaanOpnameDetail();
+    }
+
+    public function getDataAll()
+    {
+        return $this->persediaanOpname->newQuery()
+            ->where('active_cash', session('ClosedCash'))
+            ->get();
+    }
+
     public function kode($kondisi): string
     {
         $query = PersediaanOpname::query()

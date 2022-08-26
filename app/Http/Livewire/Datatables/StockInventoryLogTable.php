@@ -12,13 +12,14 @@ class StockInventoryLogTable extends DataTableComponent
 {
     use DatatablesTraits;
 
-    protected $activeCash;
+    protected $activeCash = true;
 
     public $stockField;
 
     public function mount($activeCash = true)
     {
         $this->activeCash = $activeCash;
+        //dd($this->activeCash);
     }
 
     public function sortByStock($stockField)
@@ -37,7 +38,8 @@ class StockInventoryLogTable extends DataTableComponent
             Column::make('Gudang', 'gudang.nama'),
             Column::make('Kondisi', 'jenis'),
             Column::make('Kode', 'produk.kode_lokal'),
-            Column::make('Produk', 'produk.nama'),
+            Column::make('Produk', 'produk.nama')
+                ->searchable(),
             Column::make('Saldo', 'stock_saldo'),
         ];
     }
@@ -46,10 +48,7 @@ class StockInventoryLogTable extends DataTableComponent
     {
         $query = StockInventory::query();
         if ($this->activeCash){
-            $query = $query->where('active_cash', session('ClosedCash'));
-        }
-        if ($this->stockField){
-            //
+            return $query = $query->where('active_cash', session('ClosedCash'));
         }
         return $query;
     }

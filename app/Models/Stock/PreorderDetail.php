@@ -16,4 +16,9 @@ class PreorderDetail extends Model
         'produk_id',
         'jumlah',
     ];
+
+    public function preorder()
+    {
+        return $this->belongsTo(Preorder::class, 'stock_preorder_id');
+    }
 }

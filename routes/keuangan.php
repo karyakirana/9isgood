@@ -184,7 +184,7 @@ Route::middleware('auth')->group(function (){
     Route::get('neraca/asset/penjualan/piutanglama/trans/{piutangLamaId}', PiutangPenjualanLamaForm::class)->name('penjualan.piutanglama.trans.piutangLamaId');
 
     // neraca persediaan opname
-    Route::get('neraca/asset/persediaan/opname', PersediaanOpnameIndex::class)->name('persediaan.opname');
+    Route::get('persediaan/awal/stockopname', PersediaanOpnameIndex::class)->name('persediaan.awal.stockopname');
     Route::get('neraca/asset/persediaan/opname/trans', PersediaanOpnameForm::class)->name('persediaan.opname.t');
     Route::get('neraca/asset/persediaan/opname/trans/{persediaanOpnameId}', PersediaanOpnameForm::class)->name('persediaan.opname.trans');
 

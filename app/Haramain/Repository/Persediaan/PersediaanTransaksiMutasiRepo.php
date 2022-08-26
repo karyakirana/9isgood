@@ -4,9 +4,14 @@ class PersediaanTransaksiMutasiRepo extends PersediaanTransaksiRepo
 {
     public function getStockOut($data)
     {
+        if (isset($data['jenisMutasi'])){
+            $kondisi = \Str::of($data['jenisMutasi'])->before('_');
+        } else {
+            $kondisi = $data['kondisi'];
+        }
         $returnData = [];
-        foreach ($data['dataItem'] as $item) {
-            $returnData[] = $this->persediaanRepository->getStockOut($data['gudangId'], $data['kondisi'], $item);
+        foreach ($data['dataDetail'] as $item) {
+            $returnData[] = $this->persediaanRepository->getStockOut($data['gudangAsalId'], $kondisi, $item);
         }
         return $returnData;
     }

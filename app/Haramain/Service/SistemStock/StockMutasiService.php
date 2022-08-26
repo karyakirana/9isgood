@@ -3,7 +3,7 @@
 use App\Haramain\Repository\Jurnal\JurnalTransaksiRepo;
 use App\Haramain\Repository\Neraca\NeracaSaldoRepo;
 use App\Haramain\Repository\Persediaan\PersediaanMutasiRepo;
-use App\Haramain\Repository\Persediaan\PersediaanTransaksiRepo;
+use App\Haramain\Repository\Persediaan\PersediaanTransaksiMutasiRepo;
 use App\Haramain\Repository\Stock\StockKeluarRepo;
 use App\Haramain\Repository\Stock\StockMasukRepo;
 use App\Haramain\Repository\Stock\StockMutasiRepo;
@@ -25,7 +25,7 @@ class StockMutasiService
         $this->stockMasukRepo = new StockMasukRepo();
         $this->stockKeluarRepo = new StockKeluarRepo();
         $this->persediaanMutasiRepo = new PersediaanMutasiRepo();
-        $this->persediaanTransaksiRepo = new PersediaanTransaksiRepo();
+        $this->persediaanTransaksiRepo = new PersediaanTransaksiMutasiRepo();
         $this->jurnalTransaksiRepo = new JurnalTransaksiRepo();
         $this->neracaSaldoRepo = new NeracaSaldoRepo();
     }

@@ -1,7 +1,18 @@
 <div>
-    @if(session()->has('error jumlah'))
+    {{-- alert store --}}
+    @if(session()->has('storeMessage'))
         <x-molecules.alert-danger>
-            {{session('error jumlah')}}
+            {{ session('storeMessage') }}
+        </x-molecules.alert-danger>
+    @endif
+    {{-- alert validation --}}
+    @if($errors->all())
+        <x-molecules.alert-danger>
+            <ul>
+                @foreach($errors->all() as $messages)
+                    <li>{{$messages}}</li>
+                @endforeach
+            </ul>
         </x-molecules.alert-danger>
     @endif
     <x-molecules.card>
@@ -13,7 +24,8 @@
                         <div class="col-6">
                             <div class="mb-5">
                                 <x-atoms.input.group-horizontal label="Mutasi" name="jenisMutasi">
-                                    <x-atoms.input.select>
+                                    <x-atoms.input.select wire:model="jenisMutasi">
+                                        <option>Dipilih</option>
                                         <option value="baik_baik">Baik</option>
                                         <option value="rusak_rusak">Rusak</option>
                                     </x-atoms.input.select>

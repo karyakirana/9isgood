@@ -142,7 +142,7 @@ class PersediaanRepository
         // check barang
         $query = $this->persediaan->newQuery()->find($persediaanId);
         $query->increment('stock_keluar', $jumlah);
-        $query->decrement('saldo');
+        $query->decrement('saldo', $jumlah);
         return $query;
     }
 

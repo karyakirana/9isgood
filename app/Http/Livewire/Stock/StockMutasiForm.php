@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Stock;
 use App\Haramain\Repository\Persediaan\PersediaanRepository;
 use App\Haramain\Repository\Stock\StockInventoryRepo;
 use App\Haramain\Repository\Stock\StockMutasiRepo;
+use App\Haramain\Service\SistemStock\StockMutasiService;
 use App\Models\Master\Gudang;
 use App\Models\Master\Produk;
 use App\Models\Stock\StockMutasi;
@@ -19,11 +20,13 @@ class StockMutasiForm extends Component
         'setProduk'
     ];
 
-    public string $mode = 'create';
-    public bool $update = false;
+    protected $stockMutasiService;
+
+    public $mode = 'create';
+    public $update = false;
     public $jenisMutasi;
 
-    public $mutasi_id;
+    public $mutasiId;
 
     public $gudang_data = [];
     public $gudangAsalId, $gudangTujuanId;
@@ -47,28 +50,27 @@ class StockMutasiForm extends Component
     public $produk_screen;
     public $jumlah;
 
+    public function __construct($id = null)
+    {
+        parent::__construct($id);
+        $this->stockMutasiService = new StockMutasiService();
+    }
+
     public function mount($mutasiId = null)
     {
         $this->gudang_data = Gudang::query()->oldest()->get();
-        $this->tgl_mutasi = tanggalan_format(now('ASIA/JAKARTA'));
-
-        $this->jenis_mutasi = match (Str::between(url()->current(), 'mutasi/', '/trans')) {
-            "baik_baik" => "baik_baik",
-            "baik_rusak" => "baik_rusak",
-            "rusak_rusak" => "rusak_rusak",
-            default => null,
-        };
+        $this->tglMutasi = tanggalan_format(now('ASIA/JAKARTA'));
 
         if ($mutasiId){
             // get data for update
             $this->mode = 'update';
             $mutasi = StockMutasi::query()->find($mutasiId);
             $stockMasuk = $mutasi->stockMasukMorph()->first();
-            $this->jenis_mutasi = $mutasi->jenis_mutasi;
-            $this->mutasi_id = $mutasi->id;
-            $this->gudang_asal_id = $mutasi->gudang_asal_id;
-            $this->gudang_tujuan_id = $mutasi->gudang_tujuan_id;
-            $this->tgl_mutasi = tanggalan_format($mutasi->tgl_mutasi);
+            $this->jenisMutasi = $mutasi->jenis_mutasi;
+            $this->mutasiId = $mutasi->id;
+            $this->gudangAsalId = $mutasi->gudang_asal_id;
+            $this->gudangTujuanId = $mutasi->gudang_tujuan_id;
+            $this->tglMutasi = tanggalan_format($mutasi->tgl_mutasi);
             $this->keterangan = $mutasi->keterangan;
 
             foreach ($mutasi->stockMutasiDetail as $item) {
@@ -112,18 +114,18 @@ class StockMutasiForm extends Component
         $this->validate([
             'produk_id'=>'required',
             'jumlah'=>'required',
-            'gudang_asal_id'=>'required',
+            'gudangAsalId'=>'required',
         ]);
     }
 
     public function addLine()
     {
         $this->validatedToTable();
-        $check = (new StockInventoryRepo())->check($this->produk_id, $this->gudang_asal_id, 'baik', $this->jumlah);
+        $check = (new StockInventoryRepo())->check($this->produk_id, $this->gudangAsalId, 'baik', $this->jumlah);
         if (!$check->status){
             session()->flash('error jumlah', $check->keterangan);
         } else {
-            $this->data_detail [] = [
+            $this->dataDetail [] = [
                 'produk_id'=>$this->produk_id,
                 'kode_lokal'=>$this->produk_kode_lokal,
                 'produk_nama'=>$this->produk_nama,
@@ -139,71 +141,79 @@ class StockMutasiForm extends Component
     {
         $this->update = true;
         $this->index = $index;
-        $this->produk_id = $this->data_detail[$index]['produk_id'];
-        $this->produk_nama = $this->data_detail[$index]['produk_nama'];
-        $this->produk_kode_lokal = $this->data_detail[$index]['kode_lokal'];
-        $this->produk_kategori_harga = $this->data_detail[$index]['kategori_harga'];
-        $this->produk_cover = $this->data_detail[$index]['cover'];
-        $this->jumlah = $this->data_detail[$index]['jumlah'];
+        $this->produk_id = $this->dataDetail[$index]['produk_id'];
+        $this->produk_nama = $this->dataDetail[$index]['produk_nama'];
+        $this->produk_kode_lokal = $this->dataDetail[$index]['kode_lokal'];
+        $this->produk_kategori_harga = $this->dataDetail[$index]['kategori_harga'];
+        $this->produk_cover = $this->dataDetail[$index]['cover'];
+        $this->jumlah = $this->dataDetail[$index]['jumlah'];
         $this->produk_screen = $this->produk_nama."\n".$this->produk_kategori_harga." ".$this->produk_cover;
     }
 
     public function updateLine()
     {
         $this->validatedToTable();
-        $check = (new PersediaanRepository())->check($this->produk_id, $this->gudang_asal_id, 'baik', $this->jumlah);
-        if (!$check->status){
-            session()->flash('error jumlah', $check->keterangan);
-        } else {
-            $index = $this->index;
-            $this->data_detail[$index]['produk_id'] = $this->produk_id;
-            $this->data_detail[$index]['produk_nama'] = $this->produk_nama;
-            $this->data_detail[$index]['kode_lokal'] = $this->produk_kode_lokal;
-            $this->data_detail[$index]['kategori_harga'] = $this->produk_kategori_harga;
-            $this->data_detail[$index]['cover'] = $this->produk_cover;
-            $this->data_detail[$index]['jumlah'] = $this->jumlah;
-            $this->update = false;
-            $this->resetFormDetail();
-        }
+        $index = $this->index;
+        $this->dataDetail[$index]['produk_id'] = $this->produk_id;
+        $this->dataDetail[$index]['produk_nama'] = $this->produk_nama;
+        $this->dataDetail[$index]['kode_lokal'] = $this->produk_kode_lokal;
+        $this->dataDetail[$index]['kategori_harga'] = $this->produk_kategori_harga;
+        $this->dataDetail[$index]['cover'] = $this->produk_cover;
+        $this->dataDetail[$index]['jumlah'] = $this->jumlah;
+        $this->update = false;
+        $this->resetFormDetail();
     }
 
     public function destroyLine($index)
     {
-        unset($this->data_detail[$index]);
-        $this->data_detail = array_values($this->data_detail);
+        unset($this->dataDetail[$index]);
+        $this->dataDetail = array_values($this->data_detail);
     }
 
     protected function validatemaster()
     {
-        return (object) $this->validate([
-            'mutasi_id'=>'nullable',
-            'jenis_mutasi'=>'required',
-            'gudang_asal_id'=>'required',
-            'gudang_tujuan_id'=>'required',
-            'tgl_mutasi'=>'required',
+        $this->tglInput = $this->tglMutasi;
+        $this->tglKeluar = $this->tglMutasi;
+        $this->tglMasuk = $this->tglMutasi;
+        return $this->validate([
+            'mutasiId'=>($this->mutasiId) ? 'required' : 'nullable',
+            'jenisMutasi'=>'required',
+            'gudangAsalId'=>'required',
+            'gudangTujuanId'=>'required',
+            'tglMutasi'=>'required',
             'keterangan'=>'nullable',
-            'data_detail'=>'required'
+            'dataDetail'=>'required',
+
+            'tglMasuk'=>'required',
+            'tglKeluar'=>'required',
+            'tglInput'=>'required',
         ]);
     }
 
     public function store()
     {
         $data = $this->validatemaster();
-
+        $store = $this->stockMutasiService->handleStore($data);
+        if ($store->status){
+            // redirect
+            session()->flash('storeMessage', $store->keterangan);
+            return redirect()->to('penjualan/print/'.$store->keterangan->id);
+        }
+        session()->flash('storeMessage', $store->keterangan);
+        return null;
     }
 
     public function update()
     {
         $data = $this->validatemaster();
-        DB::beginTransaction();
-        try {
-            (new StockMutasiRepo())->update($data);
-            DB::commit();
-            return redirect()->route('mutasi.baik_baik');
-        } catch (ModelNotFoundException $e){
-            DB::rollBack();
-            session()->flash('error_store', $e);
+        $store = $this->stockMutasiService->handleUpdate($data);
+        if ($store->status){
+            // redirect
+            session()->flash('storeMessage', $store->keterangan);
+            return redirect()->to('penjualan/print/'.$store->keterangan->id);
         }
+        session()->flash('storeMessage', $store->keterangan);
+        return null;
     }
 
     public function render()

@@ -131,7 +131,8 @@ Route::middleware('auth')->group(function (){
 
     // card stock
     Route::get('stock/card/{produk_id}', \App\Http\Livewire\Stock\StockCardIndex::class);
-    Route::get('stock/card/{produk_id}/{gudang_id}', \App\Http\Livewire\Stock\StockCardIndex::class)->name('stock.card');
+    // Route::get('stock/card/{produk_id}/{gudang_id}', \App\Http\Livewire\Stock\StockCardIndex::class)->name('stock.card');
+    Route::get('stock/card/{produk_id}/{gudang_id}', \App\Http\Livewire\Testing\StockCardTestTable::class)->name('stock.card');
 
     Route::get('stock/print/stockopname', [\App\Http\Controllers\Stock\StockOpnameController::class, 'reportStockByProduk'])->name('stock.print.stockopname');
 
@@ -202,6 +203,19 @@ Route::middleware('auth')->group(function (){
     Route::get('stock/stockakhir/transaksi/{id}', \App\Http\Livewire\Stock\StockAkhirForm::class);
 
     Route::get('stock/transaksi/internal', \App\Http\Livewire\Stock\StockMasukInternalIndex::class)->name('stock.masuk.internal.index');
+});
+
+/**
+ * Generator
+ */
+Route::middleware('auth')->group(function (){
+    Route::get('generator/persediaan/stockopname', \App\Http\Livewire\Generator\PersediaanOpname::class)->name('generator.persediaan.stockopname');
+    Route::get('generator/persediaan/pembelian-internal', \App\Http\Livewire\Generator\PembelianInternal::class)->name('generator.persediaan.pembelian-internal');
+    Route::get('generator/persediaan/pembelian-eksternal', \App\Http\Livewire\Generator\PembelianEksternal::class)->name('generator.persediaan.pembelian-eksternal');
+    Route::get('generator/persediaan/penjualan', \App\Http\Livewire\Generator\Penjualan::class)->name('generator.persediaan.penjualan');
+    Route::get('generator/persediaan/penjualan-retur', \App\Http\Livewire\Generator\PenjualanRetur::class)->name('generator.persediaan.penjualan-retur');
+
+    Route::get('generator/stock/inventory', \App\Http\Livewire\Generator\Stock\GenStockInventory::class)->name('generator.stock.inventory');
 });
 
 /**
