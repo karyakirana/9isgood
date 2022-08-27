@@ -68,7 +68,7 @@ class StockMasukRepo
                 'stockable_masuk_type'=>$stockableType,
                 'kondisi'=>$kondisi,
                 'gudang_id'=>$data['gudangId'] ?? $data['gudangTujuanId'],
-                'supplier_id'=>$data['supplierId'],
+                'supplier_id'=>$data['supplierId'] ?? null,
                 'tgl_masuk'=>$tglMasuk,
                 'user_id'=>\Auth::id(),
                 'nomor_po'=>$data['nomorPo'] ?? '-',
@@ -76,7 +76,7 @@ class StockMasukRepo
                 'keterangan'=>$data['keterangan'],
             ]);
         $stockMasukId = $stockMasuk->id;
-        $this->storeDetail($data['dataDetail'], $stockMasukId, $data['gudangId'], $data['kondisi']);
+        $this->storeDetail($data['dataDetail'], $stockMasukId, $data['gudangId'] ?? $data['gudangTujuanId'], $kondisi);
         return $stockMasuk;
     }
 
@@ -105,7 +105,7 @@ class StockMasukRepo
         $stockMasukUpdate = $stockMasuk->update([
             'kondisi'=>$kondisi,
             'gudang_id'=>$data['gudangId'] ?? $data['gudangTujuanId'],
-            'supplier_id'=>$data['supplierId'],
+            'supplier_id'=>$data['supplierId'] ?? null,
             'tgl_masuk'=>$tglMasuk,
             'user_id'=>\Auth::id(),
             'nomor_po'=>$data['nomorPo'] ?? '-',

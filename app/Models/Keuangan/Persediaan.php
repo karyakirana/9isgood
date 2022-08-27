@@ -22,5 +22,6 @@ class Persediaan extends Model
         'stock_masuk',
         'stock_keluar',
         'saldo',
+        'stock_saldo',
     ];
 }

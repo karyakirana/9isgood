@@ -42,6 +42,8 @@ class StockMutasiForm extends Component
 
     // persediaan transaksi
     public $tglInput;
+    public $totalBarang;
+    public $totalHarga;
 
     public $index;
     public array $dataDetail = [];
@@ -175,6 +177,8 @@ class StockMutasiForm extends Component
         $this->tglInput = $this->tglMutasi;
         $this->tglKeluar = $this->tglMutasi;
         $this->tglMasuk = $this->tglMutasi;
+        $this->totalBarang = array_sum(array_column($this->dataDetail, 'jumlah'));
+        $this->totalHarga = 0;
         return $this->validate([
             'mutasiId'=>($this->mutasiId) ? 'required' : 'nullable',
             'jenisMutasi'=>'required',
@@ -187,6 +191,8 @@ class StockMutasiForm extends Component
             'tglMasuk'=>'required',
             'tglKeluar'=>'required',
             'tglInput'=>'required',
+            'totalBarang'=>'required',
+            'totalHarga'=>'required',
         ]);
     }
 

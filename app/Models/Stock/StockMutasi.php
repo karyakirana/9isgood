@@ -3,6 +3,7 @@
 namespace App\Models\Stock;
 
 use App\Models\Keuangan\JurnalPersediaanMutasi;
+use App\Models\Keuangan\PersediaanMutasi;
 use App\Haramain\Traits\ModelTraits\{GudangTraits, KodeTraits, StockKeluarTraits, StockMasukTraits, UserTraits};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ class StockMutasi extends Model
     use HasFactory, KodeTraits, GudangTraits, UserTraits;
     use StockMasukTraits, StockKeluarTraits;
 
-    protected $table = 'stock_mutasi';
+    protected $table = 'haramainv2.stock_mutasi';
     protected $fillable = [
         'active_cash',
         'kode',
@@ -32,5 +33,10 @@ class StockMutasi extends Model
     public function jurnalPersediaanTransaksi()
     {
         return $this->hasMany(JurnalPersediaanMutasi::class, 'stock_mutasi_id');
+    }
+
+    public function persediaanMutasi()
+    {
+        return $this->hasOne(PersediaanMutasi::class, 'stock_mutasi_id');
     }
 }

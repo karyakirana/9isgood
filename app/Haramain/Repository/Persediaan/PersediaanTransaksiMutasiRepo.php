@@ -11,7 +11,10 @@ class PersediaanTransaksiMutasiRepo extends PersediaanTransaksiRepo
         }
         $returnData = [];
         foreach ($data['dataDetail'] as $item) {
-            $returnData[] = $this->persediaanRepository->getStockOut($data['gudangAsalId'], $kondisi, $item);
+            $hasil = $this->persediaanRepository->getStockOut($data['gudangAsalId'], $kondisi, $item);
+            foreach ($hasil as $value) {
+                $returnData[] = $value;
+            }
         }
         return $returnData;
     }

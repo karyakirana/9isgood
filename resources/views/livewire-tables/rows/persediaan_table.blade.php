@@ -18,7 +18,7 @@
         <div class="col-4">Stock Keluar</div>
         <div class="col-8">: {{rupiah_format($row->stock_keluar)}}</div>
         <div class="col-4">Saldo</div>
-        <div class="col-8">: {{rupiah_format($row->saldo)}}</div>
+        <div class="col-8">: {{rupiah_format($row->stock_saldo)}}</div>
     </div>
 </x-atoms.table.td>
 <x-atoms.table.td align="end" width="15%">

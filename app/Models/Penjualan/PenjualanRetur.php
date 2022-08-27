@@ -3,6 +3,7 @@
 namespace App\Models\Penjualan;
 
 use App\Haramain\Service\SistemKeuangan\Kasir\PiutangPenjualanTrait;
+use App\Models\Keuangan\PersediaanTransaksi;
 use App\Haramain\Traits\ModelTraits\{CustomerTraits,
     GudangTraits,
     JurnalTransaksiTraits,
@@ -37,5 +38,10 @@ class PenjualanRetur extends Model
     public function returDetail()
     {
         return $this->hasMany(PenjualanReturDetail::class, 'penjualan_retur_id');
+    }
+
+    public function persediaan_transaksi()
+    {
+        return $this->morphOne('persediaanable_transaksi', PersediaanTransaksi::class, 'persediaan_type', 'persediaan_id');
     }
 }

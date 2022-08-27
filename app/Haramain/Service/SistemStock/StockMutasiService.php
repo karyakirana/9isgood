@@ -43,8 +43,9 @@ class StockMutasiService
             $stockMutasi = $this->stockMutasiRepo->store($data);
             // get data from persediaan
             $dataPersediaanOut = $this->persediaanTransaksiRepo->getStockOut($data);
+            //dd($dataPersediaanOut);
             // store persediaan mutasi return array object persediaan mutasi dan totalPersediaanKeluar
-            $persediaanMutasi = $this->persediaanMutasiRepo->store($stockMutasi->id, $data);
+            $persediaanMutasi = $this->persediaanMutasiRepo->store($stockMutasi->id, $data, $dataPersediaanOut);
             // stock keluar baik
             $stockKeluar = $this->stockKeluarRepo->store($data, $stockMutasi::class, $stockMutasi->id);
             $persediaanTransaksiKeluar = $this->persediaanTransaksiRepo->storeMutasiOut($data, $dataPersediaanOut, $persediaanMutasi::class, $persediaanMutasi->id);

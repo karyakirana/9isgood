@@ -68,9 +68,9 @@ class StockKeluarRepo
                 'stockable_keluar_id'=>$stockableId,
                 'stockable_keluar_type'=>$stockableType,
                 'kondisi'=>$kondisi,
-                'gudang_id'=>$data['gudangId'],
+                'gudang_id'=>$data['gudangId'] ?? $data['gudangAsalId'],
                 'tgl_keluar'=>$databaseTglKeluar,
-                'user_id'=>$data['userId'],
+                'user_id'=>$data['userId'] ?? \auth()->id(),
                 'keterangan'=>$data['keterangan'],
             ]);
         $this->storeDetail($data, $data['dataDetail'], $stockKeluar->id);
@@ -79,6 +79,11 @@ class StockKeluarRepo
 
     public function storeDetail($data, $dataItem, $stockKeluarId)
     {
+        if (isset($data['jenisMutasi'])){
+            $kondisi = \Str::of($data['jenisMutasi'])->after('_');
+        } else {
+            $kondisi = $data['kondisi'];
+        }
         foreach ($dataItem as $item) {
             $this->stockKeluarDetail->newQuery()
                 ->create([
@@ -87,7 +92,7 @@ class StockKeluarRepo
                     'jumlah'=>$item['jumlah'],
                 ]);
             // update stock inventory
-            $this->stockInventoryRepo->incrementArrayData($item, $data['gudangId'], $data['kondisi'], 'stock_keluar');
+            $this->stockInventoryRepo->incrementArrayData($item, $data['gudangId'] ?? $data['gudangAsalId'], $kondisi, 'stock_keluar');
         }
     }
 
@@ -108,9 +113,9 @@ class StockKeluarRepo
         $update = $stockKeluar->update([
             'supplier_id'=>(isset($data['supplierId'])) ? $data['supplierId'] : null,
             'kondisi'=>$data['kondisi'],
-            'gudang_id'=>$data['gudangId'],
+            'gudang_id'=>$data['gudangId'] ?? $data['gudangAsalId'],
             'tgl_keluar'=>$databaseTglKeluar,
-            'user_id'=>$data['userId'],
+            'user_id'=>$data['userId'] ?? \auth()->id(),
             'keterangan'=>$data['keterangan'],
         ]);
         $this->storeDetail($data, $data['dataDetail'], $stockKeluar->id);

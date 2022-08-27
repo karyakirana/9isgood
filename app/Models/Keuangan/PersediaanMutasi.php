@@ -34,4 +34,9 @@ class PersediaanMutasi extends Model
     {
         return $this->belongsTo(Gudang::class, 'gudang_tujuan_id');
     }
+
+    public function persediaan_transaksi()
+    {
+        return $this->morphMany(PersediaanTransaksi::class, 'persediaanable_transaksi', 'persediaan_type', 'persediaan_id');
+    }
 }

@@ -77,6 +77,8 @@ Route::middleware('auth')->group(function (){
     Route::get('testing/generate/penjualan/stockmasuk', [\App\Http\Controllers\Testing\TestingPenjualanToStockMasuk::class, 'testinggeneratePenjualan']);
     Route::get('testing/generate/penjualan/persediaan', [\App\Http\Controllers\Testing\TestingPenjualanToPersediaan::class, 'testingPenjualanToPersediaan']);
 
+    Route::get('testing', [\App\Http\Controllers\Testing\TestController::class, 'index']);
+
 
     Route::get('penjualan/print/{penjualan}', [\App\Http\Controllers\Sales\ReceiptController::class, 'penjualanDotMatrix']);
 

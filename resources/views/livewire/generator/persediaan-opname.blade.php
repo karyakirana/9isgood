@@ -12,7 +12,11 @@
     @endif
     <x-molecules.card title="Persediaan">
         <x-slot:toolbar>
-            <x-atoms.button.btn-primary wire:click="generate">Generate</x-atoms.button.btn-primary>
+            <x-atoms.button.btn-primary class="me-2" wire:click="generateStockOpname">Stock Opname</x-atoms.button.btn-primary>
+            <x-atoms.button.btn-primary class="me-2" wire:click="generateStockOpname">Pembelian</x-atoms.button.btn-primary>
+            <x-atoms.button.btn-primary class="me-2" wire:click="generateMutasi">Mutasi</x-atoms.button.btn-primary>
+            <x-atoms.button.btn-primary class="me-2" wire:click="generatePenjualan">Penjualan</x-atoms.button.btn-primary>
+            <x-atoms.button.btn-primary wire:click="generatePenjualanRetur">Penjualan Retur</x-atoms.button.btn-primary>
         </x-slot:toolbar>
         <livewire:datatables.persediaan-table/>
     </x-molecules.card>

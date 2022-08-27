@@ -51,17 +51,17 @@ class GenPersediaanOpnameService
                 $persediaanTransaksiStore = $this->storePersediaanTransaksi($item);
                 $persediaanTransaksiData = $persediaanTransaksiStore['persediaanTransaksi'];
                 $totalHarga = $persediaanTransaksiStore['totalHarga'];
-                if ($persediaanTransaksiData->gudang_id == 1){
-                    // gudang kalimas
-                    $this->storeJurnalTransaksiDebet($item::class, $item->id, $this->akunPersediaanBaikKalimasId, $totalHarga);
-                    $this->neracaSaldoIncrement($this->akunPersediaanBaikKalimasId, $totalHarga, 'debet');
-                } else {
-                    // gudang perak
-                    $this->storeJurnalTransaksiDebet($item::class, $item->id, $this->akunPersediaanBaikPerakId, $totalHarga);
-                    $this->neracaSaldoIncrement($this->akunPersediaanBaikPerakId, $totalHarga, 'debet');
-                }
-                $this->storeJurnalTransaksiKredit($item::class, $item->id, $this->akunModalAwal, $totalHarga);
-                $this->neracaSaldoIncrement($this->akunModalAwal, $totalHarga, 'kredit');
+//                if ($persediaanTransaksiData->gudang_id == 1){
+//                    // gudang kalimas
+//                    $this->storeJurnalTransaksiDebet($item::class, $item->id, $this->akunPersediaanBaikKalimasId, $totalHarga);
+//                    $this->neracaSaldoIncrement($this->akunPersediaanBaikKalimasId, $totalHarga, 'debet');
+//                } else {
+//                    // gudang perak
+//                    $this->storeJurnalTransaksiDebet($item::class, $item->id, $this->akunPersediaanBaikPerakId, $totalHarga);
+//                    $this->neracaSaldoIncrement($this->akunPersediaanBaikPerakId, $totalHarga, 'debet');
+//                }
+//                $this->storeJurnalTransaksiKredit($item::class, $item->id, $this->akunModalAwal, $totalHarga);
+//                $this->neracaSaldoIncrement($this->akunModalAwal, $totalHarga, 'kredit');
             }
             \DB::commit();
             return [
@@ -148,12 +148,12 @@ class GenPersediaanOpnameService
                     'stock_opname'=>$dataItem->jumlah,
                     'stock_masuk',
                     'stock_keluar',
-                    'saldo'=>$dataItem->jumlah,
+                    'stock_saldo'=>$dataItem->jumlah,
                 ]);
         }
         $query = $query->first();
         $query->increment('stock_opname', $dataItem->jumlah);
-        $query->increment('saldo', $dataItem->jumlah);
+        $query->increment('stock_saldo', $dataItem->jumlah);
         return $query;
     }
 

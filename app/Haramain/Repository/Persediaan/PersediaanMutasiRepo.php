@@ -14,7 +14,7 @@ class PersediaanMutasiRepo
         $this->persediaanMutasiDetail = new PersediaanMutasiDetail();
     }
 
-    public function store($stockMutasiId, $data)
+    public function store($stockMutasiId, $data, $dataOut)
     {
         $persediaanMutasi = $this->persediaanMutasi->newQuery()
             ->create([
@@ -25,7 +25,7 @@ class PersediaanMutasiRepo
                 'total_barang'=>$data['totalBarang'],
                 'total_harga'=>$data['totalHarga'],
             ]);
-        $this->storeDetail($data['dataDetail'], $persediaanMutasi->id);
+        $this->storeDetail($dataOut, $persediaanMutasi->id);
         return $persediaanMutasi;
     }
 
@@ -38,7 +38,7 @@ class PersediaanMutasiRepo
                     'produk_id'=>$item['produk_id'],
                     'harga'=>$item['harga'],
                     'jumlah'=>$item['jumlah'],
-                    'sub_total'=>$item['subTotal']
+                    'sub_total'=>$item['sub_total']
                 ]);
         }
     }
