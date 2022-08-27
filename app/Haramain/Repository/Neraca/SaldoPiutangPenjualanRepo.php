@@ -28,7 +28,7 @@ class SaldoPiutangPenjualanRepo
     public function increment($customerId, $saldo)
     {
         $query = $this->query($customerId);
-        if ($query->exists()){
+        if ($query){
             $query->increment('saldo', $saldo);
             return $query;
         }
