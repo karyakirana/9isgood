@@ -4,41 +4,41 @@ use App\Models\Keuangan\SaldoPiutangPenjualan;
 
 class SaldoPiutangPenjualanRepo
 {
-    protected $saldoPiutangPenjualan;
+    protected $customerId;
 
-    public function __construct()
+    public function __construct($customerId)
     {
-        $this->saldoPiutangPenjualan = new SaldoPiutangPenjualan();
+        $this->customerId = $customerId;
     }
 
-    protected function query($customerId)
+    protected function query()
     {
-        return $this->saldoPiutangPenjualan->newQuery()->find($customerId);
+        return SaldoPiutangPenjualan::query()->find($this->customerId);
     }
 
-    protected function create($customerId, $saldo)
+    protected function create($nominal)
     {
-        return $this->saldoPiutangPenjualan->newQuery()
+        return SaldoPiutangPenjualan::query()
             ->create([
-                'customer_id'=>$customerId,
-                'saldo'=>$saldo
+                'customer_id'=>$this->customerId,
+                'saldo'=>$nominal
             ]);
     }
 
-    public function increment($customerId, $saldo)
+    public function increment($nominal)
     {
-        $query = $this->query($customerId);
+        $query = $this->query($this->customerId);
         if ($query){
-            $query->increment('saldo', $saldo);
+            $query->increment('saldo', $nominal);
             return $query;
         }
-        return $this->create($customerId, $saldo);
+        return $this->create($nominal);
     }
 
-    public function decrement($customerId, $saldo)
+    public function decrement($nominal)
     {
-        $query = $this->query($customerId);
-        $query->decrement('saldo', $saldo);
+        $query = $this->query();
+        $query->decrement('saldo', $nominal);
         return $query;
     }
 }

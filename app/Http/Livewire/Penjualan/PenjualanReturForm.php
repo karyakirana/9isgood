@@ -64,7 +64,7 @@ class PenjualanReturForm extends Transaksi
     {
         \DB::beginTransaction();
         try {
-            $penjualanRetur = (new PenjualanReturRepo())->store((object)$this->validatedData());
+            $penjualanRetur = (new PenjualanReturRepo())->store($this->validatedData());
             \DB::commit();
         } catch (ModelNotFoundException $e){
             \DB::rollBack();
@@ -77,7 +77,7 @@ class PenjualanReturForm extends Transaksi
     {
         \DB::beginTransaction();
         try {
-            $penjualanRetur = (new PenjualanReturRepo())->update((object)$this->validatedData());
+            $penjualanRetur = (new PenjualanReturRepo())->update($this->validatedData());
             \DB::commit();
         } catch (ModelNotFoundException $e){
             \DB::rollBack();

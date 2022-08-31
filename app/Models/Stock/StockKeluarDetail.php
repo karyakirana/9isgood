@@ -11,7 +11,7 @@ class StockKeluarDetail extends Model
 {
     use HasFactory, StockKeluarTraits, ProdukTraits;
 
-    protected $table = 'stock_keluar_detail';
+    protected $table = 'haramainv2.stock_keluar_detail';
     protected $fillable = [
         'stock_keluar_id',
         'produk_id',

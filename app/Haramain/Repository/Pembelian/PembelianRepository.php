@@ -27,7 +27,7 @@ class PembelianRepository
 
     public function kode($jenisPembelian)
     {
-        $query = $this->pembelian->newQuery()
+        $query = Pembelian::query()
             ->where('active_cash', session('ClosedCash'))
             ->where('jenis', $jenisPembelian)
             ->latest('kode');
@@ -50,7 +50,7 @@ class PembelianRepository
      */
     public function getData($pembelianId)
     {
-        return $this->pembelian->newQuery()->find($pembelianId);
+        return Pembelian::query()->find($pembelianId);
     }
 
     /**
@@ -68,32 +68,9 @@ class PembelianRepository
         return $pembelian->get();
     }
 
-    private function setArrayStoreData($data)
+    private function setData($data)
     {
-        return [
-            'kode'=>$this->kode($data['jenis']),
-            'nomor_nota'=>$data['nomorNota'],
-            'nomor_surat_jalan'=>$data['suratJalan'],
-            'jenis'=>$data['jenis'],
-            'active_cash'=>session('ClosedCash'),
-            'supplier_id'=>$data['supplierId'],
-            'gudang_id'=>$data['gudangId'],
-            'user_id'=>auth()->id(),
-            'tgl_nota'=>tanggalan_database_format($data['tglNota'], 'd-M-Y'),
-            'tgl_tempo'=>($data['jenisBayar'] == 'tempo') ? tanggalan_database_format($data['tglTempo'], 'd-M-Y') : null,
-            'jenis_bayar'=>$data['jenisBayar'],
-            'status_bayar'=>'belum',
-            'total_barang'=>$data['totalBarang'],
-            'ppn'=>$data['ppn'],
-            'biaya_lain'=>$data['biayaLain'],
-            'total_bayar'=>$data['totalBayar'],
-            'keterangan'=>$data['keterangan'],
-            'print'=>1,
-        ];
-    }
-
-    private function setObjectStoreData($data)
-    {
+        $data = (object)$data;
         return [
             'kode'=>$this->kode($data->jenis),
             'nomor_nota'=>$data->nomorNota,
@@ -118,32 +95,32 @@ class PembelianRepository
 
     public function store($data)
     {
-        $storeData = (is_array($data)) ? $this->setArrayStoreData($data) : null;
         $pembelian = $this->pembelian->newQuery()
-            ->create($storeData);
-        $this->storeDetail($data['dataDetail'] ?? $data->dataDetail, $pembelian->id);
+            ->create($this->setData($data));
+        $this->storeDetail($data->dataDetail, $pembelian->id);
         return $pembelian;
     }
 
     public function update($data)
     {
-        $pembelian = $this->pembelian->newQuery()->find($data['pembelianId']);
+        $data = (object)$data;
+        $pembelian = Pembelian::query()->find($data->pembelianId);
         $pembelianUpdate = $pembelian->update([
-            'nomor_nota'=>$data['nomorNota'],
-            'nomor_surat_jalan'=>$data['suratJalan'],
-            'active_cash'=>session('ClosedCash'),
-            'supplier_id'=>$data['supplierId'],
-            'gudang_id'=>$data['gudangId'],
+            'nomor_nota'=>$data->nomorNota,
+            'nomor_surat_jalan'=>$data->suratJalan,
+            'jenis'=>$data->jenis,
+            'supplier_id'=>$data->supplierId,
+            'gudang_id'=>$data->gudangId,
             'user_id'=>auth()->id(),
-            'tgl_nota'=>tanggalan_database_format($data['tglNota'], 'd-M-Y'),
-            'tgl_tempo'=>($data['jenisBayar'] == 'tempo') ? tanggalan_database_format($data['tglTempo'], 'd-M-Y') : null,
-            'jenis_bayar'=>$data['jenisBayar'],
+            'tgl_nota'=>tanggalan_database_format($data->tglNota, 'd-M-Y'),
+            'tgl_tempo'=>($data->jenisBayar == 'tempo') ? tanggalan_database_format($data->tglTempo, 'd-M-Y') : null,
+            'jenis_bayar'=>$data->jenisBayar,
             'status_bayar'=>'belum',
-            'total_barang'=>$data['totalBarang'],
-            'ppn'=>$data['ppn'],
-            'biaya_lain'=>$data['biayaLain'],
-            'total_bayar'=>$data['totalBayar'],
-            'keterangan'=>$data['keterangan'],
+            'total_barang'=>$data->totalBarang,
+            'ppn'=>$data->ppn,
+            'biaya_lain'=>$data->biayaLain,
+            'total_bayar'=>$data->totalBayar,
+            'keterangan'=>$data->keterangan,
             'print'=>1,
         ]);
         $this->storeDetail($data['dataDetail'], $pembelian->id);
@@ -153,25 +130,26 @@ class PembelianRepository
     public function destroy($pembelianId)
     {
         $this->rollback($pembelianId);
-        $pembelian = $this->pembelian::destroy($pembelianId);
+        return Pembelian::destroy($pembelianId);
     }
 
     public function rollback($pembelianId)
     {
-        return $this->pembelianDetail->newQuery()->where('pembelian_id', $pembelianId)->delete();
+        return PembelianDetail::query()->where('pembelian_id', $pembelianId)->delete();
     }
 
     protected function storeDetail($dataDetail, $pembelianId)
     {
         foreach ($dataDetail as $item) {
+            $item = (object)$item;
             $this->pembelianDetail->newQuery()
                 ->create([
                     'pembelian_id'=>$pembelianId,
-                    'produk_id'=>$item['produk_id'],
-                    'harga'=>$item['harga'],
-                    'jumlah'=>$item['jumlah'],
-                    'diskon'=>$item['diskon'],
-                    'sub_total'=>$item['sub_total'],
+                    'produk_id'=>$item->produk_id,
+                    'harga'=>$item->harga,
+                    'jumlah'=>$item->jumlah,
+                    'diskon'=>$item->diskon,
+                    'sub_total'=>$item->sub_total,
                 ]);
         }
     }

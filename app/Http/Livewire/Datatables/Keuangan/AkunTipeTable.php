@@ -15,6 +15,7 @@ class AkunTipeTable extends DataTableComponent
     {
         return [
             Column::make('Kode'),
+            Column::make('D/K'),
             Column::make('Tipe'),
             Column::make('Keterangan'),
             Column::make(''),

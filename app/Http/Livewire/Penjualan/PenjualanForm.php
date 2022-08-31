@@ -2,9 +2,7 @@
 
 namespace App\Http\Livewire\Penjualan;
 
-use App\Haramain\Repository\Penjualan\PenjualanPureRepo;
-use App\Haramain\Repository\PenjualanRepository;
-use App\Haramain\Service\SistemPenjualan\PenjualanService;
+use App\Haramain\SistemPenjualan\PenjualanService;
 use App\Models\KonfigurasiJurnal;
 use App\Models\Master\Customer;
 use App\Models\Master\Produk;
@@ -12,7 +10,6 @@ use App\Models\Penjualan\Penjualan;
 use App\Models\Penjualan\PenjualanRetur;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Component;
 
 class PenjualanForm extends Component
@@ -25,7 +22,7 @@ class PenjualanForm extends Component
     // initiate
     protected $penjualanService;
 
-    // initiation
+    // initiation attributes
     protected $customer;
     protected $produk;
     protected $penjualan;
@@ -34,17 +31,19 @@ class PenjualanForm extends Component
     protected $jenisTransaksi; // penjualan, retur baik, retur rusak
     public $mode = 'create'; // default create dan bisa update
 
-    // form penjualan
-    public $penjualanId;
-    public $penjualanReturId;
-    public $customerId, $customerNama, $customerDiskon;
+    // general attributes
     public $userId;
+
+    // penjualan attributes
+    public $penjualanId;
+    public $customerId, $customerNama, $customerDiskon;
     public $gudangId;
     public $tglNota;
     public $tglTempo;
     public $jenisBayar;
     public $statusBayar = 'belum';
     public $totalBarang;
+    public $ppn, $biayaLain;
     public $totalPenjualan, $totalPenjualanRupiah; // total penjualan = pendapatan
     public $totalBayar, $totalBayarRupiah; // total bayar = piutang
     public $keterangan;
@@ -52,18 +51,13 @@ class PenjualanForm extends Component
 
     // stock keluar
     public $kondisi = 'baik';
+    public $tglKeluar;
 
     // persediaan
-    public $tglInput, $jenisPersediaan = 'keluar';
+    public $tglInput;
+    public $jenisPersediaan = 'keluar';
 
-    // akuntansi
-    public $akunPPNPenjualan, $ppn;
-    public $akunPenjualanid, $pendapatan;
-    public $akunPiutangId; // total bayar
-    public $akunBiayaLainPenjualanId, $biayaLain;
-    public $akunHPPId, $akunPersediaanId;
-
-    // detail
+    // detail attributes
     public $dataDetail = [];
     public $update = false;
     public $index;
@@ -86,17 +80,12 @@ class PenjualanForm extends Component
         // initiate default date
         $this->tglNota = tanggalan_format(now('ASIA/JAKARTA'));
         $this->tglTempo = tanggalan_format(now('ASIA/JAKARTA')->addMonth(2));
-        // get akun
-        $this->getAkun();
     }
 
     public function mount($jenisTransaksi = 'penjualan', $penjualanId = null)
     {
         $this->userId = \Auth::id();
         $this->jenisTransaksi = $jenisTransaksi;
-        // initiate akun
-        $this->getAkun();
-        $this->getAkunPersediaan();
         if ($penjualanId){
             $this->penjualanId = $penjualanId;
             $this->editData($penjualanId);
@@ -105,7 +94,7 @@ class PenjualanForm extends Component
 
     protected function editData($penjualanId)
     {
-        $penjualan = $this->penjualanService->handleGetDataById($penjualanId);
+        $penjualan = $this->penjualanService->handleGetData($penjualanId);
         $this->mode = 'update';
         // data penjualan
         $this->customerId = $penjualan->customer_id;
@@ -141,32 +130,6 @@ class PenjualanForm extends Component
             ];
         }
         $this->pendapatan = $this->totalPenjualan;
-    }
-
-    protected function getPenjualan($penjualanId)
-    {
-        // load penjualan
-        $penjualan = $this->penjualan->newQuery()->find($penjualanId);
-    }
-
-    protected function getPenjualanRetur($returId)
-    {
-        // load penjualan retur
-        $penjualanRetur = $this->penjualanRetur->newQuery()->find($returId);
-    }
-
-    protected function getAkun()
-    {
-        $this->akunPiutangId = KonfigurasiJurnal::query()->find('piutang_usaha')->akun_id;
-        $this->akunPenjualanid = KonfigurasiJurnal::query()->find('penjualan')->akun_id;
-        $this->akunBiayaLainPenjualanId = KonfigurasiJurnal::query()->find('biaya_penjualan')->akun_id;
-        $this->akunPPNPenjualan = KonfigurasiJurnal::query()->find('ppn_penjualan')->akun_id;
-    }
-
-    protected function getAkunPersediaan()
-    {
-        $this->akunHPPId = KonfigurasiJurnal::query()->find('hpp_internal')->akun_id;
-        $this->akunPersediaanId = KonfigurasiJurnal::query()->find('persediaan')->akun_id;
     }
 
     public function setCustomer($customerId)
@@ -276,6 +239,7 @@ class PenjualanForm extends Component
         $this->totalBarang = array_sum(array_column($this->dataDetail, 'jumlah'));
         // jumlah total dari sub_total
         $this->totalPenjualan = array_sum(array_column($this->dataDetail, 'sub_total'));
+        $this->totalPenjualanRupiah = rupiah_format($this->totalPenjualan);
         $this->pendapatan = $this->totalPenjualan;
         // jumlah total bayar
         $this->totalBayar = (int)$this->totalPenjualan + (int)$this->biayaLain + (int)$this->ppn;
@@ -319,7 +283,6 @@ class PenjualanForm extends Component
         $this->tglInput = $this->tglNota;
         return $this->validate([
             'penjualanId'=>($this->mode == 'update' && $this->jenisTransaksi == 'penjualan') ? 'required' : 'nullable',
-            'penjualanReturId'=>($this->mode == 'update' && $this->jenisTransaksi == 'retur') ? 'required' : 'nullable',
             'customerId'=>'required',
             'customerNama'=>'required',
             'userId'=>'required',
@@ -340,15 +303,9 @@ class PenjualanForm extends Component
             'tglInput'=>'required',
 
             // akuntansi
-            'akunPiutangId'=>'required',
-            'akunPenjualanid'=>'required',
             'pendapatan'=>'required',
             'biayaLain'=>( (int)$this->biayaLain > 0) ?'required' : 'nullable',
-            'akunBiayaLainPenjualanId'=>( (int)$this->biayaLain > 0) ?'required' : 'nullable',
             'ppn'=>( (int)$this->ppn > 0) ?'required' : 'nullable',
-            'akunPPNPenjualan'=>( (int)$this->ppn > 0) ?'required' : 'nullable',
-            'akunHPPId'=>'required',
-            'akunPersediaanId'=>'required',
         ]);
     }
 
@@ -373,7 +330,7 @@ class PenjualanForm extends Component
     public function update()
     {
         $data = $this->validateData();
-        // dd($data);
+        //dd($data);
         $store = $this->penjualanService->handleUpdate($data);
         if ($store->status){
             // redirect

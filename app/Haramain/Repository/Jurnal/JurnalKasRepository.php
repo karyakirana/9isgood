@@ -4,11 +4,9 @@ use App\Models\Keuangan\JurnalKas;
 
 class JurnalKasRepository
 {
-    protected $jurnalKas;
-
     public function __construct()
     {
-        $this->jurnalKas = new JurnalKas();
+        //
     }
 
     protected function kode()
@@ -24,7 +22,7 @@ class JurnalKasRepository
 
     public function store($data, $jurnalKasType, $jurnalKasId)
     {
-        return $this->jurnalKas->newQuery()
+        return JurnalKas::query()
             ->create([
                 'kode'=>$this->kode(),
                 'active_cash'=>session('ClosedCash'),
@@ -38,7 +36,7 @@ class JurnalKasRepository
 
     public function rollback($jurnalKasType, $jurnalKasId)
     {
-        return $this->jurnalKas->newQuery()
+        return JurnalKas::query()
             ->where('jurnal_type', $jurnalKasType)
             ->where('jurnal_id', $jurnalKasId)
             ->delete();

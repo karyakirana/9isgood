@@ -11,22 +11,37 @@ class HutangPembelianRepo
     public function __construct()
     {
         $this->hutangPembelian = new HutangPembelian();
-        $this->saldoHutangPembelianRepo = new SaldoHutangPembelianRepo();
     }
 
     public function store($data, $pembelianableType, $pembelianableId)
     {
+        $data = (object) $data;
         $hutangPembelian =  $this->hutangPembelian->newQuery()
             ->create([
-                'saldo_hutang_pembelian_id'=>$data['supplierId'],
+                'saldo_hutang_pembelian_id'=>$data->supplier_id,
                 'pembelian_type'=>$pembelianableType,
                 'pembelian_id'=>$pembelianableId,
                 'status_bayar'=>'belum', // lunas, belum, kurang
-                'total_bayar'=>$data['totalBayar'],
-                'kurang_bayar'=>$data['totalBayar'],
+                'total_bayar'=>$data->totalBayar,
+                'kurang_bayar'=>$data->totalBayar,
             ]);
         // update saldo hutang
-        $this->saldoHutangPembelianRepo->saldoIncrement($data['supplierId'], $data['totalBayar']);
+        (new SaldoHutangPembelianRepo($data->supplierId))->saldoIncrement($data->totalBayar);
+        return $hutangPembelian;
+    }
+
+    public function storeByMorph($classMorph, $data)
+    {
+        $data = (object) $data;
+        $hutangPembelian =  $classMorph
+            ->create([
+                'saldo_hutang_pembelian_id'=>$data->supplier_id,
+                'status_bayar'=>'belum', // lunas, belum, kurang
+                'total_bayar'=>$data->totalBayar,
+                'kurang_bayar'=>$data->totalBayar,
+            ]);
+        // update saldo hutang
+        (new SaldoHutangPembelianRepo($data->supplierId))->saldoIncrement($data->totalBayar);
         return $hutangPembelian;
     }
 
@@ -43,8 +58,13 @@ class HutangPembelianRepo
             'kurang_bayar'=>$data['totalBayar'],
         ]);
         // update saldo hutang
-        $this->saldoHutangPembelianRepo->saldoIncrement($data['supplierId'], $data['totalBayar']);
+        (new SaldoHutangPembelianRepo($data->supplierId))->saldoIncrement($data->totalBayar);
         return $hutangPembelian;
+    }
+
+    public function updateByMorph($classMorph, $data)
+    {
+        //
     }
 
     public function rollback($pembelianableType, $pembelianableId)
@@ -53,7 +73,7 @@ class HutangPembelianRepo
             ->where('pembelian_type', $pembelianableType)
             ->where('pembelian_id', $pembelianableId)
             ->first();
-        $this->saldoHutangPembelianRepo->saldoIncrement($hutangPembelian->saldo_hutang_pembelian_id, $hutangPembelian->total_bayar);
+        (new SaldoHutangPembelianRepo($hutangPembelian->saldo_hutang_pembelian_id))->saldoIncrement($hutangPembelian->total_bayar);
         return $hutangPembelian;
     }
 }

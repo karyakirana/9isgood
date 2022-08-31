@@ -38,12 +38,12 @@ class PenjualanReturRepo
 
     public function getData($penjualanId)
     {
-        return $this->penjualanRetur->newQuery()->find($penjualanId);
+        return PenjualanRetur::query()->find($penjualanId);
     }
 
     public function store($data)
     {
-        $penjualanRetur = $this->penjualanRetur::query()->create([
+        $penjualanRetur = PenjualanRetur::query()->create([
             'kode'=>$this->kode($data['kondisi']),
             'active_cash'=>session('ClosedCash'),
             'jenis_retur'=>$data['kondisi'],
@@ -67,7 +67,7 @@ class PenjualanReturRepo
     protected function storeDetail($data, $penjualanReturId)
     {
         foreach ($data['dataDetail'] as $item) {
-            $this->penjualanReturDetail->newQuery()->create([
+            PenjualanReturDetail::query()->create([
                 'penjualan_retur_id'=>$penjualanReturId,
                 'produk_id'=>$item['produkId'],
                 'harga'=>$item['harga'],
@@ -81,7 +81,7 @@ class PenjualanReturRepo
     public function update($data)
     {
         // initiate
-        $penjualanRetur = $this->penjualanRetur::query()->find($data->penjualan_retur_id);
+        $penjualanRetur = PenjualanRetur::query()->find($data->penjualan_retur_id);
 
         $penjualanRetur->update([
             'customer_id'=>$data['customerId'],
@@ -103,7 +103,7 @@ class PenjualanReturRepo
 
     public function rollback($penjualanReturId)
     {
-        $penjualanRetur = $this->penjualanRetur->newQuery()->find($penjualanReturId);
+        $penjualanRetur = PenjualanRetur::query()->find($penjualanReturId);
         $this->penjualanReturDetail->newQuery()->where('penjualan_retur_id', $penjualanRetur->id)->delete();
         return $penjualanRetur;
     }

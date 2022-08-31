@@ -11,6 +11,7 @@ class AkunTipe extends Model
     protected $table = 'akun_tipe';
     protected $fillable = [
         'kode',
+        'default_saldo',
         'deskripsi',
         'keterangan',
     ];

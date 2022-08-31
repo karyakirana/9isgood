@@ -1,61 +1,59 @@
 <?php namespace App\Haramain\Repository\Neraca;
 
+use App\Models\Keuangan\Akun;
 use App\Models\Keuangan\NeracaSaldo;
 
 class NeracaSaldoRepo
 {
     protected $neracaSaldo;
 
-    public function __construct()
+    // attributes
+    protected $session;
+    protected $akunId, $nominal;
+    protected $typeAkun;
+    protected $field;
+
+    public function __construct($akunId)
     {
-        $this->neracaSaldo = new NeracaSaldo();
+        $this->akunId = $akunId;
+        $this->session = session('ClosedCash');
+
+        // get akun_tipe
+        $akun = Akun::query()->find($akunId);
+        $this->typeAkun = $akun->AkunTipe->default_saldo;
     }
 
-    protected function query($akunId)
+    private function create($nominal)
+    {
+        return NeracaSaldo::query()
+            ->create([
+                'active_cash'=>$this->session,
+                'akun_id'=>$this->akunId,
+                'type'=>$this->typeAkun,
+                $this->typeAkun => $nominal,
+            ]);
+    }
+
+    private function query()
     {
         return $this->neracaSaldo->newQuery()
             ->where('active_cash', session('ClosedCash'))
-            ->where('akun_id', $akunId);
+            ->where('akun_id', $this->akunId);
     }
 
-    public function debetIncrement($akunId, $nominal)
+    public function increment($nominal)
     {
-        $query = $this->query($akunId);
-        if ($query->doesntExist()){
-            return $this->neracaSaldo->newQuery()
-                ->create([
-                    'active_cash'=>session('ClosedCash'),
-                    'akun_id'=>$akunId,
-                    'debet'=>$nominal,
-                ]);
+        $neracaSaldo = $this->query()->first();
+        if ($neracaSaldo){
+            // update
+            return $neracaSaldo->incrementByType($this->typeAkun, $this->typeAkun, $nominal);
         }
-        return $query->increment('debet', $nominal);
+        return $this->create($nominal);
     }
 
-    public function debetDecrement($akunId, $nominal)
+    public function decrement($nominal)
     {
-        $query = $this->query($akunId);
-        return $query->decrement('debet', $nominal);
-    }
-
-    public function kreditIncrement($akunId, $nominal)
-    {
-        $query = $this->query($akunId);
-        if ($query->doesntExist()){
-            return $this->neracaSaldo->newQuery()
-                ->create([
-                    'active_cash'=>session('ClosedCash'),
-                    'akun_id'=>$akunId,
-                    'kredit'=>$nominal,
-                ]);
-        }
-        // dd($akunId);
-        return $query->increment('kredit', $nominal);
-    }
-
-    public function kreditDecrement($akunId, $nominal)
-    {
-        $query = $this->query($akunId);
-        return $query->decrement('kredit', $nominal);
+        $neracaSaldo = $this->query()->first();
+        return $neracaSaldo->decrementByType($this->typeAkun, $this->typeAkun, $nominal);
     }
 }

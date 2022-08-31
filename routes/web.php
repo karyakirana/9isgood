@@ -218,6 +218,9 @@ Route::middleware('auth')->group(function (){
     Route::get('generator/persediaan/penjualan-retur', \App\Http\Livewire\Generator\PenjualanRetur::class)->name('generator.persediaan.penjualan-retur');
 
     Route::get('generator/stock/inventory', \App\Http\Livewire\Generator\Stock\GenStockInventory::class)->name('generator.stock.inventory');
+
+    // keuangan
+    Route::get('generator/keuangan/piutangpenjualan', \App\Http\Livewire\Generator\Keuangan\PiutangPenjualanGenerator::class)->name('generator.keuangan.piutangpenjualan');
 });
 
 /**

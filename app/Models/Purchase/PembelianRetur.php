@@ -19,6 +19,7 @@ class PembelianRetur extends Model
     protected $table = 'pembelian_retur';
     protected $fillable = [
         'kode',
+        'jenis',
         'active_cash',
         'supplier_id',
         'gudang_id',

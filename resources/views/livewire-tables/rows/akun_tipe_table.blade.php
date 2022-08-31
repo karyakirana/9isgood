@@ -1,7 +1,10 @@
 <x-atoms.table.td align="center" width="10%">
     {{$row->kode}}
 </x-atoms.table.td>
-<x-atoms.table.td width="40%">
+<x-atoms.table.td width="10%">
+    {{$row->default_saldo}}
+</x-atoms.table.td>
+<x-atoms.table.td width="30%">
     {{$row->deskripsi}}
 </x-atoms.table.td>
 <x-atoms.table.td>

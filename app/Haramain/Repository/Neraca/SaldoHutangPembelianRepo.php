@@ -4,33 +4,35 @@ use App\Models\Keuangan\SaldoHutangPembelian;
 
 class SaldoHutangPembelianRepo
 {
-    public $saldoHutangPembelian;
+    protected $saldoHutangPembelian;
+    protected $supplierId;
 
-    public function __construct()
+    public function __construct($supplierId)
     {
         $this->saldoHutangPembelian = new SaldoHutangPembelian();
+        $this->supplierId = $supplierId;
     }
 
-    protected function query($supplierId)
+    protected function query()
     {
-        return $this->saldoHutangPembelian->newQuery()
-            ->where('supplier_id', $supplierId);
+        return SaldoHutangPembelian::query()
+            ->where('supplier_id', $this->supplierId);
     }
 
-    public function saldoIncrement($supplierId, $nominal)
+    public function saldoIncrement($nominal)
     {
-        if ($this->query($supplierId)->exists()){
-            return $this->query($supplierId)->increment('saldo', $nominal);
+        if ($this->query()->exists()){
+            return $this->query()->increment('saldo', $nominal);
         }
         return $this->saldoHutangPembelian->newQuery()
             ->create([
-                'supplier_id'=>$supplierId,
+                'supplier_id'=>$this->supplierId,
                 'saldo'=>$nominal
             ]);
     }
 
-    public function saldoDecrement($supplierId, $nominal)
+    public function saldoDecrement($nominal)
     {
-        return $this->query($supplierId)->decrement('saldo', $nominal);
+        return $this->query()->decrement('saldo', $nominal);
     }
 }

@@ -8,8 +8,16 @@
 
     <x-molecules.modal title="Form Akun Tipe" id="modal_form" size="lg" wire:ignore.self>
         <form>
+            @json($defaultSaldo)
             <x-atoms.input.group label="Kode" required="required">
                 <x-atoms.input.text name="kode" wire:model.defer="kode" />
+            </x-atoms.input.group>
+            <x-atoms.input.group label="Default Saldo" name="defaultSaldo" required>
+                <x-atoms.input.select wire:model.defer="defaultSaldo">
+                    <option value="">Dipilih</option>
+                    <option value="debet">Debet</option>
+                    <option value="kredit">Kredit</option>
+                </x-atoms.input.select>
             </x-atoms.input.group>
             <x-atoms.input.group label="Deskripsi">
                 <x-atoms.input.text name="deskripsi" wire:model.defer="deskripsi" />

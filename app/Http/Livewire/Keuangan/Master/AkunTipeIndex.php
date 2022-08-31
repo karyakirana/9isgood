@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Keuangan\Master;
 
+use App\Haramain\Enum\JurnalStatus;
 use App\Haramain\Traits\LivewireTraits\ResetFormTraits;
 use App\Models\Keuangan\AkunTipe;
 use Illuminate\Validation\Rule;
@@ -18,9 +19,9 @@ class AkunTipeIndex extends Component
         'confirmDestroy'
     ];
 
-    public $akun_tipe_id, $kode, $deskripsi, $keterangan;
+    public $akun_tipe_id, $kode, $defaultSaldo, $deskripsi, $keterangan;
 
-    public $resetForm = ['akun_tipe_id', 'kode', 'deskripsi', 'keterangan'];
+    public $resetForm = ['akun_tipe_id', 'defaultSaldo','kode', 'deskripsi', 'keterangan'];
 
     public function render()
     {
@@ -33,15 +34,19 @@ class AkunTipeIndex extends Component
             'kode'=>['required',
                 Rule::unique('akun_tipe', 'kode')->ignore($this->akun_tipe_id)
             ],
+            'defaultSaldo'=>'required',
             'deskripsi'=>'required|min:3',
         ]);
 
-        AkunTipe::updateOrCreate(
+        //dd($this->defaultSaldo);
+
+        $store = AkunTipe::query()->updateOrCreate(
             [
                 'id'=>$this->akun_tipe_id,
             ],
             [
                 'kode'=>$this->kode,
+                'default_saldo'=>$this->defaultSaldo,
                 'deskripsi'=>$this->deskripsi,
                 'keterangan'=>$this->keterangan
             ]
@@ -55,6 +60,7 @@ class AkunTipeIndex extends Component
     {
         $this->akun_tipe_id = $akun->id;
         $this->kode = $akun->kode;
+        $this->defaultSaldo = $akun->default_saldo;
         $this->deskripsi = $akun->deskripsi;
         $this->keterangan = $akun->keterangan;
         $this->emit('showModal');
