@@ -114,7 +114,7 @@
                                 <td colspan="2"></td>
                                 <td colspan="2">Biaya Lain</td>
                                 <td colspan="2">
-                                    <x-atoms.input.text name="biayaLain"  wire:model.defer="biayaLain"/>
+                                    <x-atoms.input.text name="biayaLain"  wire:model.defer="biayaLain" wire:keyup="setTotalItem"/>
                                 </td>
                                 <td></td>
                             </tr>

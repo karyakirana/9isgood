@@ -85,7 +85,7 @@ class PenjualanRepository implements PenjualanInterface
 
     public function rollback(int $id)
     {
-        return PenjualanDetail::query()->where('penjualan_id', $id);
+        return PenjualanDetail::query()->where('penjualan_id', $id)->delete();
     }
 
     public function destroy(int $id)
