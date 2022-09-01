@@ -19,7 +19,7 @@ class PenjualanService implements ServiceInterface
     protected $persediaanTransaksiRepo;
     protected $piutangPenjualanRepo;
     protected $jurnalTransaksiRepo;
-    protected $neracaSaldoRepository;
+    protected $neracaSaldoRepo;
 
     protected $akunPiutangPenjualan;
     protected $akunPenjualan;
@@ -36,7 +36,7 @@ class PenjualanService implements ServiceInterface
         $this->persediaanTransaksiRepo = new PersediaanTransaksiRepo();
         $this->piutangPenjualanRepo = new PiutangPenjualanRepo();
         $this->jurnalTransaksiRepo = new JurnalTransaksiRepo();
-        $this->neracaSaldoRepository = new NeracaSaldoRepository();
+        $this->neracaSaldoRepo = new NeracaSaldoRepository();
 
         // penjualan
         $this->akunPiutangPenjualan = KonfigurasiJurnal::query()->firstWhere('config', 'piutang_usaha')->akun_id;
@@ -159,26 +159,26 @@ class PenjualanService implements ServiceInterface
     {
         // piutang penjualan debet
         $this->jurnalTransaksiRepo->debet($penjualan::class, $penjualan->id, $this->akunPiutangPenjualan, $penjualan->total_bayar);
-        $this->neracaSaldoRepository->debet($this->akunPiutangPenjualan, $penjualan->total_bayar);
+        $this->neracaSaldoRepo->debet($this->akunPiutangPenjualan, $penjualan->total_bayar);
         // penjualan kredit
         $this->jurnalTransaksiRepo->kredit($penjualan::class, $penjualan->id, $this->akunPenjualan, $data['totalPenjualan']);
-        $this->neracaSaldoRepository->kredit($this->akunPenjualan, $data['totalPenjualan']);
+        $this->neracaSaldoRepo->kredit($this->akunPenjualan, $data['totalPenjualan']);
         // ppn kredit
         if((int) $penjualan->ppn > 0){
             $this->jurnalTransaksiRepo->kredit($penjualan::class, $penjualan->id, $this->akunPPNPenjualan, $penjualan->ppn);
-            $this->neracaSaldoRepository->kredit($this->akunPPNPenjualan, $penjualan->ppn);
+            $this->neracaSaldoRepo->kredit($this->akunPPNPenjualan, $penjualan->ppn);
         }
         // biaya lain kredit
         if((int) $penjualan->biaya_lain > 0){
             $this->jurnalTransaksiRepo->kredit($penjualan::class, $penjualan->id, $this->akunBiayaLainPenjualan, $penjualan->biaya_lain);
-            $this->neracaSaldoRepository->kredit($this->akunBiayaLainPenjualan, $penjualan->biaya_lain);
+            $this->neracaSaldoRepo->kredit($this->akunBiayaLainPenjualan, $penjualan->biaya_lain);
         }
         // hpp debet berdasarkan persediaan keluar
         $this->jurnalTransaksiRepo->debet($penjualan::class, $penjualan->id, $this->akunHPP, $persediaanTransaksi->totalPersediaanKeluar);
-        $this->neracaSaldoRepository->debet($this->akunHPP, $persediaanTransaksi->totalPersediaanKeluar);
+        $this->neracaSaldoRepo->debet($this->akunHPP, $persediaanTransaksi->totalPersediaanKeluar);
         // persediaan by gudang kredit
         $akunGudang = ($penjualan->gudang_id == '1') ? $this->akunPersediaanKalimas : $this->akunPersediaanPerak;
         $this->jurnalTransaksiRepo->kredit($penjualan::class, $penjualan->id, $akunGudang, $persediaanTransaksi->totalPersediaanKeluar);
-        $this->neracaSaldoRepository->kredit($akunGudang, $persediaanTransaksi->totalPersediaanKeluar);
+        $this->neracaSaldoRepo->kredit($akunGudang, $persediaanTransaksi->totalPersediaanKeluar);
     }
 }

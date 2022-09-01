@@ -11,8 +11,8 @@ class PersediaanRepository
             ->where('active_cash', session('ClosedCash'))
             ->where('gudang_id', $gudangId)
             ->where('jenis', $kondisi)
-            ->where('produk_id', $dataItem['produk_id'])
-            ->where('harga', $dataItem['harga']);
+            ->where('produk_id', $dataItem->produk_id)
+            ->where('harga', $dataItem->harga);
     }
 
     protected function queryCreate($gudangId, $kondisi, $tglInput, $dataItem)
@@ -22,11 +22,11 @@ class PersediaanRepository
             'jenis'=>$kondisi,// baik or buruk
             'tgl_input'=>$tglInput,
             'gudang_id'=>$gudangId,
-            'produk_id'=>$dataItem['produk_id'],
-            'harga'=>$dataItem['harga'],
-            'stock_masuk'=>$dataItem['jumlah'],
+            'produk_id'=>$dataItem->produk_id,
+            'harga'=>$dataItem->harga,
+            'stock_masuk'=>$dataItem->jumlah,
             'stock_keluar'=>0,
-            'stock_saldo'=>$dataItem['jumlah'],
+            'stock_saldo'=>$dataItem->jumlah,
         ]);
     }
 
@@ -74,11 +74,11 @@ class PersediaanRepository
         if ($query->exists()){
             $queryLatest = $query->latest('tgl_input')->first();
             // check tanggal
-            if ($queryLatest->harga == $dataItem['harga'])
+            if ($queryLatest->harga == $dataItem->harga)
             {
                 // jika harga terakhir sama dengan harga input sekarang, maka persediaan nambah
-                $query->increment('stock_masuk', $dataItem['jumlah']);
-                $query->increment('stock_saldo', $dataItem['jumlah']);
+                $query->increment('stock_masuk', $dataItem->jumlah);
+                $query->increment('stock_saldo', $dataItem->jumlah);
                 return $queryLatest;
             }
             return $this->queryCreate($gudangId, $kondisi, $tglInput, $dataItem);
@@ -174,7 +174,7 @@ class PersediaanRepository
                     $itemJumlah -= $data->stock_saldo;
                     $returnItem[] = [
                         'persediaan_id'=>$data->id, // persediaan id
-                        'produk_id'=>$dataItem->produk_id,
+                        'produk_id'=>$produkId,
                         'harga'=>$data->harga,
                         'jumlah'=> $jumlah,
                         'sub_total'=>$data->harga * $jumlah

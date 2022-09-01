@@ -60,7 +60,8 @@ class PembelianService implements ServiceInterface
             $this->jurnal($pembelian, $pembelian->gudang_id);
             \DB::commit();
             return (object)[
-                'status'=>true
+                'status'=>true,
+                'keterangan'=>'Sukses di simpan'
             ];
         }catch (ModelNotFoundException $e){
             \DB::rollBack();

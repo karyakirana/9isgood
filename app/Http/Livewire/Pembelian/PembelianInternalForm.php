@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Pembelian;
 use App\Haramain\Repository\Pembelian\PembelianCobaRepo;
 use App\Haramain\Repository\Pembelian\PembelianInternalRepo;
 use App\Haramain\Service\SistemPembelian\PembelianInternalService;
+use App\Haramain\SistemPembelian\PembelianService;
 use App\Models\Keuangan\HargaHppALL;
 use App\Models\KonfigurasiJurnal;
 use App\Models\Master\Gudang;
@@ -34,6 +35,7 @@ class PembelianInternalForm extends Component
     public $userId;
     public $tglNota, $tglTempo;
     public $jenisBayar = 'tunai';
+    public $statusBayar = 'belum';
     public $totalBarang;
     public $totalPembelian;
     public $ppn, $biayaLain;
@@ -64,7 +66,7 @@ class PembelianInternalForm extends Component
     public function __construct($id = null)
     {
         parent::__construct($id);
-        $this->pembelianInternalService = new PembelianInternalService();
+        $this->pembelianInternalService = new PembelianService();
     }
 
     public function mount($pembelianId = null)
@@ -88,7 +90,7 @@ class PembelianInternalForm extends Component
         if ($pembelianId){
             // untuk kepentingan edit
             $this->mode = 'update';
-            $pembelian = $this->pembelianInternalService->handleEdit($pembelianId);
+            $pembelian = $this->pembelianInternalService->handleGetData($pembelianId);
             $this->pembelianId = $pembelian->id;
             $this->supplierId = $pembelian->supplier_id;
             $this->supplierNama = $pembelian->supplier->nama;
@@ -237,6 +239,7 @@ class PembelianInternalForm extends Component
             'tglNota'=>'required|date:d-M-Y',
             'tglTempo'=>($this->jenisBayar == 'tempo') ? 'required|date:d-M-Y' : 'nullable',
             'jenisBayar'=>'required',
+            'statusBayar'=>'required',
             'totalBarang'=>'required',
             'totalPembelian'=>'required',
             'ppn'=>((int)$this->ppn > 0) ? 'required' : 'nullable',
@@ -246,12 +249,6 @@ class PembelianInternalForm extends Component
 
             // data detail
             'dataDetail'=>'required',
-
-            // akun
-            'akunHutangPembelianId'=>'required',
-            'akunPersediaanId'=>'required',
-            'akunPPNPembelianId'=>((int)$this->ppn > 0) ? 'required' : 'nullable',
-            'akunBiayaLainPembelianId'=>((int)$this->biayaLain > 0) ? 'required' : 'nullable',
 
             // stock masuk
             'kondisi'=>'required',

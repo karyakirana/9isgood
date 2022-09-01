@@ -30,12 +30,12 @@ class HutangPembelianRepo
         $data = (object) $data;
         $hutangPembelian = HutangPembelian::query()
             ->create([
-                'saldo_hutang_pembelian_id'=>$data->supplier_id,
+                'saldo_hutang_pembelian_id'=>$data->supplierId,
                 'pembelian_type'=>$hutangableType,
                 'pembelian_id'=>$hutangableId,
                 'status_bayar'=>$data->statusBayar, // lunas, belum, kurang
                 'total_bayar'=>$data->totalBayar,
-                'kurang_bayar'=>$data->totalbayar,
+                'kurang_bayar'=>$data->totalBayar,
             ]);
         // update saldo hutang pembelian
         $this->saldoHutangPembelianRepo->saldoIncrement($data->supplierId, $data->totalBayar);
@@ -46,12 +46,12 @@ class HutangPembelianRepo
     {
         $data = (object) $data;
         $this->getDataById($hutangableType, $hutangableId)->update([
-            'saldo_hutang_pembelian_id'=>$data->supplier_id,
+            'saldo_hutang_pembelian_id'=>$data->supplierId,
             'pembelian_type'=>$hutangableType,
             'pembelian_id'=>$hutangableId,
             'status_bayar'=>$data->statusBayar, // lunas, belum, kurang
             'total_bayar'=>$data->totalBayar,
-            'kurang_bayar'=>$data->totalbayar,
+            'kurang_bayar'=>$data->totalBayar,
         ]);
         // update saldo hutang pembelian
         $this->saldoHutangPembelianRepo->saldoIncrement($data->supplierId, $data->totalBayar);

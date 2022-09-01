@@ -1,6 +1,5 @@
 <?php namespace App\Haramain\SistemStock;
 
-use App\Models\Stock\StockKeluar;
 use App\Models\Stock\StockMasuk;
 use App\Models\Stock\StockMasukDetail;
 
@@ -33,9 +32,9 @@ class StockMasukRepository implements StockTransaksiInterface
 
     public function getDataById($stockableType, $stockableId)
     {
-        return StockKeluar::query()
-            ->where('stockable_keluar_type', $stockableType)
-            ->where('stockable_id', $stockableId)
+        return StockMasuk::query()
+            ->where('stockable_masuk_type', $stockableType)
+            ->where('stockable_masuk_id', $stockableId)
             ->first();
     }
 
@@ -66,14 +65,14 @@ class StockMasukRepository implements StockTransaksiInterface
                 'stockable_masuk_type'=>$stockableType,
                 'kondisi'=>$kondisi,
                 'gudang_id'=>$gudang,
-                'supplier_id'=>$data->supplier_id ?? null,
-                'tgl_masuk'=>$tglMasuk,
+                'supplier_id'=>$data->supplierId ?? null,
+                'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
                 'user_id'=>\Auth::id(),
                 'nomor_po'=>$data->nomorPo ?? '-',
                 'nomor_surat_jalan'=>$data->suratJalan ?? '-',
                 'keterangan'=>$data->keterangan,
             ]);
-        $this->storeDetail($data, $gudang, $kondisi, $stockMasuk->id);
+        $this->storeDetail($data->dataDetail, $gudang, $kondisi, $stockMasuk->id);
         return $stockMasuk;
     }
 
@@ -92,8 +91,8 @@ class StockMasukRepository implements StockTransaksiInterface
             'stockable_masuk_type'=>$stockableType,
             'kondisi'=>$kondisi,
             'gudang_id'=>$gudang,
-            'supplier_id'=>$data->supplier_id ?? null,
-            'tgl_masuk'=>$tglMasuk,
+            'supplier_id'=>$data->supplierId ?? null,
+            'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
             'user_id'=>\Auth::id(),
             'nomor_po'=>$data->nomorPo ?? '-',
             'nomor_surat_jalan'=>$data->suratJalan ?? '-',
