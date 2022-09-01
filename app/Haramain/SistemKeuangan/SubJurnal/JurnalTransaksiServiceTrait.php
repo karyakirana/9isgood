@@ -4,6 +4,7 @@ trait JurnalTransaksiServiceTrait
 {
     protected function rollbackJurnalAndSaldo($class)
     {
+        //dd($class);
         $getJurnal = $this->jurnalTransaksiRepo->getData($class::class, $class->id);
         //dd($getJurnal);
         foreach ($getJurnal as $jurnal) {

@@ -73,17 +73,17 @@ class StockMutasiService
             $kondisiKeluar = \Str::of($data['jenisMutasi'])->before('_');
             $kondisiMasuk = \Str::of($data['jenisMutasi'])->after('_');
             // get data from persediaan
-            $dataPersediaanOut = $this->persediaanTransaksiRepo->getPersediaanByDetailForOut($data['dataDetail'], $kondisiKeluar, $data['gudang_asal_id']);
+            $dataPersediaanOut = $this->persediaanTransaksiRepo->getPersediaanByDetailForOut($data['dataDetail'], $kondisiKeluar, $data['gudangAsalId']);
             // persediaan mutasi
-            $persediaanMutasi = $this->persediaanMutasiRepo->store($data, $stockMutasi->id);
+            $persediaanMutasi = $this->persediaanMutasiRepo->store($data, $stockMutasi->id, $dataPersediaanOut);
             // stock keluar baik
             $stockKeluar = $this->stockKeluarRepo->store($data, $stockMutasi::class, $stockMutasi->id);
             // persediaan transaksi keluar
-            $persediaanTransaksiKeluar = $this->persediaanTransaksiRepo->storeTransaksiKeluar($data, $dataPersediaanOut, $stockMutasi::class, $stockMutasi->id);
+            $persediaanTransaksiKeluar = $this->persediaanTransaksiRepo->storeTransaksiKeluar($data, $dataPersediaanOut, $persediaanMutasi::class, $persediaanMutasi->id);
             // stock masuk baik
             $stockMasuk = $this->stockMasukRepo->store($data, $stockMutasi::class, $stockMutasi->id);
             // persediaanTransaksiMasuk
-            $persediaanTransaksiMasuk = $this->persediaanTransaksiRepo->storeTransaksiMasuk($data, $stockMutasi::class, $stockMutasi->id, $dataPersediaanOut);
+            $persediaanTransaksiMasuk = $this->persediaanTransaksiRepo->storeTransaksiMasuk($data, $persediaanMutasi::class, $persediaanMutasi->id, $dataPersediaanOut);
 
             // initiate jurnal
             $gudangAsalId = ucfirst($stockMutasi->gudangAsal->nama);
@@ -96,12 +96,14 @@ class StockMutasiService
             $this->jurnalTransaksiRepo->kredit($stockMutasi::class, $stockMutasi->id, $this->{'akunPersediaan'.$gudangAsalId.$kondisiKeluar}, $persediaanTransaksiKeluar->totalPersediaanKeluar);
             \DB::commit();
             return (object)[
-                'status'=>true
+                'status'=>true,
+                'keterangan'=>'data berhasil disimpan'
             ];
         } catch (ModelNotFoundException $e){
             \DB::rollBack();
             return (object)[
-                'status'=>false
+                'status'=>false,
+                'keterangan'=>$e
             ];
         }
     }
@@ -114,25 +116,26 @@ class StockMutasiService
     {
         \DB::beginTransaction();
         try {
-            $stockMutasi = $this->stockMutasiRepo->getDataById($data['stockMutasiId']);
+            $stockMutasi = $this->stockMutasiRepo->getDataById($data['mutasiId']);
+            // dd($stockMutasi);
             $kondisiKeluar = \Str::of($data['jenisMutasi'])->before('_');
             $kondisiMasuk = \Str::of($data['jenisMutasi'])->after('_');
             // rollback first
             $this->rollback($stockMutasi);
             // get data from persediaan
-            $dataPersediaanOut = $this->persediaanTransaksiRepo->getPersediaanByDetailForOut($data['dataDetail'], $kondisiKeluar, $data['gudang_asal_id']);
+            $dataPersediaanOut = $this->persediaanTransaksiRepo->getPersediaanByDetailForOut($data['dataDetail'], $kondisiKeluar, $data['gudangAsalId']);
             // update stock mutasi
             $this->stockMutasiRepo->update($data);
             // update persediaan mutasi
-            $persediaanMutasi = $this->persediaanMutasiRepo->update($data, $stockMutasi->id);
+            $persediaanMutasi = $this->persediaanMutasiRepo->update($data, $stockMutasi->id, $dataPersediaanOut);
             // update stock keluar
             $stockKeluar = $this->stockKeluarRepo->update($data, $stockMutasi::class, $stockMutasi->id);
             // update persediaan keluar
-            $persediaanTransaksiKeluar = $this->persediaanTransaksiRepo->updateTransaksiKeluar($data, $dataPersediaanOut, $stockMutasi::class, $stockMutasi->id);
+            $persediaanTransaksiKeluar = $this->persediaanTransaksiRepo->updateTransaksiKeluar($data, $dataPersediaanOut, $persediaanMutasi::class, $persediaanMutasi->id);
             // update stock masuk
             $stockMasuk = $this->stockMasukRepo->update($data, $stockMutasi::class, $stockMutasi->id);
             // update persediaan keluar
-            $persediaanTransaksiMasuk = $this->persediaanTransaksiRepo->updateTransaksiMasuk($data, $stockMutasi::class, $stockMutasi->id, $dataPersediaanOut);
+            $persediaanTransaksiMasuk = $this->persediaanTransaksiRepo->updateTransaksiMasuk($data, $persediaanMutasi::class, $persediaanMutasi->id, $dataPersediaanOut);
 
             // initiate jurnal
             $gudangAsalId = ucfirst($stockMutasi->gudangAsal->nama);
@@ -145,7 +148,8 @@ class StockMutasiService
             $this->jurnalTransaksiRepo->kredit($stockMutasi::class, $stockMutasi->id, $this->{'akunPersediaan'.$gudangAsalId.$kondisiKeluar}, $persediaanTransaksiKeluar->totalPersediaanKeluar);
             \DB::commit();
             return (object)[
-                'status'=>true
+                'status'=>true,
+                'keterangan'=>'data berhasil disimpan'
             ];
         }catch (ModelNotFoundException $e){
             \DB::rollBack();
@@ -185,16 +189,21 @@ class StockMutasiService
 
     protected function rollback($stockMutasi)
     {
+        //dd($stockMutasi);
+        // initiate persediaan mutasi
+        $persediaanMutasi = $this->persediaanMutasiRepo->getDataById($stockMutasi->id);
         // rollback stock keluar
         $stockKeluar = $this->stockKeluarRepo->rollback($stockMutasi::class, $stockMutasi->id);
         // rollback persediaan keluar
-        $this->persediaanTransaksiRepo->rollbackKeluar($stockMutasi::class, $stockMutasi->id);
+        $this->persediaanTransaksiRepo->rollbackKeluar($persediaanMutasi::class, $persediaanMutasi->id);
         // rollback stock masuk
         $stockMasuk = $this->stockMasukRepo->rollback($stockMutasi::class, $stockMutasi->id);
         // rollback persediaan masuk
-        $this->persediaanTransaksiRepo->rollbackMasuk($stockMutasi::class, $stockMutasi->id);
+        $this->persediaanTransaksiRepo->rollbackMasuk($persediaanMutasi::class, $persediaanMutasi->id);
+        // rollback persediaan mutasi
+        $this->persediaanMutasiRepo->rollback($stockMutasi->id);
         // rollback mutasi
-        $stockMutasi = $this->stockMutasiRepo->rollback($stockMutasi->id);
+        $stockMutasiRollback = $this->stockMutasiRepo->rollback($stockMutasi->id);
         // rollback neraca saldo
         $this->rollbackJurnalAndSaldo($stockMutasi);
     }

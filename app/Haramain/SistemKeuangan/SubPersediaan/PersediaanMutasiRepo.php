@@ -23,7 +23,7 @@ class PersediaanMutasiRepo
         return $query->get();
     }
 
-    public function store($data, $stockMutasiId)
+    public function store($data, $stockMutasiId, $detailPersediaanOut)
     {
         $data = (object) $data;
         $persediaanMutasi = PersediaanMutasi::query()
@@ -35,11 +35,11 @@ class PersediaanMutasiRepo
                 'total_barang'=>$data->totalBarang,
                 'total_harga'=>0,
             ]);
-        $this->storeDetail($data->DataDetail, $persediaanMutasi->id);
+        $this->storeDetail($detailPersediaanOut, $persediaanMutasi->id);
         return $persediaanMutasi;
     }
 
-    public function update($data, $stockMutasiId)
+    public function update($data, $stockMutasiId, $detailPersediaanOut)
     {
         $data = (object) $data;
         $persediaanMutasi = $this->getDataById($stockMutasiId);
@@ -50,7 +50,8 @@ class PersediaanMutasiRepo
             'total_barang'=>$data->totalBarang,
             'total_harga'=>0,
         ]);
-        $this->storeDetail($data->DataDetail, $persediaanMutasi->id);
+        $persediaanMutasi = $this->getDataById($stockMutasiId);
+        $this->storeDetail($detailPersediaanOut, $persediaanMutasi->id);
         return $persediaanMutasi;
     }
 
@@ -58,6 +59,7 @@ class PersediaanMutasiRepo
     {
         foreach ($dataDetail as $item) {
             $item = (object) $item;
+            //dd($item);
             PersediaanMutasiDetail::query()
                 ->create([
                     'persediaan_mutasi_id'=>$persediaanMutasiId,

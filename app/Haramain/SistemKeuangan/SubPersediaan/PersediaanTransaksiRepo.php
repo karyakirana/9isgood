@@ -53,14 +53,19 @@ class PersediaanTransaksiRepo
     public function storeTransaksiMasuk($data, $persediaanableType, $persediaanableId, $detailStockOut = null)
     {
         $data = (object) $data;
+        if (isset($data->jenisMutasi)){
+            $kondisi = \Str::of($data->jenisMutasi)->after('_');
+        } else {
+            $kondisi = $data->kondisi;
+        }
         $persediaanTransaksi = PersediaanTransaksi::query()
             ->create([
                 'active_cash'=>session('ClosedCash'),
                 'kode'=>$this->kode(),
                 'jenis'=>'masuk', // masuk atau keluar
                 'tgl_input'=>tanggalan_database_format($data->tglInput, 'd-M-Y'),
-                'kondisi'=>$data->kondisi, // baik atau rusak
-                'gudang_id'=>$data->gudangId,
+                'kondisi'=>$kondisi, // baik atau rusak
+                'gudang_id'=>$data->gudangId ?? $data->gudangTujuanId,
                 'persediaan_type'=>$persediaanableType,
                 'persediaan_id'=>$persediaanableId,
             ]);
@@ -72,11 +77,16 @@ class PersediaanTransaksiRepo
     public function updateTransaksiMasuk($data, $persediaanableType, $persediaanableId, $detailStockOut = null)
     {
         $data = (object) $data;
+        if (isset($data->jenisMutasi)){
+            $kondisi = \Str::of($data->jenisMutasi)->after('_');
+        } else {
+            $kondisi = $data->kondisi;
+        }
         $this->getByPersediaanMasukLine($persediaanableType, $persediaanableId)->update([
             'jenis'=>'masuk', // masuk atau keluar
             'tgl_input'=>tanggalan_database_format($data->tglInput, 'd-M-Y'),
-            'kondisi'=>$data->kondisi, // baik atau rusak
-            'gudang_id'=>$data->gudangId,
+            'kondisi'=>$kondisi, // baik atau rusak
+            'gudang_id'=>$data->gudangId ?? $data->gudangTujuanId,
             'persediaan_type'=>$persediaanableType,
             'persediaan_id'=>$persediaanableId,
         ]);
@@ -128,14 +138,19 @@ class PersediaanTransaksiRepo
     public function storeTransaksiKeluar($data, $detailStockOut, $persediaanableType, $persediaanableId)
     {
         $data = (object) $data;
+        if (isset($data->jenisMutasi)){
+            $kondisi = \Str::of($data->jenisMutasi)->before('_');
+        } else {
+            $kondisi = $data->kondisi;
+        }
         $persediaanTransaksi = PersediaanTransaksi::query()
             ->create([
                 'active_cash'=>session('ClosedCash'),
                 'kode'=>$this->kode(),
                 'jenis'=>'keluar', // masuk atau keluar
                 'tgl_input'=>tanggalan_database_format($data->tglInput, 'd-M-Y'),
-                'kondisi'=>$data->kondisi, // baik atau rusak
-                'gudang_id'=>$data->gudangId,
+                'kondisi'=>$kondisi, // baik atau rusak
+                'gudang_id'=>$data->gudangId ?? $data->gudangAsalId,
                 'persediaan_type'=>$persediaanableType,
                 'persediaan_id'=>$persediaanableId,
             ]);
@@ -149,12 +164,16 @@ class PersediaanTransaksiRepo
     public function updateTransaksiKeluar($data, $detailStockOut, $persediaanableType, $persediaanableId)
     {
         $data = (object) $data;
-        $persediaanTransaksi = $this->getByPersediaanKeluarLine($persediaanableType, $persediaanableId);
-        $update = $persediaanTransaksi->update([
+        if (isset($data->jenisMutasi)){
+            $kondisi = \Str::of($data->jenisMutasi)->before('_');
+        } else {
+            $kondisi = $data->kondisi;
+        }
+        $this->getByPersediaanKeluarLine($persediaanableType, $persediaanableId)->update([
             'jenis'=>'keluar', // masuk atau keluar
             'tgl_input'=>tanggalan_database_format($data->tglInput, 'd-M-Y'),
-            'kondisi'=>$data->kondisi, // baik atau rusak
-            'gudang_id'=>$data->gudangId,
+            'kondisi'=>$kondisi, // baik atau rusak
+            'gudang_id'=>$data->gudangId ?? $data->gudangAsalId,
         ]);
         $persediaanTransaksi = $this->getByPersediaanKeluarLine($persediaanableType, $persediaanableId);
         $persediaanKeluar = $this->storeDetailKeluar($detailStockOut, $persediaanTransaksi->id, $persediaanTransaksi->gudang_id, $persediaanTransaksi->kondisi, $persediaanTransaksi->tgl_input);

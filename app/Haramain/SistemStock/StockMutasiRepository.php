@@ -59,7 +59,7 @@ class StockMutasiRepository
     public function update($data)
     {
         $data = (object) $data;
-        $stockMutasi = $this->getDataById($data->stockMutasiId);
+        $stockMutasi = $this->getDataById($data->mutasiId);
         $stockMutasi->update([
             'jenis_mutasi'=>$data->jenisMutasi,
             'gudang_asal_id'=>$data->gudangAsalId,

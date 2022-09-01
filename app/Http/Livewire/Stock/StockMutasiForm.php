@@ -2,16 +2,11 @@
 
 namespace App\Http\Livewire\Stock;
 
-use App\Haramain\Repository\Persediaan\PersediaanRepository;
 use App\Haramain\Repository\Stock\StockInventoryRepo;
-use App\Haramain\Repository\Stock\StockMutasiRepo;
-use App\Haramain\Service\SistemStock\StockMutasiService;
+use App\Haramain\SistemStock\StockMutasiService;
 use App\Models\Master\Gudang;
 use App\Models\Master\Produk;
 use App\Models\Stock\StockMutasi;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Livewire\Component;
 
 class StockMutasiForm extends Component
@@ -25,6 +20,7 @@ class StockMutasiForm extends Component
     public $mode = 'create';
     public $update = false;
     public $jenisMutasi;
+    public $userId;
 
     public $mutasiId;
 
@@ -179,6 +175,7 @@ class StockMutasiForm extends Component
         $this->tglMasuk = $this->tglMutasi;
         $this->totalBarang = array_sum(array_column($this->dataDetail, 'jumlah'));
         $this->totalHarga = 0;
+        $this->userId = auth()->id();
         return $this->validate([
             'mutasiId'=>($this->mutasiId) ? 'required' : 'nullable',
             'jenisMutasi'=>'required',
@@ -187,6 +184,7 @@ class StockMutasiForm extends Component
             'tglMutasi'=>'required',
             'keterangan'=>'nullable',
             'dataDetail'=>'required',
+            'userId'=>'required',
 
             'tglMasuk'=>'required',
             'tglKeluar'=>'required',
@@ -203,7 +201,7 @@ class StockMutasiForm extends Component
         if ($store->status){
             // redirect
             session()->flash('storeMessage', $store->keterangan);
-            return redirect()->to('penjualan/print/'.$store->keterangan->id);
+            return redirect()->to('stock/mutasi');
         }
         session()->flash('storeMessage', $store->keterangan);
         return null;
@@ -216,7 +214,7 @@ class StockMutasiForm extends Component
         if ($store->status){
             // redirect
             session()->flash('storeMessage', $store->keterangan);
-            return redirect()->to('penjualan/print/'.$store->keterangan->id);
+            return redirect()->to('stock/mutasi');
         }
         session()->flash('storeMessage', $store->keterangan);
         return null;
