@@ -1,6 +1,8 @@
 <?php namespace App\Haramain\SistemPenjualan;
 
+use App\Haramain\ServiceInterface;
 use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiRepo;
+use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiServiceTrait;
 use App\Haramain\SistemKeuangan\SubKasir\PiutangPenjualanRepo;
 use App\Haramain\SistemKeuangan\SubNeraca\NeracaSaldoRepository;
 use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanTransaksiRepo;
@@ -8,9 +10,9 @@ use App\Haramain\SistemStock\StockKeluarRepository;
 use App\Models\KonfigurasiJurnal;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class PenjualanService
+class PenjualanService implements ServiceInterface
 {
-    use PenjualanServiceTrait;
+    use JurnalTransaksiServiceTrait;
 
     protected $penjualanRepository;
     protected $stockKeluarRepository;
@@ -46,9 +48,9 @@ class PenjualanService
         $this->akunPersediaanPerak = KonfigurasiJurnal::query()->firstWhere('config', 'persediaan_baik_perak')->akun_id;
     }
 
-    public function handleGetData($penjualanId)
+    public function handleGetData($id)
     {
-        return $this->penjualanRepository->getDataById($penjualanId);
+        return $this->penjualanRepository->getDataById($id);
     }
 
     public function handleStore($data)
@@ -60,7 +62,8 @@ class PenjualanService
             // store stock keluar dan stock inventory
             $stockKeluar = $this->stockKeluarRepository->store($data, $penjualan::class, $penjualan->id);
             // store persediaan transaksi
-            $persediaanTransaksi = $this->persediaanTransaksiRepo->storeTransaksiKeluar($data, $penjualan::class, $penjualan->id);
+            $persediaanGetStockOut = $this->persediaanTransaksiRepo->getPersediaanByDetailForOut($data['dataDetail'], 'baik', $penjualan->gudang_id);
+            $persediaanTransaksi = $this->persediaanTransaksiRepo->storeTransaksiKeluar($data, $persediaanGetStockOut, $penjualan::class, $penjualan->id);
             // store piutang penjualan
             $this->piutangPenjualanRepo->store($data, $penjualan::class, $penjualan->id);
             $this->jurnal($data, $penjualan, $persediaanTransaksi);
@@ -87,11 +90,12 @@ class PenjualanService
             // rollback
             $this->rollback($penjualan);
             // update penjualan
-            $this->penjualanRepository->update($data);
+            $penjualan = $this->penjualanRepository->update($data);
             // update stock keluar
             $this->stockKeluarRepository->update($data, $penjualan::class, $penjualan->id);
             // update persediaan transaksi
-            $persediaanTransaksi = $this->persediaanTransaksiRepo->updateTransaksiKeluar($data, $penjualan::class, $penjualan->id);
+            $persediaanGetStockOut = $this->persediaanTransaksiRepo->getPersediaanByDetailForOut($data['dataDetail'], 'baik', $penjualan->gudang_id);
+            $persediaanTransaksi = $this->persediaanTransaksiRepo->updateTransaksiKeluar($data, $persediaanGetStockOut, $penjualan::class, $penjualan->id);
             // update piutang penjualan
             $this->piutangPenjualanRepo->update($data, $penjualan::class, $penjualan->id);
             $this->jurnal($data, $penjualan, $persediaanTransaksi);
@@ -109,20 +113,20 @@ class PenjualanService
         }
     }
 
-    public function handleDestroy($penjualanId)
+    public function handleDestroy($id)
     {
         \DB::beginTransaction();
         try {
             // initiate
-            $penjualan = $this->penjualanRepository->getDataById($penjualanId);
+            $penjualan = $this->penjualanRepository->getDataById($id);
             // destroy stock keluar
-            $this->stockKeluarRepository->rollback($penjualan::class, $penjualan->id);
+            $this->stockKeluarRepository->destory($penjualan::class, $penjualan->id);
             // destroy persediaan transaksi
-            $this->persediaanTransaksiRepo->rollbackKeluar($penjualan::class, $penjualan->id);
+            $this->persediaanTransaksiRepo->destroyKeluar($penjualan::class, $penjualan->id);
             // destroy piutang penjualan
             $this->piutangPenjualanRepo->destroy($penjualan::class, $penjualan->id);
             // destroy penjualan
-            $this->penjualanRepository->rollback($penjualanId);
+            $this->penjualanRepository->destroy($id);
             \DB::commit();
             return (object)[
                 'status'=>true,
@@ -148,7 +152,7 @@ class PenjualanService
         // penjualan
         $this->penjualanRepository->rollback($penjualan->id);
         // rollback jurnal
-        $this->jurnalRollback($penjualan);
+        $this->rollbackJurnalAndSaldo($penjualan);
     }
 
     protected function jurnal($data, $penjualan, $persediaanTransaksi)

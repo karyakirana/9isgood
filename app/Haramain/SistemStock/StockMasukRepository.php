@@ -87,8 +87,7 @@ class StockMasukRepository implements StockTransaksiInterface
         }
         $gudang = $data->gudangId ?? $data->gudangTujuanId;
         $tglMasuk = $data->tglNota ?? $data->tglMutasi;
-        $stockMasuk = $this->getDataById($stockableType, $stockableId);
-        $stockMasuk->update([
+        $this->getDataById($stockableType, $stockableId)->update([
             'stockable_masuk_id'=>$stockableId,
             'stockable_masuk_type'=>$stockableType,
             'kondisi'=>$kondisi,
@@ -100,8 +99,9 @@ class StockMasukRepository implements StockTransaksiInterface
             'nomor_surat_jalan'=>$data->suratJalan ?? '-',
             'keterangan'=>$data->keterangan,
         ]);
+        $stockMasuk = $this->getDataById($stockableType, $stockableId);
         $this->storeDetail($data->dataDetail, $gudang, $kondisi, $stockMasuk->id);
-        return  $stockMasuk;
+        return $stockMasuk;
     }
 
     public function rollback($stockableType, $stockableId)

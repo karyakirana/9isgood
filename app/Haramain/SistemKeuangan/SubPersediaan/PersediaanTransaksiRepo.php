@@ -50,7 +50,7 @@ class PersediaanTransaksiRepo
             ->first();
     }
 
-    public function storeTransaksiMasuk($data, $persediaanableType, $persediaanableId)
+    public function storeTransaksiMasuk($data, $persediaanableType, $persediaanableId, $detailStockOut = null)
     {
         $data = (object) $data;
         $persediaanTransaksi = PersediaanTransaksi::query()
@@ -64,15 +64,15 @@ class PersediaanTransaksiRepo
                 'persediaan_type'=>$persediaanableType,
                 'persediaan_id'=>$persediaanableId,
             ]);
-        $this->storeDetailMasuk($data->dataDetail, $persediaanTransaksi->id, $persediaanTransaksi->gudang_id, $persediaanTransaksi->kondisi, $persediaanTransaksi->tgl_input);
+        $dataDetail = $detailStockOut ?? $data->dataDetail;
+        $this->storeDetailMasuk($dataDetail, $persediaanTransaksi->id, $persediaanTransaksi->gudang_id, $persediaanTransaksi->kondisi, $persediaanTransaksi->tgl_input);
         return $persediaanTransaksi;
     }
 
-    public function updateTransaksiMasuk($data, $persediaanableType, $persediaanableId)
+    public function updateTransaksiMasuk($data, $persediaanableType, $persediaanableId, $detailStockOut = null)
     {
         $data = (object) $data;
-        $persediaanTransaksi = $this->getByPersediaanMasukLine($persediaanableType, $persediaanableId);
-        $persediaanTransaksi->update([
+        $this->getByPersediaanMasukLine($persediaanableType, $persediaanableId)->update([
             'jenis'=>'masuk', // masuk atau keluar
             'tgl_input'=>tanggalan_database_format($data->tglInput, 'd-M-Y'),
             'kondisi'=>$data->kondisi, // baik atau rusak
@@ -80,7 +80,9 @@ class PersediaanTransaksiRepo
             'persediaan_type'=>$persediaanableType,
             'persediaan_id'=>$persediaanableId,
         ]);
-        $this->storeDetailMasuk($data->dataDetail, $persediaanTransaksi->id, $persediaanTransaksi->gudang_id, $persediaanTransaksi->kondisi, $persediaanTransaksi->tgl_input);
+        $persediaanTransaksi = $this->getByPersediaanMasukLine($persediaanableType, $persediaanableId);
+        $dataDetail = $detailStockOut ?? $data->dataDetail;
+        $this->storeDetailMasuk($dataDetail, $persediaanTransaksi->id, $persediaanTransaksi->gudang_id, $persediaanTransaksi->kondisi, $persediaanTransaksi->tgl_input);
         return $persediaanTransaksi;
     }
 
@@ -110,7 +112,20 @@ class PersediaanTransaksiRepo
             ->first();
     }
 
-    public function storeTransaksiKeluar($data, $persediaanableType, $persediaanableId)
+    public function getPersediaanByDetailForOut($dataDetail, $kondisi, $gudangId)
+    {
+        $returnData = [];
+        foreach ($dataDetail as $item) {
+            $itemObject = (object) $item;
+            $dataFromPersediaan = $this->persediaanRepository->getStockOut($gudangId,$kondisi, $itemObject);
+            foreach ($dataFromPersediaan as $persediaan) {
+                $returnData[] = $persediaan;
+            }
+        }
+        return $returnData;
+    }
+
+    public function storeTransaksiKeluar($data, $detailStockOut, $persediaanableType, $persediaanableId)
     {
         $data = (object) $data;
         $persediaanTransaksi = PersediaanTransaksi::query()
@@ -124,24 +139,25 @@ class PersediaanTransaksiRepo
                 'persediaan_type'=>$persediaanableType,
                 'persediaan_id'=>$persediaanableId,
             ]);
-        $persediaanKeluar = $this->storeDetailKeluar($data->dataDetail, $persediaanTransaksi->id, $persediaanTransaksi->gudang_id, $persediaanTransaksi->kondisi, $persediaanTransaksi->tgl_input);
+        $persediaanKeluar = $this->storeDetailKeluar($detailStockOut, $persediaanTransaksi->id, $persediaanTransaksi->gudang_id, $persediaanTransaksi->kondisi, $persediaanTransaksi->tgl_input);
         return (object)[
             'persediaanTransaksi'=>$persediaanTransaksi,
             'totalPersediaanKeluar'=>$persediaanKeluar
         ];
     }
 
-    public function updateTransaksiKeluar($data, $persediaanableType, $persediaanableId)
+    public function updateTransaksiKeluar($data, $detailStockOut, $persediaanableType, $persediaanableId)
     {
         $data = (object) $data;
         $persediaanTransaksi = $this->getByPersediaanKeluarLine($persediaanableType, $persediaanableId);
-        $persediaanTransaksi->update([
+        $update = $persediaanTransaksi->update([
             'jenis'=>'keluar', // masuk atau keluar
             'tgl_input'=>tanggalan_database_format($data->tglInput, 'd-M-Y'),
             'kondisi'=>$data->kondisi, // baik atau rusak
             'gudang_id'=>$data->gudangId,
         ]);
-        $persediaanKeluar = $this->storeDetailKeluar($data->dataDetail, $persediaanTransaksi->id, $persediaanTransaksi->gudang_id, $persediaanTransaksi->kondisi, $persediaanTransaksi->tgl_input);
+        $persediaanTransaksi = $this->getByPersediaanKeluarLine($persediaanableType, $persediaanableId);
+        $persediaanKeluar = $this->storeDetailKeluar($detailStockOut, $persediaanTransaksi->id, $persediaanTransaksi->gudang_id, $persediaanTransaksi->kondisi, $persediaanTransaksi->tgl_input);
         return (object)[
             'persediaanTransaksi'=>$persediaanTransaksi,
             'totalPersediaanKeluar'=>$persediaanKeluar
@@ -157,9 +173,9 @@ class PersediaanTransaksiRepo
             // dd($getStockOut);
 
             foreach ($getStockOut as $row){
-                // dd($row['persediaan_id']);
                 $row = (object) $row;
-                PersediaanTransaksiDetail::query()->create([
+                //dd($persediaanTransaksiId);
+                PersediaanTransaksiDetail::query()->insert([
                     'persediaan_transaksi_id'=>$persediaanTransaksiId,
                     'persediaan_id'=>$row->persediaan_id,
                     'produk_id'=>$row->jumlah,
@@ -180,17 +196,31 @@ class PersediaanTransaksiRepo
     {
         $persediaanTransaksi = $this->getByPersediaanMasukLine($persediaanableType, $persediaanableId);
         $persediaanTransaksiDetail = PersediaanTransaksiDetail::query()->where('persediaan_transaksi_id', $persediaanTransaksi->id);
-        foreach ($persediaanTransaksiDetail as $item) {
+        foreach ($persediaanTransaksiDetail->get() as $item) {
             $this->persediaanRepository->rollbackIn($item->persediaan_id, $item->jumlah);
         }
+        $persediaanTransaksiDetail->delete();
+        return $persediaanTransaksi;
+    }
+
+    public function destroyMasuk($persediaanableType, $persediaanableId)
+    {
+        return $this->rollbackMasuk($persediaanableType, $persediaanableId)->delete();
     }
 
     public function rollbackKeluar($persediaanableType, $persediaanableId)
     {
         $persediaanTransaksi = $this->getByPersediaanKeluarLine($persediaanableType, $persediaanableId);
         $persediaanTransaksiDetail = PersediaanTransaksiDetail::query()->where('persediaan_transaksi_id', $persediaanTransaksi->id);
-        foreach ($persediaanTransaksiDetail as $item) {
-            $this->persediaanRepository->rollbackIn($item->persediaan_id, $item->jumlah);
+        foreach ($persediaanTransaksiDetail->get() as $item) {
+            $this->persediaanRepository->rollbackOut($item->persediaan_id, $item->jumlah);
         }
+        $persediaanTransaksiDetail->delete();
+        return $persediaanTransaksi;
+    }
+
+    public function destroyKeluar($persediaanableType, $persediaanableId)
+    {
+        return $this->rollbackKeluar($persediaanableType, $persediaanableId)->delete();
     }
 }

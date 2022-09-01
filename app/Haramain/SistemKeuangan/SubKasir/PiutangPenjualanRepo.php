@@ -22,7 +22,7 @@ class PiutangPenjualanRepo
 
     public function getDataAll()
     {
-        return;
+        return PiutangPenjualan::all();
     }
 
     public function store($data, $piutangableType, $piutangableId, $jurnalSetPiutangAwalId = null)
@@ -45,16 +45,16 @@ class PiutangPenjualanRepo
     public function update($data, $piutangableType, $piutangableId, $jurnalSetPiutangAwalId = null)
     {
         $data = (object) $data;
-        $piutangPenjualan = $this->getDataById($piutangableType, $piutangableId);
-        $piutangPenjualan->update([
-            'saldo_piutang_penjualan_id'=>$data->customerId,
-            'jurnal_set_piutang_awal_id'=>$jurnalSetPiutangAwalId,
-            'status_bayar'=>$data->statusBayar, // enum ['lunas', 'belum', 'kurang']
-            'kurang_bayar'=>$data->totalBayar,
-        ]);
+        $this->getDataById($piutangableType, $piutangableId)
+            ->update([
+                'saldo_piutang_penjualan_id'=>$data->customerId,
+                'jurnal_set_piutang_awal_id'=>$jurnalSetPiutangAwalId,
+                'status_bayar'=>$data->statusBayar, // enum ['lunas', 'belum', 'kurang']
+                'kurang_bayar'=>$data->totalBayar,
+            ]);
         // update saldo piutang penjualan
         $this->saldoPiutangPenjualanRepo->penjualan($data->customerId, $data->totalBayar);
-        return $piutangPenjualan;
+        return $this->getDataById($piutangableType, $piutangableId);
     }
 
     public function rollback($piutangableType, $piutangableId)

@@ -69,8 +69,7 @@ class PembelianRepository implements PembelianInterface
     public function update($data)
     {
         $data = (object) $data;
-        $pembelian = $this->getDataById($data->pembelianId);
-        $pembelian->update([
+        $pembelian = $this->getDataById($data->pembelianId)->update([
             'nomor_nota'=>$data->nomorNota,
             'nomor_surat_jalan'=>$data->suratJalan,
             'jenis'=>$data->jenis,
@@ -88,8 +87,8 @@ class PembelianRepository implements PembelianInterface
             'keterangan'=>$data->keterangan,
             'print'=>1,
         ]);
-        $this->storeDetail($data->dataDetail, $pembelian->id);
-        return $pembelian;
+        $this->storeDetail($data->dataDetail, $data->pembelianId);
+        return $this->getDataById($data->pembelianId);
     }
 
     public function rollback($pembelianId)

@@ -2,6 +2,9 @@
 
 use App\Models\Penjualan\Penjualan;
 use App\Models\Penjualan\PenjualanDetail;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class PenjualanRepository implements PenjualanInterface
 {
@@ -60,6 +63,10 @@ class PenjualanRepository implements PenjualanInterface
         return $penjualan;
     }
 
+    /**
+     * @param object|array $data
+     * @return Builder|Builder[]|Collection|Model|null
+     */
     public function update(object|array $data)
     {
         $data = (object) $data;
@@ -79,6 +86,7 @@ class PenjualanRepository implements PenjualanInterface
             'keterangan'=>$data->keterangan,
         ]);
         $penjualan->increment('print');
+        $penjualan = $this->getDataById($data->penjualanId);
         $this->storeDetail($data->dataDetail, $penjualan->id);
         return $penjualan;
     }

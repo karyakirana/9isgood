@@ -105,7 +105,7 @@ class StockKeluarRepository implements StockTransaksiInterface
         $stockKeluar = $this->getDataById($stockableType, $stockableId);
         $stockKeluarDetail = StockKeluarDetail::query()->where('stock_keluar_id', $stockKeluar->id);
         // rollback stock inventory
-        foreach ($stockKeluarDetail as $item) {
+        foreach ($stockKeluarDetail->get() as $item) {
             $this->stockInventoryRepo->rollback($stockKeluar->kondisi, $stockKeluar->gudang_id, 'stock_keluar', $item);
         }
         return $stockKeluarDetail->delete();

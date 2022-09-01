@@ -147,8 +147,9 @@ class PersediaanRepository
 
     public function getStockOut($gudangId, $kondisi, $dataItem, $tglInput = null)
     {
-        $produkId = $dataItem['produk_id'] ?? $dataItem->produk_id;
-        $jumlah = $dataItem['jumlah'] ?? $dataItem->jumlah;
+        // dd($dataItem);
+        $produkId = $dataItem->produk_id ?? $dataItem['produk_id'];
+        $jumlah = $dataItem->jumlah ?? $dataItem['jumlah'];
         // check barang
         $query = Persediaan::query()
             ->where('active_cash', session('ClosedCash'))
@@ -173,7 +174,7 @@ class PersediaanRepository
                     $itemJumlah -= $data->stock_saldo;
                     $returnItem[] = [
                         'persediaan_id'=>$data->id, // persediaan id
-                        'produk_id'=>$dataItem['produk_id'],
+                        'produk_id'=>$dataItem->produk_id,
                         'harga'=>$data->harga,
                         'jumlah'=> $jumlah,
                         'sub_total'=>$data->harga * $jumlah
@@ -194,7 +195,7 @@ class PersediaanRepository
                         // data terakhir break
                         $returnItem[] = [
                             'persediaan_id'=>$data->id, // persediaan id
-                            'produk_id'=>$dataItem['produk_id'],
+                            'produk_id'=>$produkId,
                             'harga'=>$data->harga,
                             'jumlah'=> $itemJumlah,
                             'tgl_input'=> $data->tgl_input,
@@ -205,7 +206,7 @@ class PersediaanRepository
                     $itemJumlah -= $data->stock_saldo;
                     $returnItem[] = [
                         'persediaan_id'=>$data->id, // persediaan id
-                        'produk_id'=>$dataItem['produk_id'],
+                        'produk_id'=>$produkId,
                         'harga'=>$data->harga,
                         'jumlah'=> $data->stock_saldo,
                         'tgl_input'=> $data->tgl_input,
@@ -216,15 +217,15 @@ class PersediaanRepository
         } else {
             // create
             $hpp = HargaHppALL::query()->latest()->first()->persen;
-            $harga = $dataItem->harga ?? $dataItem['harga'];
-            $itemJumlah = $dataItem->jumlah ?? $dataItem['jumlah'];
+            $harga = $dataItem->harga;
+            $itemJumlah = $jumlah;
             $hargaHpp = $harga * $hpp;
             $create = Persediaan::query()->create([
                 'active_cash'=>session('ClosedCash'),
                 'jenis'=>$kondisi,// baik or buruk
                 'tgl_input'=>$tglInput,
                 'gudang_id'=>$gudangId,
-                'produk_id'=>$dataItem->produk_id ?? $dataItem['produk_id'],
+                'produk_id'=>$produkId,
                 'harga'=>$hargaHpp,
                 'stock_masuk'=>0,
                 'stock_keluar'=>$itemJumlah,
@@ -232,7 +233,7 @@ class PersediaanRepository
             ]);
             $returnItem[] = [
                 'persediaan_id'=>$create->id, // persediaan id
-                'produk_id'=>$dataItem['produk_id'],
+                'produk_id'=>$produkId,
                 'harga'=> $create->harga,
                 'jumlah'=> $itemJumlah,
                 'tgl_input'=> $tglInput,
@@ -256,7 +257,7 @@ class PersediaanRepository
         // check barang
         $query = Persediaan::query()->find($persediaanId);
         $query->decrement('stock_keluar', $jumlah);
-        $query->increment('stock_saldo');
+        $query->increment('stock_saldo', $jumlah);
         return $query;
     }
 }
