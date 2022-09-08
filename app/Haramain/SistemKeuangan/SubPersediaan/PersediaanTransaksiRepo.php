@@ -15,7 +15,8 @@ class PersediaanTransaksiRepo
     protected function kode()
     {
         $query = PersediaanTransaksi::query()
-            ->where('active_cash', session('ClosedCash'));
+            ->where('active_cash', session('ClosedCash'))
+            ->latest();
 
         if ($query->doesntExist()){
             return '0001/PD/'.date('Y');
@@ -47,7 +48,7 @@ class PersediaanTransaksiRepo
             ->where('persediaan_type', $persediaanableType)
             ->where('persediaan_id', $persediaanableId)
             ->where('jenis', 'masuk')
-            ->first();
+            ->firstOrFail();
     }
 
     public function storeTransaksiMasuk($data, $persediaanableType, $persediaanableId, $detailStockOut = null)
@@ -197,7 +198,7 @@ class PersediaanTransaksiRepo
                 PersediaanTransaksiDetail::query()->insert([
                     'persediaan_transaksi_id'=>$persediaanTransaksiId,
                     'persediaan_id'=>$row->persediaan_id,
-                    'produk_id'=>$row->jumlah,
+                    'produk_id'=>$row->produk_id,
                     'harga'=>$row->harga,
                     'jumlah'=>$row->jumlah,
                     'sub_total'=>$row->sub_total,
