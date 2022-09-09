@@ -13,14 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::connection('mysql2')->create('persediaan_perpetual', function (Blueprint $table) {
+        Schema::create('stock_opname_koreksi_detail', function (Blueprint $table) {
             $table->id();
-            $table->string('active_cash');
-            $table->string('jenis')->nullable();
-            $table->enum('kondisi', ['baik', 'rusak']);
-            $table->unsignedBigInteger('gudang_id');
+            $table->unsignedBigInteger('stock_opname_koreksi_id');
             $table->unsignedBigInteger('produk_id');
-            $table->bigInteger('harga');
             $table->bigInteger('jumlah');
             $table->timestamps();
         });
@@ -33,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::connection('mysql2')->dropIfExists('persediaan_perpetual');
+        Schema::dropIfExists('stock_opname_koreksi_detail');
     }
 };

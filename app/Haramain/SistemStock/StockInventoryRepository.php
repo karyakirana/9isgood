@@ -17,14 +17,34 @@ class StockInventoryRepository
         return $stock->increment('stock_saldo', $dataItem->jumlah);
     }
 
+    public function updateDecrement($kondisi, $gudangId, $field, $dataItem)
+    {
+        $stock = $this->query($kondisi, $gudangId, $dataItem);
+        $stock->increment($field, $dataItem->jumlah);
+        return $stock->decrement('stock_saldo', $dataItem->jumlah);
+    }
+
     public function rollback($kondisi, $gudangId, $field, $dataItem)
     {
         $query = $this->query($kondisi, $gudangId, $dataItem);
+        if ($query->doesntExist()){
+            return null;
+        }
         $query->decrement($field, $dataItem->jumlah);
         if ($field == 'stock_keluar'){
             return $query->increment('stock_saldo', $dataItem->jumlah);
         }
         return $query->decrement('stock_saldo', $dataItem->jumlah);
+    }
+
+    public function rollbackDecrement($kondisi, $gudangId, $field, $dataItem)
+    {
+        $query = $this->query($kondisi, $gudangId, $dataItem);
+        if ($query->doesntExist()){
+            return null;
+        }
+        $query->increment($field, $dataItem->jumlah);
+        return $query->increment('stock_saldo', $dataItem->jumlah);
     }
 
     protected function create($kondisi, $gudangId, $field, $dataItem)
