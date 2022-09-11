@@ -10,6 +10,7 @@ use App\Models\Stock\StockMutasi;
 use App\Models\Stock\StockMutasiDetail;
 use App\Models\Stock\StockOpname;
 use App\Models\Stock\StockOpnameDetail;
+use App\Models\Stock\StockOpnameKoreksiDetail;
 use Livewire\Component;
 
 class StockCardTestTable extends Component
@@ -46,6 +47,36 @@ class StockCardTestTable extends Component
             ->where('stock_opname.jenis', 'baik')
             ->where('stock_opname.gudang_id', $this->gudang_id)
             ->where('stock_opname_detail.produk_id', $this->produk_id);
+
+        $stockOpnameRevisiTambah = StockOpnameKoreksiDetail::query()
+            ->select([
+                'tgl_input as tanggal',
+                'stock_opname_koreksi.kode as kode',
+                'produk.nama as nama',
+            ])
+            ->selectRaw('NULL as nama_keterangan, stock_opname_koreksi_detail.jumlah as jumlah_masuk, NULL as jumlah_keluar')
+            ->join('stock_opname_koreksi', 'stock_opname_koreksi.id', '=', 'stock_opname_koreksi_detail.stock_opname_koreksi_id')
+            ->join('produk', 'produk.id', '=', 'stock_opname_koreksi_detail.produk_id')
+            ->where('stock_opname_koreksi.active_cash', session('ClosedCash'))
+            ->where('stock_opname_koreksi.jenis', 'tambah')
+            ->where('stock_opname_koreksi.kondisi', 'baik')
+            ->where('stock_opname_koreksi.gudang_id', $this->gudang_id)
+            ->where('stock_opname_koreksi_detail.produk_id', $this->produk_id);
+
+        $stockOpnameRevisiKurang = StockOpnameKoreksiDetail::query()
+            ->select([
+                'tgl_input as tanggal',
+                'stock_opname_koreksi.kode as kode',
+                'produk.nama as nama',
+            ])
+            ->selectRaw('NULL as nama_keterangan, NULL as jumlah_masuk, stock_opname_koreksi_detail.jumlah as jumlah_keluar')
+            ->join('stock_opname_koreksi', 'stock_opname_koreksi.id', '=', 'stock_opname_koreksi_detail.stock_opname_koreksi_id')
+            ->join('produk', 'produk.id', '=', 'stock_opname_koreksi_detail.produk_id')
+            ->where('stock_opname_koreksi.active_cash', session('ClosedCash'))
+            ->where('stock_opname_koreksi.jenis', 'kurang')
+            ->where('stock_opname_koreksi.kondisi', 'baik')
+            ->where('stock_opname_koreksi.gudang_id', $this->gudang_id)
+            ->where('stock_opname_koreksi_detail.produk_id', $this->produk_id);
 
         $mutasiKeluar = StockMutasiDetail::query()
             ->select([
@@ -108,6 +139,8 @@ class StockCardTestTable extends Component
             ->unionAll($mutasiMasuk)
             ->unionAll($mutasiKeluar)
             ->unionAll($stockOpname)
+            ->unionAll($stockOpnameRevisiKurang)
+            ->unionAll($stockOpnameRevisiTambah)
             ->oldest('tanggal')
             ->get();
         return $penjualanDetail;
