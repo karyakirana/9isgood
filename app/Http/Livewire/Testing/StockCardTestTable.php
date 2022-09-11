@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Testing;
 
 use App\Models\Master\Gudang;
 use App\Models\Penjualan\PenjualanDetail;
+use App\Models\Penjualan\PenjualanReturDetail;
 use App\Models\Purchase\Pembelian;
 use App\Models\Purchase\PembelianDetail;
 use App\Models\Stock\StockMutasi;
@@ -121,6 +122,21 @@ class StockCardTestTable extends Component
             ->where('pembelian.gudang_id', $this->gudang_id)
             ->where('pembelian_detail.produk_id', $this->produk_id);
 
+        $penjualanReturDetail = PenjualanReturDetail::query()
+            ->select([
+                'tgl_nota as tanggal',
+                'penjualan_retur.kode as kode',
+                'produk.nama as nama',
+                'customer.nama as nama_keterangan'
+            ])
+            ->selectRaw('penjualan_retur_detail.jumlah as jumlah_masuk, NULL as jumlah_keluar')
+            ->join('penjualan_retur', 'penjualan_retur.id', '=', 'penjualan_retur_detail.penjualan_retur_id')
+            ->join('customer', 'customer.id', '=', 'penjualan_retur.customer_id')
+            ->join('produk', 'produk.id', '=', 'penjualan_retur_detail.produk_id')
+            ->where('penjualan_retur.active_cash', session('ClosedCash'))
+            ->where('penjualan_retur.gudang_id', $this->gudang_id)
+            ->where('penjualan_retur_detail.produk_id', $this->produk_id);
+
         $penjualanDetail = PenjualanDetail::query()
             ->select([
                 'tgl_nota as tanggal',
@@ -135,6 +151,7 @@ class StockCardTestTable extends Component
             ->where('penjualan.active_cash', session('ClosedCash'))
             ->where('penjualan.gudang_id', $this->gudang_id)
             ->where('penjualan_detail.produk_id', $this->produk_id)
+            ->unionAll($penjualanReturDetail)
             ->unionAll($pembelian)
             ->unionAll($mutasiMasuk)
             ->unionAll($mutasiKeluar)
