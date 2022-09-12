@@ -672,6 +672,42 @@
                                     </div>
                                     <!--end:Menu item-->
                                 @endforeach
+                                <!--begin:Menu item-->
+                                <div class="menu-item">
+                                    <!--begin:Menu link-->
+                                    <a class="menu-link {{request()->is('stock/opname/koreksi') ? 'active' : ''}}" href="{{url('/').'/stock/opname/koreksi'}}">
+                                                <span class="menu-bullet">
+                                                    <span class="bullet bullet-dot"></span>
+                                                </span>
+                                        <span class="menu-title">Stock Opname Koreksi</span>
+                                    </a>
+                                    <!--end:Menu link-->
+                                </div>
+                                <!--end:Menu item-->
+                                <!--begin:Menu item-->
+                                <div class="menu-item">
+                                    <!--begin:Menu link-->
+                                    <a class="menu-link {{request()->is('stock/opname/koreksi/form/tambah*') ? 'active' : ''}}" href="{{url('/').'/stock/opname/koreksi/form/tambah'}}">
+                                                <span class="menu-bullet">
+                                                    <span class="bullet bullet-dot"></span>
+                                                </span>
+                                        <span class="menu-title">Stock Opname Tambah Form</span>
+                                    </a>
+                                    <!--end:Menu link-->
+                                </div>
+                                <!--end:Menu item-->
+                                <!--begin:Menu item-->
+                                <div class="menu-item">
+                                    <!--begin:Menu link-->
+                                    <a class="menu-link {{request()->is('stock/opname/koreksi/form/kurang*') ? 'active' : ''}}" href="{{url('/').'/stock/opname/koreksi/form/kurang'}}">
+                                                <span class="menu-bullet">
+                                                    <span class="bullet bullet-dot"></span>
+                                                </span>
+                                        <span class="menu-title">Stock Opname Kurang Form</span>
+                                    </a>
+                                    <!--end:Menu link-->
+                                </div>
+                                <!--end:Menu item-->
                             </div>
                             <!--end:Menu sub-->
                         </div>
@@ -1168,6 +1204,56 @@
                         </div>
                         <!--end:Menu item-->
                     </div>
+                    <!--end:Menu sub-->
+                    <!--begin:Menu sub-->
+                    <div class="menu-sub menu-sub-accordion menu-active-bg">
+                        <!--begin:Menu item-->
+                        <div data-kt-menu-trigger="click" class="menu-item {{request()->is('kasir/penerimaan/*') ? 'here show' : ''}} menu-accordion">
+                            <!--begin:Menu link-->
+                            <span class="menu-link">
+													<span class="menu-bullet">
+														<span class="bullet bullet-dot"></span>
+													</span>
+                                <span class="menu-title">Pengeluaran</span>
+                                <span class="menu-arrow"></span>
+                            </span>
+                            <!--end:Menu link-->
+                            <!--begin:Menu sub-->
+                            <div class="menu-sub menu-sub-accordion">
+                                <!--begin:Menu item-->
+                                <div class="menu-item">
+                                    <!--begin:Menu link-->
+                                    <a class="menu-link {{request()->is('kasir/penerimaan/penjualan') ? 'active' : ''}}" href="{{route('kasir.penerimaan.penjualan')}}">
+													<span class="menu-bullet">
+														<span class="bullet bullet-dot"></span>
+													</span>
+                                        <span class="menu-title">Pengeluaran Pembelian</span>
+                                    </a>
+                                    <!--end:Menu link-->
+                                    <!--begin:Menu link-->
+                                    <a class="menu-link {{request()->is('kasir/penerimaan/penjualan') ? 'active' : ''}}" href="{{route('kasir.penerimaan.penjualan')}}">
+													<span class="menu-bullet">
+														<span class="bullet bullet-dot"></span>
+													</span>
+                                        <span class="menu-title">Pengeluaran Pembelian Form</span>
+                                    </a>
+                                    <!--end:Menu link-->
+                                    <!--begin:Menu link-->
+                                    <a class="menu-link {{request()->is('kasir/penerimaan/penjualan') ? 'active' : ''}}" href="{{route('kasir.penerimaan.penjualan')}}">
+													<span class="menu-bullet">
+														<span class="bullet bullet-dot"></span>
+													</span>
+                                        <span class="menu-title">Hutang</span>
+                                    </a>
+                                    <!--end:Menu link-->
+                                </div>
+                                <!--end:Menu item-->
+                            </div>
+                            <!--end:Menu sub-->
+                        </div>
+                        <!--begin:Menu item-->
+                    </div>
+                    <!--end:Menu sub-->
                 </div>
                 <!--end:Menu item-->
                 <!--begin:Menu item-->
