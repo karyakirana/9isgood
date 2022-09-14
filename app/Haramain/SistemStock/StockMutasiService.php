@@ -4,7 +4,7 @@ use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiRepo;
 use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiServiceTrait;
 use App\Haramain\SistemKeuangan\SubNeraca\NeracaSaldoRepository;
 use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanMutasiRepo;
-use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanTransaksiRepo;
+use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanTransaksiRepository;
 use App\Models\KonfigurasiJurnal;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -34,7 +34,7 @@ class StockMutasiService
         $this->stockMasukRepo = new StockMasukRepository();
         $this->stockKeluarRepo = new StockKeluarRepository();
         $this->persediaanMutasiRepo = new PersediaanMutasiRepo();
-        $this->persediaanTransaksiRepo = new PersediaanTransaksiRepo();
+        $this->persediaanTransaksiRepo = new PersediaanTransaksiRepository();
         $this->jurnalTransaksiRepo = new JurnalTransaksiRepo();
         $this->neracaSaldoRepo = new NeracaSaldoRepository();
 

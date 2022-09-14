@@ -1,71 +1,87 @@
 <?php namespace App\Haramain\SistemStock;
 
 use App\Models\Stock\StockInventory;
+use Illuminate\Database\RecordsNotFoundException;
 
 class StockInventoryRepository
 {
-    public function update($kondisi, $gudangId, $field, $dataItem)
+    protected $kondisi;
+    protected $gudangId;
+    protected $field;
+    protected $produk_id;
+    protected $jumlah;
+
+    public function __construct($kondisi, $gudangId, $dataItem)
     {
-        $stock = $this->query($kondisi, $gudangId, $dataItem);
+        $this->kondisi = $kondisi;
+        $this->gudangId = $gudangId;
+        (is_array($dataItem)) ? $this->setFromArray($dataItem) : $this->setFromObject($dataItem);
+    }
+
+    public static function build($kondisi, $gudangId, $dataItem)
+    {
+        return new static($kondisi, $gudangId, $dataItem);
+    }
+
+    protected function setFromArray($dataItem)
+    {
+        $this->produk_id = $dataItem['produk_id'];
+        $this->jumlah = $dataItem['jumlah'];
+    }
+
+    protected function setFromObject($dataItem)
+    {
+        $this->produk_id = $dataItem->produk_id;
+        $this->jumlah = $dataItem->jumlah;
+    }
+
+    public function update($field)
+    {
+        $this->field = $field;
+        $stock = $this->query();
         if ($stock->doesntExist()){
-            return $this->create($kondisi, $gudangId, $field, $dataItem);
+            return $this->create();
         }
-        $stock->increment($field, $dataItem->jumlah);
-        if ($field == 'stock_keluar'){
-            return $stock->decrement('stock_saldo', $dataItem->jumlah);
+        $stock->increment($this->field, $this->jumlah);
+        if ($this->field == 'stock_keluar'){
+            return $stock->decrement('stock_saldo', $this->jumlah);
         }
-        return $stock->increment('stock_saldo', $dataItem->jumlah);
+        return $stock->increment('stock_saldo', $this->jumlah);
     }
 
-    public function updateDecrement($kondisi, $gudangId, $field, $dataItem)
+    public function rollback($field)
     {
-        $stock = $this->query($kondisi, $gudangId, $dataItem);
-        $stock->increment($field, $dataItem->jumlah);
-        return $stock->decrement('stock_saldo', $dataItem->jumlah);
-    }
-
-    public function rollback($kondisi, $gudangId, $field, $dataItem)
-    {
-        $query = $this->query($kondisi, $gudangId, $dataItem);
+        $this->field = $field;
+        $query = $this->query();
         if ($query->doesntExist()){
-            return null;
+            throw new RecordsNotFoundException('Data Stock Belum Diinputkan sebelumnya');
         }
-        $query->decrement($field, $dataItem->jumlah);
-        if ($field == 'stock_keluar'){
-            return $query->increment('stock_saldo', $dataItem->jumlah);
+        $query->decrement($this->field, $this->jumlah);
+        if ($this->field == 'stock_keluar'){
+            return $query->increment('stock_saldo', $this->jumlah);
         }
-        return $query->decrement('stock_saldo', $dataItem->jumlah);
+        return $query->decrement('stock_saldo', $this->jumlah);
     }
 
-    public function rollbackDecrement($kondisi, $gudangId, $field, $dataItem)
-    {
-        $query = $this->query($kondisi, $gudangId, $dataItem);
-        if ($query->doesntExist()){
-            return null;
-        }
-        $query->increment($field, $dataItem->jumlah);
-        return $query->increment('stock_saldo', $dataItem->jumlah);
-    }
-
-    protected function create($kondisi, $gudangId, $field, $dataItem)
+    protected function create()
     {
         return StockInventory::query()
             ->create([
                 'active_cash'=>session('ClosedCash'),
-                'jenis'=>$kondisi,
-                'gudang_id'=>$gudangId,
-                'produk_id'=>$dataItem->produk_id,
-                $field=>$dataItem->jumlah,
-                'stock_saldo'=>($field == 'stock_keluar') ? 0 - $dataItem->jumlah : $dataItem->jumlah,
+                'jenis'=>$this->kondisi,
+                'gudang_id'=>$this->gudangId,
+                'produk_id'=>$this->produk_id,
+                $this->field=>$this->jumlah,
+                'stock_saldo'=>($this->field == 'stock_keluar') ? 0 - $this->jumlah : $this->jumlah,
             ]);
     }
 
-    protected function query($kondisi, $gudangId, $dataItem)
+    protected function query()
     {
         return StockInventory::query()
             ->where('active_cash', session('ClosedCash'))
-            ->where('jenis', $kondisi)
-            ->where('gudang_id', $gudangId)
-            ->where('produk_id', $dataItem->produk_id);
+            ->where('jenis', $this->kondisi)
+            ->where('gudang_id', $this->gudangId)
+            ->where('produk_id', $this->produk_id);
     }
 }

@@ -2,10 +2,11 @@
 
 use App\Models\Keuangan\HargaHppALL;
 use App\Models\Keuangan\Persediaan;
+use Illuminate\Database\Eloquent\Builder;
 
 class PersediaanRepository
 {
-    protected function query($gudangId, $kondisi,$dataItem)
+    protected function query($gudangId, $kondisi,$dataItem): Builder
     {
         return Persediaan::query()
             ->where('active_cash', session('ClosedCash'))
@@ -58,6 +59,15 @@ class PersediaanRepository
             'stock_keluar'=>0,
             'stock_saldo'=>$jumlah,
         ]);
+    }
+
+    public function getDataLatest($produkId, $kondisi)
+    {
+        return Persediaan::query()
+            ->where('produk_id', $produkId)
+            ->where('jenis', $kondisi)
+            ->latest('tgl_input')
+            ->firstOrFail();
     }
 
     public function checkException()

@@ -13,8 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('jurnal_kas', function (Blueprint $table) {
-            $table->string('kode')->after('id');
+        Schema::connection('mysql2')->create('saldo_kas', function (Blueprint $table) {
+            $table->unsignedBigInteger('akun_kas_id')->primary();
+            $table->bigInteger('saldo');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('jurnal_kas', function (Blueprint $table) {
-            $table->dropColumn('kode');
-        });
+        Schema::connection('mysql2')->dropIfExists('saldo_kas');
     }
 };

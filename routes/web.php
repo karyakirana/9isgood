@@ -146,9 +146,9 @@ Route::middleware('auth')->group(function (){
 
     Route::get('penjualan/pdf/{penjualan}/report', [ReportPdfController::class, 'penjualanPdf']);
 
-    // Route::get('penjualan/retur/{kondisi}', PenjualanReturIndex::class);
-    // Route::get('penjualan/retur/{kondisi}/trans', ReturPenjualanForm::class);
-    // Route::get('penjualan/retur/{kondisi}/trans/{retur}', ReturPenjualanForm::class);
+    Route::get('penjualan/retur/{kondisi}', PenjualanReturIndex::class);
+    Route::get('penjualan/retur/{kondisi}/trans', ReturPenjualanForm::class);
+    Route::get('penjualan/retur/{kondisi}/trans/{penjualanReturId}', ReturPenjualanForm::class);
 
     Route::get('penjualan/retur/print/{penjualanRetur}', [ReceiptController::class, 'penjualanReturDotMatrix']);
 

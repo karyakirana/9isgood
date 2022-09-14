@@ -4,47 +4,61 @@ use App\Models\Keuangan\SaldoPiutangPenjualan;
 
 class SaldoPiutangPenjualanRepo
 {
-    public function getDataById($customerId)
+    protected $customerId, $saldo;
+
+    public function __construct($customerId, $saldo)
     {
-        return SaldoPiutangPenjualan::query()->find($customerId);
+        $this->customerId = $customerId;
+        $this->saldo = $saldo;
     }
 
-    public function penjualan($customerId, $nominal)
+    public static function build($customerId, $saldo)
     {
-        $query = $this->getDataById($customerId);
+        return new static($customerId, $saldo);
+    }
+
+    public function getDataById()
+    {
+        return SaldoPiutangPenjualan::query()->findOrFail($this->customerId);
+    }
+
+    public function penjualan()
+    {
+        $query = $this->getDataById();
         if ($query){
-            $query->increment('saldo', $nominal);
+            $query->increment('saldo', $this->saldo);
             return $query;
         }
-        return $this->create($customerId, $nominal);
+        return $this->create();
     }
 
-    public function retur($customerId, $nominal)
+    public function retur()
     {
-        $query = $this->getDataById($customerId);
+        $query = $this->getDataById();
         if ($query){
-            $query->decrement('saldo', $nominal);
+            $query->decrement('saldo', $this->saldo);
             return $query;
         }
-        return $this->create($customerId, $nominal);
+        $this->saldo = 0 - $this->saldo;
+        return $this->create();
     }
 
-    protected function create($customerId, $nominal)
+    protected function create()
     {
         return SaldoPiutangPenjualan::query()
             ->create([
-                'customer_id'=>$customerId,
-                'saldo'=>$nominal
+                'customer_id'=>$this->customerId,
+                'saldo'=>$this->saldo
             ]);
     }
 
-    public function penjualanRollback($customerId, $nominal)
+    public function penjualanRollback()
     {
-        return $this->getDataById($customerId)->decrement('saldo', $nominal);
+        return $this->getDataById()->decrement('saldo', $this->saldo);
     }
 
-    public function returRollback($customerId, $nominal)
+    public function returRollback()
     {
-        return $this->getDataById($customerId)->increment('saldo', $nominal);
+        return $this->getDataById()->increment('saldo', $this->saldo);
     }
 }

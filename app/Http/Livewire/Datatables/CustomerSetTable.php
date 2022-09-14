@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Datatables;
 
+use App\Haramain\Traits\LivewireTraits\DatatablesTraits;
 use App\Models\Master\Customer;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
@@ -9,6 +10,9 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class CustomerSetTable extends DataTableComponent
 {
+    use DatatablesTraits;
+    protected string $pageName = 'customerPage';
+    protected string $tableName = 'customer';
 
     public function columns(): array
     {

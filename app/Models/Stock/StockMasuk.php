@@ -3,6 +3,7 @@
 namespace App\Models\Stock;
 
 use App\Haramain\Traits\ModelTraits\{GudangTraits, KodeTraits, SupplierTraits, UserTraits};
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,6 +26,14 @@ class StockMasuk extends Model
         'nomor_surat_jalan',
         'keterangan',
     ];
+
+    public function tglMasuk():Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => tanggalan_format($value),
+            set: fn ($value) => tanggalan_database_format($value, 'd-M-Y')
+        );
+    }
 
     public function scopeActive($query, $session)
     {

@@ -69,4 +69,56 @@ class HutangPembelianRepo
     {
         return $this->rollback($hutangableType, $hutangableId)->delete();
     }
+
+    /** Proses from pengeluaran pembelian */
+
+    public function updateStatusBayar($id, $nominalBayar)
+    {
+        $hutangPembelian = HutangPembelian::query()->findOrFail($id);
+        $hasilBayar = $hutangPembelian->kurang_bayar - $nominalBayar;
+        $statusBayar = ($hasilBayar === 0) ? 'lunas' : 'kurang';
+        // update pembelian or pembelian retur
+        $hutangPembelian->hutangablePembelian()->update([
+            'status_bayar'=>$statusBayar
+        ]);
+        $type = class_basename($hutangPembelian->pembelian_type);
+        if ($type === 'Pembelian'){
+            // update saldo hutang pembelian
+            $this->saldoHutangPembelianRepo->saldoIncrement($hutangPembelian->saldo_hutang_pembelian_id, $nominalBayar);
+        } else {
+            // update saldo hutang pembelian retur
+            $this->saldoHutangPembelianRepo->saldoDecrement($hutangPembelian->saldo_hutang_pembelian_id, $nominalBayar);
+        }
+        // update piutang penjualan
+        return $hutangPembelian->update([
+            'status_bayar'=>$statusBayar, // enum ['lunas', 'belum', 'kurang']
+            'kurang_bayar'=>$hasilBayar,
+        ]);
+    }
+
+    public function rollbackStatusBayar($id, $nominalBayar)
+    {
+        $hutangPembelian = HutangPembelian::query()->findOrFail($id);
+        $hasilBayar = $hutangPembelian->kurang_bayar + $nominalBayar;
+        $hutangablePembelian = $hutangPembelian->hutangablePembelian;
+        $totalBayar = $hutangablePembelian->total_bayar;
+        $statusBayar = (abs($hasilBayar) === $totalBayar) ? 'belum' : 'kurang';
+        // update pembelian or pembelian retur
+        $hutangPembelian->hutangablePembelian()->update([
+            'status_bayar'=>$statusBayar
+        ]);
+        $type = class_basename($hutangPembelian->pembelian_type);
+        if ($type === 'Pembelian'){
+            // update saldo hutang pembelian
+            $this->saldoHutangPembelianRepo->saldoDecrement($hutangPembelian->saldo_hutang_pembelian_id, $nominalBayar);
+        } else {
+            // update saldo hutang pembelian retur
+            $this->saldoHutangPembelianRepo->saldoIncrement($hutangPembelian->saldo_hutang_pembelian_id, $nominalBayar);
+        }
+        // update piutang penjualan
+        return $hutangPembelian->update([
+            'status_bayar'=>$statusBayar, // enum ['lunas', 'belum', 'kurang']
+            'kurang_bayar'=>$hasilBayar,
+        ]);
+    }
 }

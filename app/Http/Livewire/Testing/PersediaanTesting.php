@@ -1,10 +1,17 @@
 <?php
 
+/** @noinspection PhpPropertyNamingConventionInspection */
+
+/** @noinspection PhpClassNamingConventionInspection */
+
 namespace App\Http\Livewire\Testing;
 
 use App\Models\Keuangan\Persediaan;
 use Livewire\Component;
 
+/**
+ *
+ */
 class PersediaanTesting extends Component
 {
     protected $persediaan;

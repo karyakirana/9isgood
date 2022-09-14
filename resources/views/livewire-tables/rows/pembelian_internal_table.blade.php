@@ -1,11 +1,11 @@
 <x-atoms.table.td>
-    {{$row->kode}}
+    {{$row->stockMasukMorph->kode}}
 </x-atoms.table.td>
 <x-atoms.table.td>
     {{$row->supplier->nama}}
 </x-atoms.table.td>
 <x-atoms.table.td>
-    {{$row->gudang->nama}}
+    {{ucwords($row->gudang->nama)}}
 </x-atoms.table.td>
 <x-atoms.table.td>
     {{tanggalan_format($row->tgl_nota)}}
@@ -14,7 +14,7 @@
     {{$row->nomor_surat_jalan}}
 </x-atoms.table.td>
 <x-atoms.table.td>
-    {{$row->users->name}}
+    {{ucwords($row->users->name)}}
 </x-atoms.table.td>
 <x-atoms.table.td>
     {{$row->keterangan}}

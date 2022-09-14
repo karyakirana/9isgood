@@ -4,6 +4,7 @@ namespace App\Models\Stock;
 
 use App\Models\Keuangan\JurnalHPP;
 use App\Haramain\Traits\ModelTraits\{GudangTraits, HPPTrait, KodeTraits, SupplierTraits, UserTraits};
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -23,6 +24,14 @@ class StockKeluar extends Model
         'user_id',
         'keterangan',
     ];
+
+    public function tglKeluar():Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => tanggalan_format($value),
+            set: fn ($value) => tanggalan_database_format($value, 'd-M-Y'),
+        );
+    }
 
     public function scopeActive($query, $session)
     {

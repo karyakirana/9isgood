@@ -4,43 +4,71 @@ use App\Models\Keuangan\JurnalTransaksi;
 
 class JurnalTransaksiRepo
 {
-    public function getData($jurnalableType, $jurnalableId)
+    protected $class;
+
+    public function __construct($class)
+    {
+        $this->class = $class;
+    }
+
+    public static function build($class)
+    {
+        return new static($class);
+    }
+
+    public function getData()
     {
         return JurnalTransaksi::query()
-            ->where('jurnal_type', $jurnalableType)
-            ->where('jurnal_id', $jurnalableId)
+            ->where('jurnal_type', $this->class::class)
+            ->where('jurnal_id', $this->class->id)
             ->get();
     }
 
-    public function debet($jurnalableType, $jurnalableId, $akunDebetId, $nominal)
+    public function debet($akunId, $nominal)
     {
         return JurnalTransaksi::query()
             ->create([
                 'active_cash'=>session('ClosedCash'),
-                'jurnal_type'=>$jurnalableType,
-                'jurnal_id'=>$jurnalableId,
-                'akun_id'=>$akunDebetId,
+                'jurnal_type'=>$this->class::class,
+                'jurnal_id'=>$this->class->id,
+                'akun_id'=>$akunId,
                 'nominal_debet'=>$nominal,
             ]);
     }
 
-    public function kredit($jurnalableType, $jurnalableId, $akunKreditId, $nominal)
+    public function kredit($akunId, $nominal)
     {
         return JurnalTransaksi::query()
             ->create([
                 'active_cash'=>session('ClosedCash'),
-                'jurnal_type'=>$jurnalableType,
-                'jurnal_id'=>$jurnalableId,
-                'akun_id'=>$akunKreditId,
+                'jurnal_type'=>$this->class::class,
+                'jurnal_id'=>$this->class->id,
+                'akun_id'=>$akunId,
                 'nominal_kredit'=>$nominal,
             ]);
     }
 
-    public function rollback($jurnalableType, $jurnalableId)
+    public function rollback()
     {
         return JurnalTransaksi::query()
-            ->where('jurnal_type', $jurnalableType)
-            ->where('jurnal_id', $jurnalableId)
+            ->where('jurnal_type', $this->class::class)
+            ->where('jurnal_id', $this->class->id)
+            ->delete();
+    }
+
+    public function cleanupByAkun()
+    {
+        return JurnalTransaksi::query()
+            ->where('akun_id', $this->akunId)
+            ->where('active_cash', session('ClosedCash'))
+            ->delete();
+    }
+
+    public function cleanUpByTypeClass()
+    {
+        return JurnalTransaksi::query()
+            ->where('jurnal_type', $this->class::class)
+            ->where('active_cash', session('ClosedCash'))
             ->delete();
     }
 }

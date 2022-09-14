@@ -7,12 +7,13 @@ use App\Models\Master\Customer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class PiutangPenjualan extends Model
 {
-    use HasFactory, PenjualanTraits;
+    use HasFactory;
     protected $connection = 'mysql2';
     protected $table = 'haramain_keuangan.piutang_penjualan';
 
@@ -35,9 +36,9 @@ class PiutangPenjualan extends Model
         return $this->belongsTo(JurnalSetPiutangAwal::class, 'jurnal_set_piutang_awal_id');
     }
 
-    public function penerimaanPenjualanDetail(): MorphMany
+    public function penerimaanPenjualanDetail(): HasMany
     {
-        return $this->morphMany(PenerimaanPenjualanDetail::class, 'piutangPenjualan', 'piutang_penjualan_type', 'piutang_penjualan_id');
+        return $this->hasMany(PenerimaanPenjualanDetail::class, 'piutang_penjualan_id');
     }
 
     public function piutangablePenjualan(): MorphTo

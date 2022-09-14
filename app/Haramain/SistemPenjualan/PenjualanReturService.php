@@ -1,65 +1,66 @@
 <?php namespace App\Haramain\SistemPenjualan;
 
 use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiRepo;
+use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiServiceTrait;
+use App\Haramain\SistemKeuangan\SubKasir\PiutangPenjualanFromRetur;
+use App\Haramain\SistemKeuangan\SubKasir\PiutangPenjualanRepo;
 use App\Haramain\SistemKeuangan\SubNeraca\NeracaSaldoRepository;
-use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanTransaksiRepo;
+use App\Haramain\SistemKeuangan\SubOther\KonfigurasiJurnalRepository;
+use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanTransaksiFromPenjualanRetur;
+use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanTransaksiRepository;
+use App\Haramain\SistemStock\StockMasukPenjualanRetur;
 use App\Haramain\SistemStock\StockMasukRepository;
 use App\Models\KonfigurasiJurnal;
+use App\Models\Penjualan\PenjualanRetur;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PenjualanReturService
 {
-    use PenjualanServiceTrait;
+    use JurnalTransaksiServiceTrait;
 
     protected $penjualanReturRepo;
     protected $stockMasukRepository;
-    protected $persediaanTransaksiRepo;
     protected $piutangPenjualanRepo;
+    protected $persediaanTransaksiRepo;
     protected $jurnalTransaksiRepo;
     protected $neracaSaldoRepository;
 
-    protected $akunPiutangPenjualan;
-    protected $akunPenjualanretur;
-    protected $akunPPNPenjualan;
-    protected $akunBiayaLainPenjualan;
-    protected $akunHPP;
-    protected $akunPersediaanKalimas;
-    protected $akunPersediaanPerak;
-    protected $akunPersediaanRusakKalimas;
-    protected $akunPersediaanRusakPerak;
-
     public function __construct()
     {
-        $this->penjualanReturRepo = new PenjualanReturRepository();
-        $this->stockMasukRepository = new StockMasukRepository();
-        $this->persediaanTransaksiRepo = new PersediaanTransaksiRepo();
-        $this->jurnalTransaksiRepo = new JurnalTransaksiRepo();
-        $this->neracaSaldoRepository = new NeracaSaldoRepository();
-
         // penjualan retur
-        $this->akunPiutangPenjualan = KonfigurasiJurnal::query()->firstWhere('config', 'piutang_usaha')->akun_id;
-        $this->akunPenjualanretur = KonfigurasiJurnal::query()->firstWhere('config', 'retur_penjualan')->akun_id;
-        $this->akunPPNPenjualan = KonfigurasiJurnal::query()->firstWhere('config', 'ppn_penjualan')->akun_id;
-        $this->akunBiayaLainPenjualan = KonfigurasiJurnal::query()->firstWhere('config', 'biaya_penjualan')->akun_id;
-        $this->akunHPP = KonfigurasiJurnal::query()->firstWhere('config', 'hpp_internal')->akun_id;
-        $this->akunPersediaanKalimas = KonfigurasiJurnal::query()->firstWhere('config', 'persediaan_baik_kalimas')->akun_id;
-        $this->akunPersediaanPerak = KonfigurasiJurnal::query()->firstWhere('config', 'persediaan_baik_perak')->akun_id;
-        $this->akunPersediaanRusakKalimas = KonfigurasiJurnal::query()->firstWhere('config', 'persediaan_rusak_kalimas')->akun_id;
-        $this->akunPersediaanRusakPerak = KonfigurasiJurnal::query()->firstWhere('config', 'persediaan_rusak_perak')->akun_id;
+        $this->akunPenjualanReturService();
     }
 
     public function handleGetData($penjualanReturId)
     {
-        return $this->penjualanReturRepo->getDataById($penjualanReturId);
+        return PenjualanRetur::find($penjualanReturId);
     }
 
+    /**
+     * alur penjualan retur:
+     * @param $data
+     * @return object
+     */
     public function handleStore($data)
     {
         \DB::beginTransaction();
         try {
+            $penjualanRetur = PenjualanReturRepository::build($data)->store();
+            $stockMasuk = StockMasukPenjualanRetur::build($penjualanRetur)->store();
+            PiutangPenjualanFromRetur::build($penjualanRetur)->store();
+            $persediaanTransaksi = PersediaanTransaksiFromPenjualanRetur::build($penjualanRetur)->store();
+            $this->jurnalPenjualanReturService($penjualanRetur, $persediaanTransaksi);
             \DB::commit();
+            return (object)[
+                'status'=>true,
+                'keterangan'=>$penjualanRetur
+            ];
         } catch (ModelNotFoundException $e){
             \DB::rollBack();
+            return (object)[
+                'status'=>false,
+                'keterangan'=>$e->getMessage()
+            ];
         }
     }
 
@@ -67,9 +68,24 @@ class PenjualanReturService
     {
         \DB::beginTransaction();
         try {
+            $penjualanRetur = $this->handleGetData($data['penjualanReturId']);
+            $this->rollback($penjualanRetur);
+            $penjualanRetur = PenjualanReturRepository::build($data)->update();
+            $stockMasuk = StockMasukPenjualanRetur::build($penjualanRetur)->update();
+            PiutangPenjualanFromRetur::build($penjualanRetur)->update();
+            $persediaanTransaksi = PersediaanTransaksiFromPenjualanRetur::build($penjualanRetur)->update();
+            $this->jurnalPenjualanReturService($penjualanRetur, $persediaanTransaksi);
             \DB::commit();
+            return (object)[
+                'status'=>true,
+                'keterangan'=>$penjualanRetur
+            ];
         } catch (ModelNotFoundException $e){
             \DB::rollBack();
+            return (object)[
+                'status'=>false,
+                'keterangan'=>$e->getMessage()
+            ];
         }
     }
 
@@ -86,17 +102,13 @@ class PenjualanReturService
     protected function rollback($penjualanRetur)
     {
         // stock masuk
+        StockMasukPenjualanRetur::build($penjualanRetur)->rollback();
         // persediaan transaksi
+        PersediaanTransaksiFromPenjualanRetur::build($penjualanRetur)->rollback();
         // penjualan retur
+        $penjualanRetur->returDetail()->delete();
+        // jurnal rollback
+        $this->rollbackJurnalAndSaldo($penjualanRetur);
     }
 
-    protected function jurnal($data, $penjualanRetur, $persediaanTransaksi)
-    {
-        // penjualan retur debet
-        // ppn debet
-        // biaya lain debet
-        // piutang penjualan kredit
-        // persediaan debet
-        // hpp kredit
-    }
 }

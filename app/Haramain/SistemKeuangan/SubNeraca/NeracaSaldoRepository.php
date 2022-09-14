@@ -5,7 +5,7 @@ use App\Models\Keuangan\NeracaSaldo;
 
 class NeracaSaldoRepository
 {
-    private function create($akunId, $typeAkun, $field, $nominal)
+    private static function create($akunId, $typeAkun, $field, $nominal)
     {
         $nominal = ($typeAkun == $field) ? $nominal : 0 - $nominal;
         return NeracaSaldo::query()
@@ -17,25 +17,25 @@ class NeracaSaldoRepository
             ]);
     }
 
-    private function query($akunId)
+    private static function query($akunId)
     {
         return NeracaSaldo::query()
             ->where('active_cash', session('ClosedCash'))
             ->where('akun_id', $akunId);
     }
 
-    private function getAkunType($akunId)
+    private static function getAkunType($akunId)
     {
         return Akun::query()->find($akunId)->akunTipe->default_saldo;
     }
 
-    public function debet($akunId, $nominal)
+    public static function debet($akunId, $nominal)
     {
-        $neracaSaldo = $this->query($akunId)->first();
-        $akunType = $this->getAkunType($akunId);
+        $neracaSaldo = self::query($akunId)->first();
+        $akunType = self::getAkunType($akunId);
         if ($neracaSaldo == null){
             // create
-            return $this->create($akunId, $akunType, 'debet', $nominal);
+            return self::create($akunId, $akunType, 'debet', $nominal);
         }
         // update
         if ($akunType == 'debet'){
@@ -44,13 +44,13 @@ class NeracaSaldoRepository
         return $neracaSaldo->decrement($akunType, $nominal);
     }
 
-    public function kredit($akunId, $nominal)
+    public static function kredit($akunId, $nominal)
     {
-        $neracaSaldo = $this->query($akunId)->first();
-        $akunType = $this->getAkunType($akunId);
+        $neracaSaldo = self::query($akunId)->first();
+        $akunType = self::getAkunType($akunId);
         if ($neracaSaldo == null){
             // create
-            return $this->create($akunId, $akunType, 'kredit', $nominal);
+            return self::create($akunId, $akunType, 'kredit', $nominal);
         }
         // update
         if ($akunType == 'kredit'){
@@ -59,23 +59,31 @@ class NeracaSaldoRepository
         return $neracaSaldo->decrement($akunType, $nominal);
     }
 
-    public function debetRollback($akunId, $nominal)
+    public static function debetRollback($akunId, $nominal)
     {
-        $neracaSaldo = $this->query($akunId)->first();
-        $akunType = $this->getAkunType($akunId);
+        $neracaSaldo = self::query($akunId)->first();
+        $akunType = self::getAkunType($akunId);
         if ($akunType == 'debet'){
             return $neracaSaldo->decrement($akunType, $nominal);
         }
         return $neracaSaldo->increment($akunType, $nominal);
     }
 
-    public function kreditRollback($akunId, $nominal)
+    public static function kreditRollback($akunId, $nominal)
     {
-        $neracaSaldo = $this->query($akunId)->first();
-        $akunType = $this->getAkunType($akunId);
+        $neracaSaldo = self::query($akunId)->first();
+        $akunType = self::getAkunType($akunId);
         if ($akunType == 'kredit'){
             return $neracaSaldo->decrement($akunType, $nominal);
         }
         return $neracaSaldo->increment($akunType, $nominal);
+    }
+
+    public function cleanupByAkunId($akunId)
+    {
+        return NeracaSaldo::query()
+            ->where('akun_id', $akunId)
+            ->where('active_cash', session('ClosedCash'))
+            ->delete();
     }
 }

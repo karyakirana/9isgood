@@ -20,7 +20,6 @@ class JurnalKas extends Model
         'akun_id',
         'nominal_debet',
         'nominal_kredit',
-        'nominal_saldo',
     ];
 
     public function jurnalable_kas()

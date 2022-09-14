@@ -1,99 +1,134 @@
 <?php namespace App\Haramain\SistemPenjualan;
 
 use App\Models\Penjualan\PenjualanRetur;
-use App\Models\Penjualan\PenjualanReturDetail;
 
-class PenjualanReturRepository implements PenjualanInterface
+class PenjualanReturRepository
 {
+    protected $penjualanReturId;
+
+    protected $kode;
+    protected $activeCash;
+    protected $jenisRetur;
+    protected $customerId;
+    protected $gudangId;
+    protected $userId;
+    protected $tglNota;
+    protected $tglTempo;
+    protected $statusBayar;
+    protected $totalBarang;
+    protected $ppn;
+    protected $biayaLain;
+    protected $totalBayar;
+    protected $keterangan;
+
+    protected $dataDetail;
+
+    public function __construct($data)
+    {
+        $this->penjualanReturId = $data['penjualanReturId'];
+        $this->kode = $this->kode($data['kondisi']);
+        $this->activeCash = session('ClosedCash');
+        $this->jenisRetur = $data['kondisi'];
+        $this->customerId = $data['customerId'];
+        $this->gudangId = $data['gudangId'];
+        $this->userId = $data['userId'];
+        $this->tglNota = $data['tglNota'];
+        $this->tglTempo = ($data['statusBayar'] == 'tempo') ? $data['tglTempo'] : null;
+        $this->statusBayar = 'belum';
+        $this->ppn = $data['ppn'];
+        $this->biayaLain = $data['biayaLain'];
+        $this->totalBayar = $data['totalBayar'];
+        $this->keterangan = $data['keterangan'];
+
+        $this->dataDetail = $data['dataDetail'];
+    }
+
+    public static function build($data)
+    {
+        return new static($data);
+    }
+
     protected function kode($kondisi)
     {
-        return null;
-    }
+        // query
+        $query = PenjualanRetur::query()
+            ->where('active_cash', session('ClosedCash'))
+            ->where('jenis_retur', $kondisi)
+            ->latest('kode');
 
-    public function getDataById(int $id)
-    {
-        return PenjualanRetur::query()->find($id);
-    }
+        $kode = ($kondisi == 'baik') ? 'RB' : 'RR';
 
-    public function getDataAll(bool $closedCash = true)
-    {
-        $query = PenjualanRetur::query();
-        if ($closedCash){
-            $query = $query->where('active_cash', session('ClosedCash'));
+        // check last num
+        if ($query->doesntExist()){
+            return "0001/$kode/".date('Y');
         }
-        return $query;
+
+        $num = (int)$query->first()->last_num_trans + 1 ;
+        return sprintf("%04s", $num)."/$kode/".date('Y');
     }
 
-    public function store(object|array $data)
+    protected function getDataById()
     {
-        $data = (object) $data;
+        return PenjualanRetur::query()->find($this->penjualanReturId);
+    }
+
+    public function store()
+    {
         $penjualanRetur = PenjualanRetur::query()
             ->create([
-                'kode'=>$this->kode($data->kondisi),
-                'active_cash'=>session('ClosedCash'),
-                'jenis_retur'=>$data->kondisi,
-                'customer_id'=>$data->customerId,
-                'gudang_id'=>$data->gudangId,
-                'user_id'=>$data->userId,
-                'tgl_nota'=>tanggalan_database_format($data->tglNota, 'd-M-Y'),
-                'tgl_tempo'=>($data->statusBayar == 'tempo') ? tanggalan_database_format($data->tglTempo, 'd-M-Y') : null,
-                'status_bayar'=>'belum',
-                'total_barang'=>$data->totalBarang,
-                'ppn'=>$data->ppn,
-                'biaya_lain'=>$data->biayaLain,
-                'total_bayar'=>$data->totalbayar,
-                'keterangan'=>$data->keterangan,
+                'kode'=>$this->kode,
+                'active_cash'=>$this->activeCash,
+                'jenis_retur'=>$this->jenisRetur,
+                'customer_id'=>$this->customerId,
+                'gudang_id'=>$this->gudangId,
+                'user_id'=>$this->userId,
+                'tgl_nota'=>$this->tglNota,
+                'tgl_tempo'=>$this->tglTempo,
+                'status_bayar'=>$this->statusBayar,
+                'total_barang'=>$this->totalBarang,
+                'ppn'=>$this->ppn,
+                'biaya_lain'=>$this->biayaLain,
+                'total_bayar'=>$this->totalBayar,
+                'keterangan'=>$this->keterangan,
             ]);
-        $this->storeDetail($data->dataDetail, $penjualanRetur->id);
+        $penjualanRetur->returDetail()->createMany($this->storeDetail());
         return $penjualanRetur;
     }
 
-    public function update(object|array $data)
+    public function update()
     {
-        $data = (object) $data;
-        $penjualanRetur = PenjualanRetur::query()->find($data->penjualanReturId);
+        $penjualanRetur = $this->getDataById();
         $penjualanRetur->update([
-            'jenis_retur'=>$data->kondisi,
-            'customer_id'=>$data->customerId,
-            'gudang_id'=>$data->gudangId,
-            'user_id'=>$data->userId,
-            'tgl_nota'=>tanggalan_database_format($data->tglNota, 'd-M-Y'),
-            'tgl_tempo'=>($data->statusBayar == 'tempo') ? tanggalan_database_format($data->tglTempo, 'd-M-Y') : null,
-            'status_bayar'=>'belum',
-            'total_barang'=>$data->totalBarang,
-            'ppn'=>$data->ppn,
-            'biaya_lain'=>$data->biayaLain,
-            'total_bayar'=>$data->totalbayar,
-            'keterangan'=>$data->keterangan,
+            'jenis_retur'=>$this->jenisRetur,
+            'customer_id'=>$this->customerId,
+            'gudang_id'=>$this->gudangId,
+            'user_id'=>$this->userId,
+            'tgl_nota'=>$this->tglNota,
+            'tgl_tempo'=>$this->tglTempo,
+            'status_bayar'=>$this->statusBayar,
+            'total_barang'=>$this->totalBarang,
+            'ppn'=>$this->ppn,
+            'biaya_lain'=>$this->biayaLain,
+            'total_bayar'=>$this->totalBayar,
+            'keterangan'=>$this->keterangan,
         ]);
-        $this->storeDetail($data->dataDetail, $penjualanRetur->id);
+        $penjualanRetur = $penjualanRetur->refresh();
+        $penjualanRetur->returDetail()->createMany($this->storeDetail());
         return $penjualanRetur;
     }
 
-    public function rollback(int $id)
+    protected function storeDetail()
     {
-        return PenjualanRetur::query()->where('penjualan_retur_id', $id)->delete();
-    }
-
-    public function destroy(int $id)
-    {
-        $this->rollback($id);
-        return PenjualanRetur::destroy($id);
-    }
-
-    protected function storeDetail($dataDetail, $penjualanReturId)
-    {
-        foreach ($dataDetail as $item) {
-            $item = (object) $item;
-            PenjualanReturDetail::query()
-                ->create([
-                    'penjualan_retur_id'=>$penjualanReturId,
-                    'produk_id'=>$item->produk_id,
-                    'harga'=>$item->harga,
-                    'jumlah'=>$item->jumlah,
-                    'diskon'=>$item->diskomn,
-                    'sub_total'=>$item->sub_total,
-                ]);
+        $detail = [];
+        foreach ($this->dataDetail as $item) {
+            $detail[] = [
+                'produk_id'=>$item['produk_id'],
+                'harga'=>$item['harga'],
+                'jumlah'=>$item['jumlah'],
+                'diskon'=>$item['diskon'],
+                'sub_total'=>$item['sub_total']
+            ];
         }
+        return $detail;
     }
 }

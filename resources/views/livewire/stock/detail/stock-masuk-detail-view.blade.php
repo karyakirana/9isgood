@@ -1,39 +1,40 @@
 <div>
     <x-molecules.modal title="Detail Stock Masuk : {{isset($stock_data) ? $stock_data->kode : ''}}" size="xl" id="stock-detail" wire:ignore.self>
+        @isset($stock_data)
         <form>
             <div class="row">
                 <div class="col-6">
                     <x-atoms.input.group-horizontal label="User">
-                        <x-atoms.input.plaintext>{{$stock_data->user->nama ?? ''}}</x-atoms.input.plaintext>
+                        <x-atoms.input.plaintext>{{ucfirst($stock_data->users->name)}}</x-atoms.input.plaintext>
                     </x-atoms.input.group-horizontal>
                 </div>
                 <div class="col-6">
                     <x-atoms.input.group-horizontal label="Kondisi">
-                        <x-atoms.input.plaintext>{{$stock_data->kondisi ?? ''}}</x-atoms.input.plaintext>
+                        <x-atoms.input.plaintext>{{ucwords($stock_data->kondisi)}}</x-atoms.input.plaintext>
                     </x-atoms.input.group-horizontal>
                 </div>
             </div>
             <div class="row">
                 <div class="col-6">
                     <x-atoms.input.group-horizontal label="Tgl Masuk">
-                        <x-atoms.input.plaintext>{{ isset($stock_data->tgl_masuk) ? tanggalan_format($stock_data->tgl_masuk) : ''}}</x-atoms.input.plaintext>
+                        <x-atoms.input.plaintext>{{ tanggalan_format($stock_data->tgl_masuk)}}</x-atoms.input.plaintext>
                     </x-atoms.input.group-horizontal>
                 </div>
                 <div class="col-6">
                     <x-atoms.input.group-horizontal label="Supplier">
-                        <x-atoms.input.plaintext>{{$stock_data->supplier->nama ?? ''}}</x-atoms.input.plaintext>
+                        <x-atoms.input.plaintext>{{ucwords($stock_data->supplier->nama)}}</x-atoms.input.plaintext>
                     </x-atoms.input.group-horizontal>
                 </div>
             </div>
             <div class="row">
                 <div class="col-6">
                     <x-atoms.input.group-horizontal label="Gudang">
-                        <x-atoms.input.plaintext>{{ $stock_data->gudang->nama ?? ''}}</x-atoms.input.plaintext>
+                        <x-atoms.input.plaintext>{{ ucwords($stock_data->gudang->nama) }}</x-atoms.input.plaintext>
                     </x-atoms.input.group-horizontal>
                 </div>
                 <div class="col-6">
                     <x-atoms.input.group-horizontal label="Keterangan">
-                        <x-atoms.input.plaintext>{{ $stock_data->keterangan ?? ''  }}</x-atoms.input.plaintext>
+                        <x-atoms.input.plaintext>{{ ucwords($stock_data->keterangan)  }}</x-atoms.input.plaintext>
                     </x-atoms.input.group-horizontal>
                 </div>
             </div>
@@ -62,6 +63,7 @@
                 @endforeach
             @endisset
         </x-atoms.table>
+        @endisset
     </x-molecules.modal>
 
     @push('custom-scripts')

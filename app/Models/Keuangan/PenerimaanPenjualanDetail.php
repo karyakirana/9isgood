@@ -20,4 +20,9 @@ class PenerimaanPenjualanDetail extends Model
     {
         return $this->belongsTo(PenerimaanPenjualan::class, 'penerimaan_penjualan_id');
     }
+
+    public function piutangPenjualan()
+    {
+        return $this->belongsTo(PiutangPenjualan::class, 'piutang_penjualan_id');
+    }
 }

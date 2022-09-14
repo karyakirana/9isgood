@@ -1,16 +1,28 @@
 <?php namespace App\Haramain\SistemStock;
 
 use App\Models\Stock\StockMasuk;
-use App\Models\Stock\StockMasukDetail;
 
-class StockMasukRepository implements StockTransaksiInterface
+class StockMasukRepository
 {
     protected $stockInventoryRepository;
 
-    public function __construct()
-    {
-        $this->stockInventoryRepository = new StockInventoryRepository();
-    }
+    protected $kode;
+    protected $activeCash;
+    protected $stockableType;
+    protected $stockableId;
+    protected $kondisi;
+    protected $gudangId;
+    protected $supplierId;
+    protected $tglMasuk;
+    protected $userId;
+    protected $nomorPo;
+    protected $nomorSuratJalan;
+    protected $keterangan;
+
+    protected $dataDetail;
+
+    protected $produk_id;
+    protected $jumlah;
 
     protected function kode($kondisi)
     {
@@ -30,107 +42,73 @@ class StockMasukRepository implements StockTransaksiInterface
         return sprintf("%04s", $num)."/{$kodeKondisi}/".date('Y');
     }
 
-    public function getDataById($stockableType, $stockableId)
+    protected function getDataByStockable()
     {
         return StockMasuk::query()
-            ->where('stockable_masuk_type', $stockableType)
-            ->where('stockable_masuk_id', $stockableId)
+            ->where('stockable_masuk_type', $this->stockableType)
+            ->where('stockable_masuk_id', $this->stockableId)
             ->first();
     }
 
-    public function getDataAll($activeCash = true)
+    public function store()
     {
-        $query = StockMasuk::query();
-        if ($activeCash){
-            $query = $query->where('active_cash', session('ClosedCash'));
-        }
-        return $query;
-    }
-
-    public function store($data, $stockableType, $stockableId)
-    {
-        $data = (object) $data;
-        if (isset($data->jenisMutasi)){
-            $kondisi = \Str::after($data->jenisMutasi, '_');
-        } else {
-            $kondisi = $data->kondisi;
-        }
-        $gudang = $data->gudangId ?? $data->gudangTujuanId;
-        $tglMasuk = $data->tglNota ?? $data->tglMutasi;
         $stockMasuk = StockMasuk::query()
             ->create([
-                'kode'=>$this->kode($kondisi),
-                'active_cash'=>session('ClosedCash'),
-                'stockable_masuk_id'=>$stockableId,
-                'stockable_masuk_type'=>$stockableType,
-                'kondisi'=>$kondisi,
-                'gudang_id'=>$gudang,
-                'supplier_id'=>$data->supplierId ?? null,
-                'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
-                'user_id'=>\Auth::id(),
-                'nomor_po'=>$data->nomorPo ?? '-',
-                'nomor_surat_jalan'=>$data->suratJalan ?? '-',
-                'keterangan'=>$data->keterangan,
+                'kode'=>$this->kode,
+                'active_cash'=>$this->activeCash,
+                'stockable_masuk_id'=>$this->stockableId,
+                'stockable_masuk_type'=>$this->stockableType,
+                'kondisi'=>$this->kondisi,
+                'gudang_id'=>$this->gudangId,
+                'supplier_id'=>$this->supplierId,
+                'tgl_masuk'=>$this->tglMasuk,
+                'user_id'=>$this->userId,
+                'nomor_po'=>$this->nomorPo,
+                'nomor_surat_jalan'=>$this->nomorSuratJalan,
+                'keterangan'=>$this->keterangan,
             ]);
-        $this->storeDetail($data->dataDetail, $gudang, $kondisi, $stockMasuk->id);
+        $stockMasuk->stockMasukDetail()->createMany($this->storeDetail());
         return $stockMasuk;
     }
 
-    public function update($data, $stockableType, $stockableId)
+    public function update()
     {
-        $data = (object) $data;
-        if (isset($data->jenisMutasi)){
-            $kondisi = \Str::after($data->jenisMutasi, '_');
-        } else {
-            $kondisi = $data->kondisi;
-        }
-        $gudang = $data->gudangId ?? $data->gudangTujuanId;
-        $tglMasuk = $data->tglNota ?? $data->tglMutasi;
-        $this->getDataById($stockableType, $stockableId)->update([
-            'stockable_masuk_id'=>$stockableId,
-            'stockable_masuk_type'=>$stockableType,
-            'kondisi'=>$kondisi,
-            'gudang_id'=>$gudang,
-            'supplier_id'=>$data->supplierId ?? null,
-            'tgl_masuk'=>tanggalan_database_format($tglMasuk, 'd-M-Y'),
+        $stockMasuk = $this->getDataByStockable();
+        $stockMasuk->update([
+            'stockable_masuk_id'=>$this->stockableId,
+            'stockable_masuk_type'=>$this->stockableType,
+            'kondisi'=>$this->kondisi,
+            'gudang_id'=>$this->gudangId,
+            'supplier_id'=>$this->supplierId,
+            'tgl_masuk'=>$this->tglMasuk,
             'user_id'=>\Auth::id(),
-            'nomor_po'=>$data->nomorPo ?? '-',
-            'nomor_surat_jalan'=>$data->suratJalan ?? '-',
-            'keterangan'=>$data->keterangan,
+            'nomor_po'=>$this->nomorPo,
+            'nomor_surat_jalan'=>$this->nomorSuratJalan,
+            'keterangan'=>$this->keterangan,
         ]);
-        $stockMasuk = $this->getDataById($stockableType, $stockableId);
-        $this->storeDetail($data->dataDetail, $gudang, $kondisi, $stockMasuk->id);
+        $stockMasuk = $stockMasuk->refresh();
+        $stockMasuk->stockMasukDetail()->createMany($this->storeDetail());
         return $stockMasuk;
     }
 
-    public function rollback($stockableType, $stockableId)
+    protected function setDataDetail($item)
     {
-        $stockMasuk = $this->getDataById($stockableType, $stockableId);
-        $stockMasukDetail = StockMasukDetail::query()->where('stock_masuk_id', $stockMasuk->id);
-        // rollback stock inventory
-        foreach ($stockMasukDetail as $item) {
-            $this->stockInventoryRepository->rollback($stockMasuk->kondisi, $stockMasuk->gudang_id, 'stock_masuk', $item);
-        }
-        return $stockMasukDetail->delete();
+        $this->produk_id = $item->produk_id;
+        $this->jumlah = $item->jumlah;
     }
 
-    public function destory($stockableType, $stockableId)
+    protected function storeDetail()
     {
-        $this->rollback($stockableType, $stockableId);
-        return $this->getDataById($stockableType, $stockableId)->delete();
-    }
-
-    protected function storeDetail($dataDetail, $gudangId, $kondisi, $stockMasukId)
-    {
-        foreach ($dataDetail as $item) {
-            $item = (object) $item;
-            StockMasukDetail::query()->create([
-                'stock_masuk_id'=>$stockMasukId,
-                'produk_id'=>$item->produk_id,
-                'jumlah'=>$item->jumlah,
-            ]);
+        $detail = [];
+        foreach ($this->dataDetail as $item) {
+            $this->setDataDetail($item);
+            $detail[] = [
+                'produk_id'=>$this->produk_id,
+                'jumlah'=>$this->jumlah
+            ];
             // update stock
-            $this->stockInventoryRepository->update($kondisi, $gudangId, 'stock_masuk', $item);
+            StockInventoryRepository::build($this->kondisi, $this->gudangId, $item)->update('stock_masuk');
         }
+        return $detail;
     }
 }

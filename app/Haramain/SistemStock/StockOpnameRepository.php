@@ -32,7 +32,7 @@ class StockOpnameRepository
 
     public function getDataById($stockOpnameId)
     {
-        return StockOpname::query()->find($stockOpnameId);
+        return StockOpname::query()->findOrFail($stockOpnameId);
     }
 
     public function getDataAll($closedCash = true)

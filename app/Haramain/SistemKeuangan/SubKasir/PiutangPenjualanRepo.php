@@ -1,71 +1,50 @@
 <?php namespace App\Haramain\SistemKeuangan\SubKasir;
 
-use App\Haramain\SistemKeuangan\SubNeraca\SaldoPiutangPenjualanRepo;
 use App\Models\Keuangan\PiutangPenjualan;
 
 class PiutangPenjualanRepo
 {
     protected $saldoPiutangPenjualanRepo;
 
-    public function __construct()
-    {
-        $this->saldoPiutangPenjualanRepo = new SaldoPiutangPenjualanRepo();
-    }
+    protected $saldoPiutangPenjualanId;
+    protected $jurnalSetPiutangAwalId;
+    protected $piutangableType;
+    protected $piutangableId;
+    protected $statusBayar;
+    protected $kurangBayar;
 
-    public function getDataById($piutangableType, $piutangableId)
+    protected function getDataById()
     {
         return PiutangPenjualan::query()
-            ->where('penjualan_type', $piutangableType)
-            ->where('penjualan_id', $piutangableId)
+            ->where('penjualan_type', $this->piutangableType)
+            ->where('penjualan_id', $this->piutangableId)
             ->first();
     }
 
-    public function getDataAll()
+    public function store()
     {
-        return PiutangPenjualan::all();
-    }
-
-    public function store($data, $piutangableType, $piutangableId, $jurnalSetPiutangAwalId = null)
-    {
-        $data = (object) $data;
-        $piutangPenjualan = PiutangPenjualan::query()
+        return PiutangPenjualan::query()
             ->create([
-                'saldo_piutang_penjualan_id'=>$data->customerId,
-                'jurnal_set_piutang_awal_id'=>$jurnalSetPiutangAwalId,
-                'penjualan_type'=>$piutangableType,
-                'penjualan_id'=>$piutangableId,
-                'status_bayar'=>$data->statusBayar, // enum ['lunas', 'belum', 'kurang']
-                'kurang_bayar'=>$data->totalBayar,
+                'saldo_piutang_penjualan_id'=>$this->saldoPiutangPenjualanId,
+                'jurnal_set_piutang_awal_id'=>$this->jurnalSetPiutangAwalId,
+                'penjualan_type'=>$this->piutangableType,
+                'penjualan_id'=>$this->piutangableId,
+                'status_bayar'=>$this->statusBayar, // enum ['lunas', 'belum', 'kurang']
+                'kurang_bayar'=>$this->kurangBayar,
             ]);
-        // update saldo piutang penjualan
-        $this->saldoPiutangPenjualanRepo->penjualan($data->customerId, $data->totalBayar);
-        return $piutangPenjualan;
     }
 
-    public function update($data, $piutangableType, $piutangableId, $jurnalSetPiutangAwalId = null)
+    public function update()
     {
-        $data = (object) $data;
-        $this->getDataById($piutangableType, $piutangableId)
+        $this->getDataById()
             ->update([
-                'saldo_piutang_penjualan_id'=>$data->customerId,
-                'jurnal_set_piutang_awal_id'=>$jurnalSetPiutangAwalId,
-                'status_bayar'=>$data->statusBayar, // enum ['lunas', 'belum', 'kurang']
-                'kurang_bayar'=>$data->totalBayar,
+                'saldo_piutang_penjualan_id'=>$this->saldoPiutangPenjualanId,
+                'jurnal_set_piutang_awal_id'=>$this->jurnalSetPiutangAwalId,
+                'penjualan_type'=>$this->piutangableType,
+                'penjualan_id'=>$this->piutangableId,
+                'status_bayar'=>$this->statusBayar, // enum ['lunas', 'belum', 'kurang']
+                'kurang_bayar'=>$this->kurangBayar,
             ]);
-        // update saldo piutang penjualan
-        $this->saldoPiutangPenjualanRepo->penjualan($data->customerId, $data->totalBayar);
-        return $this->getDataById($piutangableType, $piutangableId);
-    }
-
-    public function rollback($piutangableType, $piutangableId)
-    {
-        $piutangPenjualan = $this->getDataById($piutangableType, $piutangableId);
-        $this->saldoPiutangPenjualanRepo->penjualanRollback($piutangPenjualan->saldo_piutang_penjualan_id, $piutangPenjualan->kurang_bayar);
-        return $piutangPenjualan;
-    }
-
-    public function destroy($piutangableType, $piutangableId)
-    {
-        return $this->rollback($piutangableType, $piutangableId)->delete();
+        return $this->getDataById();
     }
 }
