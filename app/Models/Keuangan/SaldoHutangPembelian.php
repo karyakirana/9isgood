@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 class SaldoHutangPembelian extends Model
 {
     use HasFactory, SupplierTraits;
-    protected $connection = 'mysql2';
-    protected $table = 'saldo_hutang_pembelian';
+
+    protected $table = 'haramain_keuangan.saldo_hutang_pembelian';
     protected $primaryKey = 'supplier_id';
     public $incrementing = false;
     protected $fillable = [

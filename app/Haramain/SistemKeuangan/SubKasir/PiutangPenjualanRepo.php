@@ -4,8 +4,6 @@ use App\Models\Keuangan\PiutangPenjualan;
 
 class PiutangPenjualanRepo
 {
-    protected $saldoPiutangPenjualanRepo;
-
     protected $saldoPiutangPenjualanId;
     protected $jurnalSetPiutangAwalId;
     protected $piutangableType;

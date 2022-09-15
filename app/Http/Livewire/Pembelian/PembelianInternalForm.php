@@ -2,17 +2,11 @@
 
 namespace App\Http\Livewire\Pembelian;
 
-use App\Haramain\Repository\Pembelian\PembelianCobaRepo;
-use App\Haramain\Repository\Pembelian\PembelianInternalRepo;
-use App\Haramain\Service\SistemPembelian\PembelianInternalService;
 use App\Haramain\SistemPembelian\PembelianService;
 use App\Models\Keuangan\HargaHppALL;
-use App\Models\KonfigurasiJurnal;
-use App\Models\Master\Gudang;
 use App\Models\Master\Produk;
 use App\Models\Master\Supplier;
-use App\Models\Purchase\Pembelian;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Auth;
 use Livewire\Component;
 
 class PembelianInternalForm extends Component
@@ -43,6 +37,7 @@ class PembelianInternalForm extends Component
     public $keterangan;
 
     public $dataDetail = [];
+    public $index_detail;
 
     // var pembelian internal
     public $jenis = 'INTERNAL', $kondisi='baik';
@@ -51,10 +46,6 @@ class PembelianInternalForm extends Component
     public $produk_id, $harga, $jumlah, $diskon, $sub_total;
     public $produk_kode_lokal, $produk_nama, $produk_harga;
     public $hpp, $harga_setelah_hpp;
-
-    // var jurnal transaksi
-    public $akunHutangPembelianId, $akunPembelianId, $akunPPNPembelianId, $akunBiayaLainPembelianId;
-    public $akunPersediaanId;
 
     // var stock masuk
     public $tglMasuk, $nomorPo;
@@ -69,21 +60,15 @@ class PembelianInternalForm extends Component
         $this->pembelianInternalService = new PembelianService();
     }
 
+    /**
+     * @param $pembelianId
+     * @return void
+     */
     public function mount($pembelianId = null)
     {
-
         // set tanggal
         $this->tglNota = tanggalan_format(now('ASIA/JAKARTA'));
-        $this->tglTempo = tanggalan_format(now('ASIA/JAKARTA')->addMonth(2));
-        // set akun
-        $this->akunHutangPembelianId = KonfigurasiJurnal::query()->find('biaya_pembelian')->akun_id ?? '';
-        $this->akunPPNPembelianId = KonfigurasiJurnal::query()->find('ppn_pembelian')->akun_id ?? '';
-        if ($this->jenis == 'internal'){
-            $this->akunHutangPembelianId = KonfigurasiJurnal::query()->find('hutang_dagang_internal')->akun_id ?? '';
-        } else {
-            $this->akunHutangPembelianId = KonfigurasiJurnal::query()->find('hutang_dagang')->akun_id ?? '';
-        }
-        $this->akunPersediaanId = KonfigurasiJurnal::query()->find('persediaan')->akun_id ?? '';
+        $this->tglTempo = tanggalan_format(now('ASIA/JAKARTA')->addMonths(2));
 
         // load hpp
         $this->hpp = HargaHppALL::query()->latest()->first()->persen;
@@ -103,6 +88,8 @@ class PembelianInternalForm extends Component
             $this->biayaLain = $pembelian->biaya_lain;
             $this->totalBayar = $pembelian->total_bayar;
             $this->keterangan = $pembelian->keterangan;
+
+            $this->suratJalan = $pembelian->stockMasukMorph->nomor_surat_jalan;
 
             foreach ($pembelian->pembelianDetail as $item) {
                 $this->dataDetail[] = [
@@ -224,7 +211,7 @@ class PembelianInternalForm extends Component
         $this->totalBarang = array_sum(array_column($this->dataDetail, 'jumlah'));
         $this->totalPembelian = array_sum(array_column($this->dataDetail, 'sub_total'));
         $this->totalBayar = $this->totalPembelian + (int) $this->ppn + (int) $this->biayaLain;
-        $this->userId = \Auth::id();
+        $this->userId = Auth::id();
         $this->tglInput = $this->tglNota;
         $this->tglMasuk = $this->tglNota;
         return $this->validate([
@@ -276,16 +263,15 @@ class PembelianInternalForm extends Component
     }
     public function update()
     {
-        // dd($this->dataDetail);
         $data = $this->setDataValidate();
-        //dd($data);
-        try {
-            $pembelian = $this->pembelianInternalService->handleUpdate($data);
-            \DB::commit();
+        $pembelian = $this->pembelianInternalService->handleUpdate($data);
+        session()->flash('storeMessage', $pembelian->keterangan);
+        if ($pembelian->status){
+            // redirect
+            session()->flash('storeMessage', $pembelian->keterangan);
             return redirect()->to(route('stock.masuk'));
-        } catch (ModelNotFoundException $e){
-            \DB::rollBack();
         }
+        session()->flash('storeMessage', $pembelian->keterangan);
         return null;
     }
 

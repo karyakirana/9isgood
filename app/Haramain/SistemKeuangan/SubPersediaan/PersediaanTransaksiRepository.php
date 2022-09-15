@@ -35,6 +35,11 @@ class PersediaanTransaksiRepository
         $this->kode = $this->kode();
     }
 
+    public static function build(...$params)
+    {
+        return new static(...$params);
+    }
+
     protected function kode(): string
     {
         $query = PersediaanTransaksi::query()
@@ -49,9 +54,18 @@ class PersediaanTransaksiRepository
         return sprintf("%04s", $num)."/PD/".date('Y');
     }
 
-    public static function build($penjualanRetur)
+    public static function getKode()
     {
-        return new static($penjualanRetur);
+        $query = PersediaanTransaksi::query()
+            ->where('active_cash', session('ClosedCash'))
+            ->latest();
+
+        if ($query->doesntExist()){
+            return '0001/PD/'.date('Y');
+        }
+
+        $num = (int)$query->first()->last_num_trans + 1 ;
+        return sprintf("%04s", $num)."/PD/".date('Y');
     }
 
     public function store()

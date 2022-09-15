@@ -24,6 +24,11 @@ class StockMasukRepository
     protected $produk_id;
     protected $jumlah;
 
+    public static function build(...$params)
+    {
+        return new static(...$params);
+    }
+
     protected function kode($kondisi)
     {
         $query = StockMasuk::query()
@@ -110,5 +115,13 @@ class StockMasukRepository
             StockInventoryRepository::build($this->kondisi, $this->gudangId, $item)->update('stock_masuk');
         }
         return $detail;
+    }
+
+    public function rollback()
+    {
+        foreach ($this->dataDetail as $item) {
+            StockInventoryRepository::build($this->kondisi, $this->gudangId, $item)->rollback('stock_masuk');
+        }
+        return $this->getDataByStockable()->stockMasukDetail()->delete();
     }
 }

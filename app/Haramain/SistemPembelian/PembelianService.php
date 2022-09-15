@@ -1,25 +1,17 @@
 <?php namespace App\Haramain\SistemPembelian;
 
 use App\Haramain\ServiceInterface;
-use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiRepo;
 use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiServiceTrait;
-use App\Haramain\SistemKeuangan\SubKasir\HutangPembelianRepo;
-use App\Haramain\SistemKeuangan\SubNeraca\NeracaSaldoRepository;
-use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanTransaksiRepository;
-use App\Haramain\SistemStock\StockMasukRepository;
-use App\Models\KonfigurasiJurnal;
+use App\Haramain\SistemKeuangan\SubKasir\HutangPembelianFromPembelian;
+use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanTransaksiPembelian;
+use App\Haramain\SistemStock\StockMasukPembelian;
+use App\Models\Purchase\Pembelian;
+use DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PembelianService implements ServiceInterface
 {
     use JurnalTransaksiServiceTrait;
-
-    protected $pembelianRepository;
-    protected $stockMasukRepo;
-    protected $hutangPembelianRepo;
-    protected $persediaanTransaksiRepo;
-    protected $jurnalTransaksiRepo;
-    protected $neracaSaldoRepo;
 
     protected $akunHutangPembelian;
     protected $akunPersediaanKalimas;
@@ -29,42 +21,31 @@ class PembelianService implements ServiceInterface
 
     public function __construct()
     {
-        $this->pembelianRepository = new PembelianRepository();
-        $this->stockMasukRepo = new StockMasukRepository();
-        $this->hutangPembelianRepo = new HutangPembelianRepo();
-        $this->persediaanTransaksiRepo = new PersediaanTransaksiRepository();
-        $this->jurnalTransaksiRepo = new JurnalTransaksiRepo();
-        $this->neracaSaldoRepo = new NeracaSaldoRepository();
-
         // akun pembelian
-        $this->akunHutangPembelian = KonfigurasiJurnal::query()->firstWhere('config', 'hutang_dagang')->akun_id;
-        $this->akunPersediaanKalimas = KonfigurasiJurnal::query()->firstWhere('config', 'persediaan_baik_kalimas')->akun_id;
-        $this->akunPersediaanPerak = KonfigurasiJurnal::query()->firstWhere('config', 'persediaan_baik_perak')->akun_id;
-        $this->akunPPNPembelian = KonfigurasiJurnal::query()->firstWhere('config', 'ppn_pembelian')->akun_id;
-        $this->akunBiayaLainPembelian = KonfigurasiJurnal::query()->firstWhere('config', 'biaya_pembelian')->akun_id;
+        $this->akunPembelianService();
     }
 
     public function handleStore($data)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             // store pembelian
-            $pembelian = $this->pembelianRepository->store($data);
+            $pembelian = PembelianRepository::build($data)->store();
             // store stock masuk
-            $stockMasuk = $this->stockMasukRepo->store($data, $pembelian::class, $pembelian->id);
+            StockMasukPembelian::build($pembelian, $data)->store();
             // store hutang pembelian
-            $hutangPembelian = $this->hutangPembelianRepo->store($data, $pembelian::class, $pembelian->id);
+            HutangPembelianFromPembelian::build($pembelian)->store();
             // store persediaan transaksi
-            $persediaanTransaksi = $this->persediaanTransaksiRepo->storeTransaksiMasuk($data, $pembelian::class, $pembelian->id);
+            PersediaanTransaksiPembelian::build($pembelian)->store();
             // store jurnal
-            $this->jurnal($pembelian, $pembelian->gudang_id);
-            \DB::commit();
+            $this->jurnalPembelianService($pembelian);
+            DB::commit();
             return (object)[
                 'status'=>true,
                 'keterangan'=>'Sukses di simpan'
             ];
         }catch (ModelNotFoundException $e){
-            \DB::rollBack();
+            DB::rollBack();
             return (object)[
                 'status'=>false,
                 'keterangan'=>$e
@@ -74,28 +55,29 @@ class PembelianService implements ServiceInterface
 
     public function handleUpdate($data)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             // initiate
-            $pembelian = $this->pembelianRepository->getDataById($data['pembelianId']);
+            $pembelian = Pembelian::find($data['pembelianId']);
             // rollback
             $this->rollback($pembelian);
             // update pembelian
-            $pembelian = $this->pembelianRepository->update($data);
+            $pembelian = PembelianRepository::build($data)->update();
             // update stock masuk
-            $stockMasuk = $this->stockMasukRepo->update($data, $pembelian::class, $pembelian->id);
+            StockMasukPembelian::build($pembelian, $data)->update();
             // update hutang pembelian
-            $hutangPembelian = $this->hutangPembelianRepo->update($data, $pembelian::class, $pembelian->id);
+            HutangPembelianFromPembelian::build($pembelian)->update();
             // update persediaan transaksi
-            $persediaanTransaksi = $this->persediaanTransaksiRepo->updateTransaksiMasuk($data, $pembelian::class, $pembelian->id);
+            PersediaanTransaksiPembelian::build($pembelian)->update();
             // store jurnal transaksi dan neraca saldo
-            $this->jurnal($pembelian, $pembelian->gudang_id);
-            \DB::commit();
+            $this->jurnalPembelianService($pembelian);
+            DB::commit();
             return (object)[
-                'status'=>true
+                'status'=>true,
+                'keterangan'=>'Data Berhasil disimpan'
             ];
         }catch (ModelNotFoundException $e){
-            \DB::rollBack();
+            DB::rollBack();
             return (object)[
                 'status'=>false,
                 'keterangan'=>$e
@@ -105,19 +87,25 @@ class PembelianService implements ServiceInterface
 
     public function handleGetData($id)
     {
-        return $this->pembelianRepository->getDataById($id);
+        return Pembelian::find($id);
     }
 
     public function handleDestroy($id)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
-            \DB::commit();
+            $pembelian = Pembelian::find($id);
+            $this->rollback($pembelian);
+            $pembelian->stockMasuk->delete();
+            $pembelian->hutang_pembelian->delete();
+            $pembelian->persediaan_transaksi->delete();
+            $pembelian->delete();
+            DB::commit();
             return (object)[
                 'status'=>true
             ];
         } catch (ModelNotFoundException $e){
-            \DB::rollBack();
+            DB::rollBack();
             return (object)[
                 'status'=>false,
                 'keterangan'=>$e
@@ -128,38 +116,18 @@ class PembelianService implements ServiceInterface
     protected function rollback($pembelian)
     {
         // rollback stock masuk
-        $stockMasuk = $this->stockMasukRepo->rollback($pembelian::class, $pembelian->id);
+        StockMasukPembelian::build($pembelian)->rollback();
         // rollback hutang pembelian
-        $hutangPembelian = $this->hutangPembelianRepo->rollback($pembelian::class, $pembelian->id);
+        HutangPembelianFromPembelian::build($pembelian)->rollback();
         // rollback persediaan transaksi
-        $persediaanTransaksi = $this->persediaanTransaksiRepo->rollbackMasuk($pembelian::class, $pembelian->id);
+        PersediaanTransaksiPembelian::build($pembelian)->rollback();
         // rollback pembelian
-        $rollbackPembelian = $this->pembelianRepository->rollback($pembelian->id);
+        $pembelian->pembelianDetail()->delete();
         // rollback jurnal dan neraca saldo
         $this->rollbackJurnal($pembelian);
     }
 
-    protected function jurnal($pembelian, $gudangId)
-    {
-        $akunGudang = ($pembelian->gudang_id == '1') ? $this->akunPersediaanKalimas : $this->akunPersediaanPerak;
-        $persediaan = $pembelian->totalBayar - (int)$pembelian->ppn - (int)$pembelian->biaya_lain;
-        // persediaan debet
-        $this->jurnalTransaksiRepo->debet($pembelian::class, $pembelian->id, $akunGudang, $persediaan);
-        $this->neracaSaldoRepo->debet($akunGudang, $persediaan);
-        // biaya lain debet
-        if ((int)$pembelian->biaya_lain){
-            $this->jurnalTransaksiRepo->debet($pembelian::class, $pembelian->id, $this->akunBiayaLainPembelian, $pembelian->biaya_lain);
-            $this->neracaSaldoRepo->debet($this->akunBiayaLainPembelian, $pembelian->biaya_lain);
-        }
-        // ppn debet
-        if ((int)$pembelian->ppn){
-            $this->jurnalTransaksiRepo->debet($pembelian::class, $pembelian->id, $this->akunPPNPembelian, $pembelian->ppn);
-            $this->neracaSaldoRepo->debet($this->akunPPNPembelian, $pembelian->ppn);
-        }
-        // hutang pembelian debet
-        $this->jurnalTransaksiRepo->kredit($pembelian::class, $pembelian->id, $this->akunHutangPembelian, $pembelian->total_bayar);
-        $this->neracaSaldoRepo->kredit($this->akunHutangPembelian, $pembelian->total_bayar);
-    }
+
 
     protected function rollbackJurnal($pembelian)
     {

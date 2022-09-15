@@ -19,7 +19,7 @@ class SaldoPiutangPenjualanRepo
 
     public function getDataById()
     {
-        return SaldoPiutangPenjualan::query()->findOrFail($this->customerId);
+        return SaldoPiutangPenjualan::query()->find($this->customerId);
     }
 
     public function penjualan()

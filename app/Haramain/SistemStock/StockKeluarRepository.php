@@ -5,12 +5,12 @@ use App\Models\Stock\StockKeluar;
 class StockKeluarRepository
 {
     protected $kode;
-    protected $supllierId;
     protected $activeCash;
     protected $stockableKeluarType;
     protected $stockableKeluarId;
     protected $kondisi;
     protected $gudangId;
+    protected $supllierId;
     protected $tglKeluar;
     protected $userId;
     protected $keterangan;
@@ -23,6 +23,11 @@ class StockKeluarRepository
     public function __construct()
     {
         $this->activeCash = session('ClosedCash');
+    }
+
+    public static function build(...$params)
+    {
+        return new static(...$params);
     }
 
     protected function kode($kondisi)
@@ -107,5 +112,13 @@ class StockKeluarRepository
             (new StockInventoryRepository($this->kondisi, $this->gudangId, $item))->update('stock_keluar');
         }
         return $detail;
+    }
+
+    public function rollback()
+    {
+        foreach ($this->dataDetail as $item) {
+            StockInventoryRepository::build($this->kondisi, $this->gudangId, $item)->rollback('stock_keluar');
+        }
+        return $this->getDataByStockable()->stockKeluarDetail()->delete();
     }
 }

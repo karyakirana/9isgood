@@ -20,18 +20,4 @@ class StockKeluarPenjualan extends StockKeluarRepository
 
         $this->dataDetail = $penjualan->penjualanDetail;
     }
-
-    public static function build(Penjualan $penjualan)
-    {
-        return new static($penjualan);
-    }
-
-    public function rollback()
-    {
-        $stockKeluar = $this->getDataByStockable();
-        foreach ($this->dataDetail as $item) {
-            (new StockInventoryRepository($this->kondisi, $this->gudangId, $item))->rollback('stock_keluar');
-        }
-        return $stockKeluar->stockKeluarDetail()->delete();
-    }
 }

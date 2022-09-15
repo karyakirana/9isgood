@@ -68,6 +68,6 @@ class PersediaanMasuk extends PersediaanRepository
         }
         $queryPersediaanTerakhir->increment('stock_masuk', $this->jumlah);
         $queryPersediaanTerakhir->increment('stock_saldo', $this->jumlah);
-        return $queryPersediaanTerakhir;
+        return $queryPersediaanTerakhir->refresh();
     }
 }

@@ -5,6 +5,7 @@ namespace App\Models\Stock;
 use App\Models\Keuangan\JurnalPersediaanMutasi;
 use App\Models\Keuangan\PersediaanMutasi;
 use App\Haramain\Traits\ModelTraits\{GudangTraits, KodeTraits, StockKeluarTraits, StockMasukTraits, UserTraits};
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -24,6 +25,14 @@ class StockMutasi extends Model
         'user_id',
         'keterangan',
     ];
+
+    public function tglMutasi():Attribute
+    {
+        return Attribute::make(
+            get : fn ($value) => tanggalan_format($value),
+            set : fn ($value) => tanggalan_database_format($value, 'd-M-Y')
+        );
+    }
 
     public function stockMutasiDetail()
     {

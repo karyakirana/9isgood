@@ -20,11 +20,6 @@ class PersediaanTransaksiFromPenjualan extends PersediaanTransaksiRepository
         $this->dataDetail = $penjualan->penjualanDetail;
     }
 
-    public static function build(Penjualan $penjualan)
-    {
-        return new static($penjualan);
-    }
-
     protected function getDataFromPersediaan(): array
     {
         $data = [];
@@ -36,7 +31,6 @@ class PersediaanTransaksiFromPenjualan extends PersediaanTransaksiRepository
 
     /**
      * @return array
-     * @noinspection PhpMemberCanBePulledUpInspection
      */
     protected function detail(): array
     {

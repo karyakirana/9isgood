@@ -2,6 +2,7 @@
 
 use App\Haramain\SistemKeuangan\SubNeraca\NeracaSaldoRepository;
 use App\Haramain\SistemKeuangan\SubOther\KonfigurasiJurnalRepository;
+use Str;
 
 trait JurnalTransaksiServiceTrait
 {
@@ -113,5 +114,73 @@ trait JurnalTransaksiServiceTrait
         // hpp kredit
         $jurnalTransaksiRepo->kredit($this->akunPiutangPenjualan, $persediaanTransaksi->debet);
         NeracaSaldoRepository::kredit($this->akunBiayaLainPenjualan, $persediaanTransaksi->debet);
+    }
+
+    protected $akunHutangPembelian;
+    protected $akunPPNPembelian;
+    protected $akunBiayaLainPembelian;
+
+    protected function akunPembelianService()
+    {
+        $this->akunHutangPembelian = KonfigurasiJurnalRepository::build('hutang_dagang')->getAkun();
+        $this->akunPersediaanKalimas = KonfigurasiJurnalRepository::build('persediaan_baik_kalimas')->getAkun();
+        $this->akunPersediaanPerak = KonfigurasiJurnalRepository::build('persediaan_baik_perak')->getAkun();
+        $this->akunPPNPembelian = KonfigurasiJurnalRepository::build('ppn_pembelian')->getAkun();
+        $this->akunBiayaLainPembelian = KonfigurasiJurnalRepository::build('biaya_pembelian')->getAkun();
+    }
+
+    protected function jurnalPembelianService($pembelian)
+    {
+        // dd($pembelian);
+        $jurnalTransaksi = JurnalTransaksiRepo::build($pembelian);
+        $akunGudang = ($pembelian->gudang_id == '1') ? $this->akunPersediaanKalimas : $this->akunPersediaanPerak;
+        $persediaan = (int)$pembelian->total_bayar - (int)$pembelian->ppn - (int)$pembelian->biaya_lain;
+        // persediaan debet
+        //dd($persediaan);
+        $jurnalTransaksi->debet($akunGudang, $persediaan);
+        NeracaSaldoRepository::debet($akunGudang, $persediaan);
+        // biaya lain debet
+        if ((int)$pembelian->biaya_lain){
+            $jurnalTransaksi->debet($this->akunBiayaLainPembelian, $pembelian->biaya_lain);
+            NeracaSaldoRepository::debet($this->akunBiayaLainPembelian, $pembelian->biaya_lain);
+        }
+        // ppn debet
+        if ((int)$pembelian->ppn){
+            $jurnalTransaksi->debet($this->akunPPNPembelian, $pembelian->ppn);
+            NeracaSaldoRepository::debet($this->akunPPNPembelian, $pembelian->ppn);
+        }
+        // hutang pembelian debet
+        $jurnalTransaksi->kredit($this->akunHutangPembelian, $pembelian->total_bayar);
+        NeracaSaldoRepository::kredit($this->akunHutangPembelian, $pembelian->total_bayar);
+    }
+
+    protected $akunPersediaanKalimasRusak;
+    protected $akunPersediaanPerakRusak;
+
+    protected function akunStockMutasiService()
+    {
+        $this->akunPersediaanKalimas = KonfigurasiJurnalRepository::build('persediaan_baik_kalimas')->getAkun();
+        $this->akunPersediaanKalimasRusak = KonfigurasiJurnalRepository::build('persediaan_rusak_kalimas')->getAkun();
+        $this->akunPersediaanPerak = KonfigurasiJurnalRepository::build('persediaan_baik_perak')->getAkun();
+        $this->akunPersediaanPerakRusak = KonfigurasiJurnalRepository::build('persediaan_rusak_perak')->getAkun();
+    }
+
+    protected function jurnalStockMutasiService($persediaanMutasi)
+    {
+        // initiate jurnal
+        $gudangAsalId = ucfirst($persediaanMutasi->gudangAsal->nama);
+        $gudangTujuanId = ucfirst($persediaanMutasi->gudangTujuan->nama);
+        $jenisMutasi = $persediaanMutasi->jenis_mutasi;
+        $kondisiKeluar = Str::before($jenisMutasi, '_');
+        $kondisiKeluar = ($kondisiKeluar == 'rusak') ? ucfirst($kondisiKeluar) : null;
+        $kondisiMasuk = Str::after($jenisMutasi, '_');
+        $kondisiMasuk = ($kondisiMasuk == 'rusak') ? ucfirst($kondisiMasuk) : null;
+
+        // persediaan tujuan debet
+        $jurnalTransaksi = JurnalTransaksiRepo::build($persediaanMutasi);
+        $jurnalTransaksi->debet($this->{'akunPersediaan'.$gudangTujuanId.$kondisiMasuk}, $persediaanMutasi->total_harga);
+        NeracaSaldoRepository::debet($this->{'akunPersediaan'.$gudangTujuanId.$kondisiMasuk}, $persediaanMutasi->total_harga);
+        $jurnalTransaksi->kredit($this->{'akunPersediaan'.$gudangAsalId.$kondisiKeluar}, $persediaanMutasi->total_harga);
+        NeracaSaldoRepository::kredit($this->{'akunPersediaan'.$gudangAsalId.$kondisiKeluar}, $persediaanMutasi->total_harga);
     }
 }

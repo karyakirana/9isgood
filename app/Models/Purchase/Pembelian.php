@@ -5,6 +5,7 @@ namespace App\Models\Purchase;
 use App\Models\Keuangan\HutangPembelian;
 use App\Models\Keuangan\PersediaanTransaksi;
 use App\Models\Stock\StockMasuk;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use App\Haramain\Traits\ModelTraits\{JurnalTransaksiTraits,
     KodeTraits,
     SupplierTraits,
@@ -38,6 +39,14 @@ class Pembelian extends Model
         'keterangan',
         'print',
     ];
+
+    public function tglNota(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => tanggalan_format($value),
+            set: fn($value) => tanggalan_database_format($value, 'd-M-Y')
+        );
+    }
 
     public function pembelianDetail()
     {

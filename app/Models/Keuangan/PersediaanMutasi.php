@@ -20,17 +20,22 @@ class PersediaanMutasi extends Model
         'total_harga',
     ];
 
+    public function persediaanMutasiDetail()
+    {
+        return $this->hasMany(PersediaanMutasiDetail::class, 'persediaan_mutasi_id');
+    }
+
     public function stockMutasi()
     {
         return $this->belongsTo(StockMutasi::class, 'stock_mutasi_id');
     }
 
-    public function gudangAsalId()
+    public function gudangAsal()
     {
         return $this->belongsTo(Gudang::class, 'gudang_asal_id');
     }
 
-    public function gudangTujuanId()
+    public function gudangTujuan()
     {
         return $this->belongsTo(Gudang::class, 'gudang_tujuan_id');
     }

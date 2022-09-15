@@ -5,6 +5,38 @@ use App\Models\Stock\StockMutasiDetail;
 
 class StockMutasiRepository
 {
+    protected $stockMutasiId;
+    protected $activeCash;
+    protected $kode;
+    protected $jenisMutasi;
+    protected $gudangAsalId;
+    protected $gudangTujuanId;
+    protected $tglMutasi;
+    protected $userId;
+    protected $keterangan;
+
+    protected $dataDetail;
+
+    public function __construct($data)
+    {
+        $this->stockMutasiId = $data['mutasiId'];
+        $this->activeCash = session('ClosedCash');
+        $this->kode = $this->kode($data['jenisMutasi']);
+        $this->jenisMutasi = $data['jenisMutasi'];
+        $this->gudangAsalId = $data['gudangAsalId'];
+        $this->gudangTujuanId = $data['gudangTujuanId'];
+        $this->tglMutasi = $data['tglMutasi'];
+        $this->userId = auth()->id();
+        $this->keterangan = $data['keterangan'];
+
+        $this->dataDetail = $data['dataDetail'];
+    }
+
+    public static function build($data)
+    {
+        return new static($data);
+    }
+
     protected function kode($jenisMutasi)
     {
         $query = StockMutasi::query()
@@ -24,75 +56,51 @@ class StockMutasiRepository
         return sprintf("%04s", $num)."/{$kodeKondisi}/".date('Y');
     }
 
-    public function getDataById($stockMutasiId)
+    public function getDataById()
     {
-        return StockMutasi::query()->find($stockMutasiId);
+        return StockMutasi::query()->find($this->stockMutasiId);
     }
 
-    public function getDataAll($activeCash)
+    public function store()
     {
-        $query = StockMutasi::query();
-        if ($activeCash){
-            $query = $query->where('active_cash', session('ClosedCash'));
-        }
-        return $query->get();
-    }
-
-    public function store($data)
-    {
-        $data = (object) $data;
         $stockMutasi = StockMutasi::query()
             ->create([
                 'active_cash'=>session('ClosedCash'),
-                'kode'=>$this->kode($data->jenisMutasi),
-                'jenis_mutasi'=>$data->jenisMutasi,
-                'gudang_asal_id'=>$data->gudangAsalId,
-                'gudang_tujuan_id'=>$data->gudangTujuanId,
-                'tgl_mutasi'=>tanggalan_database_format($data->tglMutasi, 'd-M-Y'),
-                'user_id'=>$data->userId,
-                'keterangan'=>$data->keterangan,
+                'kode'=>$this->kode($this->jenisMutasi),
+                'jenis_mutasi'=>$this->jenisMutasi,
+                'gudang_asal_id'=>$this->gudangAsalId,
+                'gudang_tujuan_id'=>$this->gudangTujuanId,
+                'tgl_mutasi'=>$this->tglMutasi,
+                'user_id'=>$this->userId,
+                'keterangan'=>$this->keterangan,
             ]);
-        $this->storeDetail($data->dataDetail, $stockMutasi->id);
+        $stockMutasi->stockMutasiDetail()->createMany($this->storeDetail());
         return $stockMutasi;
     }
 
-    public function update($data)
+    public function update()
     {
-        $data = (object) $data;
-        $stockMutasi = $this->getDataById($data->mutasiId);
+        $stockMutasi = $this->getDataById();
         $stockMutasi->update([
-            'jenis_mutasi'=>$data->jenisMutasi,
-            'gudang_asal_id'=>$data->gudangAsalId,
-            'gudang_tujuan_id'=>$data->gudangTujuanId,
-            'tgl_mutasi'=>tanggalan_database_format($data->tglMutasi, 'd-M-Y'),
-            'user_id'=>$data->userId,
-            'keterangan'=>$data->keterangan,
+            'gudang_asal_id'=>$this->gudangAsalId,
+            'gudang_tujuan_id'=>$this->gudangTujuanId,
+            'tgl_mutasi'=>$this->tglMutasi,
+            'user_id'=>$this->userId,
+            'keterangan'=>$this->keterangan,
         ]);
-        $this->storeDetail($data->dataDetail, $stockMutasi->id);
-        return $stockMutasi;
+        $stockMutasi->stockMutasiDetail()->createMany($this->storeDetail());
+        return $stockMutasi->refresh();
     }
 
-    public function rollback($stockMutasiId)
+    protected function storeDetail()
     {
-        return StockMutasiDetail::query()->where('stock_mutasi_id', $stockMutasiId)->delete();
-    }
-
-    public function destroy($stockMutasiId)
-    {
-        $this->rollback($stockMutasiId);
-        return StockMutasi::destroy($stockMutasiId);
-    }
-
-    protected function storeDetail($dataDetail, $stockMutasiId)
-    {
-        foreach ($dataDetail as $item) {
-            $item = (object) $item;
-            StockMutasiDetail::query()
-                ->create([
-                    'stock_mutasi_id'=>$stockMutasiId,
-                    'produk_id'=>$item->produk_id,
-                    'jumlah'=>$item->jumlah,
-                ]);
+        $detail = [];
+        foreach ($this->dataDetail as $item) {
+            $detail[] = [
+                    'produk_id'=>$item['produk_id'],
+                    'jumlah'=>$item['jumlah'],
+                ];
         }
+        return $detail;
     }
 }

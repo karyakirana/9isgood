@@ -21,17 +21,4 @@ class StockMasukPenjualanRetur extends StockMasukRepository
 
         $this->dataDetail = $penjualanRetur->returDetail;
     }
-
-    public static function build(PenjualanRetur $penjualanRetur)
-    {
-        return new static($penjualanRetur);
-    }
-
-    public function rollback()
-    {
-        foreach ($this->dataDetail as $item) {
-            StockInventoryRepository::build($this->kondisi, $this->gudangId, $item)->rollback('stock_masuk');
-        }
-        return $this->getDataByStockable()->stockMasukDetail()->delete();
-    }
 }
