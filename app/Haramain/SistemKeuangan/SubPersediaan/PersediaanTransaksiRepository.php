@@ -1,4 +1,6 @@
-<?php namespace App\Haramain\SistemKeuangan\SubPersediaan;
+<?php /** @noinspection PhpLackOfCohesionInspection */
+
+namespace App\Haramain\SistemKeuangan\SubPersediaan;
 
 use App\Models\Keuangan\PersediaanTransaksi;
 use App\Models\Keuangan\PersediaanTransaksiDetail;

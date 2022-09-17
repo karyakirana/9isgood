@@ -10,7 +10,7 @@ class StockKeluarRepository
     protected $stockableKeluarId;
     protected $kondisi;
     protected $gudangId;
-    protected $supllierId;
+    protected $supplierId;
     protected $tglKeluar;
     protected $userId;
     protected $keterangan;
@@ -62,7 +62,7 @@ class StockKeluarRepository
         $stockKeluar = StockKeluar::query()
             ->create([
                 'kode'=>$this->kode,
-                'supplier_id'=>$this->supllierId,
+                'supplier_id'=>$this->supplierId,
                 'active_cash'=>$this->activeCash,
                 'stockable_keluar_id'=>$this->stockableKeluarId,
                 'stockable_keluar_type'=>$this->stockableKeluarType,
@@ -80,7 +80,7 @@ class StockKeluarRepository
     {
         $stockKeluar = $this->getDataByStockable();
         $stockKeluar->update([
-            'supplier_id'=>$this->supllierId,
+            'supplier_id'=>$this->supplierId,
             'stockable_keluar_id'=>$this->stockableKeluarId,
             'stockable_keluar_type'=>$this->stockableKeluarType,
             'kondisi'=>$this->kondisi,

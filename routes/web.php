@@ -1,38 +1,12 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Pdf\ReportPdfController;
 use App\Http\Livewire\Generator\Keuangan\PiutangPenjualanGenerator;
 use App\Http\Livewire\Generator\{PembelianEksternal, PembelianInternal, Penjualan, PenjualanRetur, PersediaanOpname};
 use App\Http\Livewire\Generator\Stock\GenStockInventory;
-use App\Http\Livewire\Stoc\{StockRusakForm, StockRusakIndex};
-use App\Http\Controllers\Stock\{StockLogController, StockMutasiController, StockOpnameController};
 use App\Http\Livewire\Pembelian\{PembelianLuarForm, PembelianLuarIndex};
-use App\Http\Livewire\Purchase\{PembelianInternalForm, PembelianInternalIndex, PembelianReturForm, PembelianReturIndex};
-use App\Http\Livewire\Stock\{InventoryByJenisIndex,
-    InventoryIndex,
-    Mutasi\StockMutasiBaikBaikIndeks,
-    Mutasi\StockMutasiBaikBaikTrans,
-    Mutasi\StockMutasiBaikRusakIndeks,
-    Mutasi\StockMutasiBaikRusakTrans,
-    Mutasi\StockMutasiRusakRusakIndeks,
-    Mutasi\StockMutasiRusakRusakTrans,
-    RefreshStock,
-    StockAkhirForm,
-    StockAkhirIndex,
-    StockCardIndex,
-    StockKeluarForm,
-    StockKeluarIndex,
-    StockMasukInternalIndex,
-    StockMutasiBaikBaikForm,
-    StockMutasiBaikBaikIndex,
-    StockMutasiBaikRusakForm,
-    StockMutasiBaikRusakIndex,
-    StockMutasiForm,
-    StockMutasiIndex,
-    StockMutasiRusakRusakForm,
-    StockMutasiRusakRusakIndex,
-    StockOpnameForm,
-    StockOpnameIndex};
+use App\Http\Livewire\Purchase\{PembelianReturForm, PembelianReturIndex};
 use App\Http\Controllers\Penjualan\{PenjualanReturReportController, ReportPenjualanController};
 use App\Http\Controllers\Sales\ReceiptController;
 use App\Http\Controllers\Testing\{
@@ -44,14 +18,12 @@ use App\Http\Livewire\Master\CustomerIndex;
 use App\Http\Livewire\Penjualan\{PenjualanForm,
     PenjualanIndex,
     PenjualanReportIndex,
-    PenjualanReturForm,
     PenjualanReturIndex,
     ReturPenjualanForm};
-use App\Http\Livewire\Testing\{StockCardTestTable,
+use App\Http\Livewire\Testing\{
     TestingPenjualanForm,
     TestingPenjualanIndex,
-    TestingStockMasukIndex,
-    TestingStockMutasiForm};
+    };
 use App\Http\Livewire\Master\{
     GudangIndex,
     PegawaiIndex,
@@ -170,108 +142,6 @@ Route::middleware('auth')->group(function(){
     Route::get('pembelian/retur/{kondisi}', PembelianReturIndex::class)->name('pembelian.retur');
     Route::get('pembelian/retur/{kondisi}/trans/', PembelianReturForm::class);
     Route::get('pembelian/retur/trans/{retur}', PembelianReturForm::class);
-
-    // pembelian (dari buku internal)
-    Route::get('pembelian/internal', PembelianInternalIndex::class)->name('pembelian.internal');
-    Route::get('pembelian/internal/trans', PembelianInternalForm::class);
-    Route::get('pembelian/internal/trans/{pembelian}', PembelianInternalForm::class);
-});
-
-/**
- * Stock Routing
- */
-Route::middleware('auth')->group(function (){
-
-    // stock report
-    Route::get('stock/report', RefreshStock::class);
-
-    // stock index
-    Route::get('stock/log', [StockLogController::class, 'index'])->name('stock.index');
-    Route::get('stock/log/inventory', [StockLogController::class, 'inventory'])->name('stock.index');
-
-    // daftar inventory
-    Route::get('stock/inventory', InventoryIndex::class)->name('inventory');
-    Route::get('stock/inventory/{jenis}/{gudang}', InventoryByJenisIndex::class);
-
-    // card stock
-    Route::get('stock/card/{produk_id}', StockCardIndex::class);
-    // Route::get('stock/card/{produk_id}/{gudang_id}', \App\Http\Livewire\Stock\StockCardIndex::class)->name('stock.card');
-    Route::get('stock/card/{produk_id}/{gudang_id}', StockCardTestTable::class)->name('stock.card');
-
-    Route::get('stock/print/stockopname', [StockOpnameController::class, 'reportStockByProduk'])->name('stock.print.stockopname');
-
-    // stock opname
-    Route::get('stock/opname/koreksi', \App\Http\Livewire\Stock\StockOpnameKoreksiIndex::class)->name('stock.opname.koreksi');
-    Route::get('stock/opname/koreksi/form/{jenis}', \App\Http\Livewire\Stock\StockOpnameKoreksiForm::class)->name('stock.opname.koreksi.form');
-    Route::get('stock/opname/koreksi/form/{jenis}/{stockOpnameKoreksiId}', \App\Http\Livewire\Stock\StockOpnameKoreksiForm::class)->name('stock.opname.koreksi.form.edit');
-
-    // testing stock masuk
-    Route::get('testing/stockmasuk/index', TestingStockMasukIndex::class)->name('testing.stockmasuk.index');
-    Route::get('testing/stockmasuk/form', \App\Http\Livewire\Pembelian\PembelianInternalForm::class)->name('testing.stockmasuk.form');
-
-    // testing stock mutasi
-    Route::get('testing/stock/transaksi/mutasi/baik_baik/trans',  TestingStockMutasiForm::class)->name('testing.stock.mutasi.baikbaik.trans');
-
-
-    // stock transaksi
-    Route::get('stock/masuk', \App\Http\Livewire\Pembelian\PembelianInternalIndex::class)->name('stock.masuk');
-    Route::get('stock/masuk/form', \App\Http\Livewire\Pembelian\PembelianInternalForm::class)->name('stock.masuk.trans');
-    Route::get('stock/masuk/form/{pembelianId}', \App\Http\Livewire\Pembelian\PembelianInternalForm::class)->name('stock.masuk.trans.edit');
-
-    Route::get('stock/keluar', StockKeluarIndex::class);
-
-    // jatah dihapus
-    Route::get('stock/transaksi/keluar', StockKeluarIndex::class)->name('stock.keluar');
-    Route::get('stock/transaksi/keluar/{kondisi}', StockKeluarIndex::class);
-    Route::get('stock/transaksi/keluar/trans/{kondisi}', StockKeluarForm::class);
-    Route::get('stock/transaksi/keluar/trans/{kondisi}/{stockkeluar}', StockKeluarForm::class);
-
-    // stock mutasi
-    Route::get('stock/mutasi', [StockMutasiController::class, 'index'])->name('stock.mutasi');
-    Route::get('stock/mutasi/report/{kondisi}', [StockMutasiController::class, 'jenisMutasi'])->name('stock.mutasi.kondisi');
-    Route::get('stock/mutasi/form', StockMutasiForm::class)->name('stock.mutasi.form');
-    Route::get('stock/mutasi/form/{mutasiId}', StockMutasiForm::class)->name('stock.mutasi.form.edit');
-
-    // stock mutasi dari baik ke rusak
-    Route::get('stock/rusak', StockRusakIndex::class)->name('stock.rusak');
-    Route::get('stock/rusak/trans', StockRusakForm::class)->name('stock.rusak.trans');
-
-    Route::get('stock/transaksi/opname', StockOpnameIndex::class)->name('stock.opname');
-    Route::get('stock/transaksi/opname/{jenis}', StockOpnameIndex::class);
-    Route::get('stock/transaksi/opname/trans/{jenis}', StockOpnameForm::class);
-    Route::get('stock/transaksi/opname/trans/{jenis}/{stockOpname_id}', StockOpnameForm::class);
-
-    Route::get('stock/transaksi/mutasi', StockMutasiIndex::class)->name('mutasi');
-    Route::get('stock/transaksi/mutasi/edit/{mutasiId}', StockMutasiForm::class)->name('mutasi.trans.edit');
-    Route::get('stock/transaksi/mutasi/baik_baik', StockMutasiIndex::class)->name('mutasi.baik_baik');
-    Route::get('stock/transaksi/mutasi/baik_baik/trans', StockMutasiForm::class)->name('mutasi.baik_baik.trans');
-    Route::get('stock/transaksi/mutasi/baik_rusak', StockMutasiIndex::class)->name('mutasi.baik_rusak');
-    Route::get('stock/transaksi/mutasi/baik_rusak/trans', StockMutasiForm::class)->name('mutasi.baik_rusak.trans');
-    Route::get('stock/transaksi/mutasi/rusak_rusak', StockMutasiIndex::class)->name('mutasi.rusak_rusak');
-    Route::get('stock/transaksi/mutasi/rusak_rusak/trans', StockMutasiForm::class)->name('mutasi.rusak_rusak.trans');
-
-    Route::get('stock/transaksi/mutasi/baik/baik',  StockMutasiBaikBaikIndex::class)->name('stock.mutasi.baik.baik');
-    Route::get('stock/transaksi/mutasi/baik/baik/trans',  StockMutasiBaikBaikForm::class)->name('stock.mutasi.baik.baik.trans');
-    Route::get('stock/transaksi/mutasi/baik/baik/trans/{mutasiId}',  StockMutasiBaikBaikForm::class)->name('stock.mutasi.baik.baik.trans.edit');
-    Route::get('stock/transaksi/mutasi/baik/rusak',  StockMutasiBaikRusakIndex::class)->name('stock.mutasi.baik.rusak');
-    Route::get('stock/transaksi/mutasi/baik/rusak/trans',  StockMutasiBaikRusakForm::class)->name('stock.mutasi.baik.rusak.trans');
-    Route::get('stock/transaksi/mutasi/rusak/rusak',  StockMutasiRusakRusakIndex::class)->name('stock.mutasi.rusak.rusak');
-    Route::get('stock/transaksi/mutasi/rusak/rusak/trans',  StockMutasiRusakRusakForm::class)->name('stock.mutasi.rusak.rusak.trans');
-
-    // mutasi new
-    Route::get('stock/mutasi/baik/baik', StockMutasiBaikBaikIndeks::class)->name('');
-    Route::get('stock/mutasi/baik/baik/trans', StockMutasiBaikBaikTrans::class);
-    Route::get('stock/mutasi/baik/rusak', StockMutasiBaikRusakIndeks::class)->name('');
-    Route::get('stock/mutasi/baik/rusak/trans', StockMutasiBaikRusakTrans::class);
-    Route::get('stock/mutasi/rusak/rusak', StockMutasiRusakRusakIndeks::class)->name('');
-    Route::get('stock/mutasi/rusak/rusak/trans', StockMutasiRusakRusakTrans::class);
-
-    // numpang stock
-    Route::get('stock/stockakhir', StockAkhirIndex::class)->name('stock.stockakhir');
-    Route::get('stock/stockakhir/transaksi', StockAkhirForm::class)->name('stock.stockakhir.transaksi');
-    Route::get('stock/stockakhir/transaksi/{id}', StockAkhirForm::class);
-
-    Route::get('stock/transaksi/internal', StockMasukInternalIndex::class)->name('stock.masuk.internal.index');
 });
 
 /**
@@ -294,7 +164,7 @@ Route::middleware('auth')->group(function (){
  * Auth Routing
  */
 Route::middleware('guest')->group(function (){
-    Route::controller(\App\Http\Controllers\AuthController::class)->group(function (){
+    Route::controller(AuthController::class)->group(function (){
         Route::get('/login', 'index')->name('login');
         Route::post('/login', 'login');
         Route::get('/register', 'create')->name('register');
@@ -309,8 +179,9 @@ Route::middleware('auth')->group(function (){
     Route::get('testyoman', \App\Http\Livewire\Z\Tester::class);
 });
 
-Route::get('/logout', [\App\Http\Controllers\AuthController::class, 'destroy'])->name('logout');
+Route::get('/logout', [AuthController::class, 'destroy'])->name('logout');
 
 // require __DIR__.'/auth.php';
  require __DIR__.'/keuangan.php';
+ require __DIR__.'/stockRoute.php';
  require __DIR__.'/testerRoute.php';

@@ -4,6 +4,7 @@ namespace App\Models\Purchase;
 
 use App\Models\Keuangan\HutangPembelian;
 use App\Models\Keuangan\PersediaanTransaksi;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use App\Haramain\Traits\ModelTraits\{JurnalTransaksiTraits,
     KodeTraits,
     StockKeluarTraits,
@@ -19,7 +20,8 @@ class PembelianRetur extends Model
     protected $table = 'pembelian_retur';
     protected $fillable = [
         'kode',
-        'jenis',
+        'jenis', // BLU or INTERNAL
+        'kondisi', // baik or rusak
         'active_cash',
         'supplier_id',
         'gudang_id',
@@ -35,6 +37,14 @@ class PembelianRetur extends Model
         'keterangan',
         'print',
     ];
+
+    public function tglTempo():Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => tanggalan_format($value),
+            set: fn ($value) => tanggalan_database_format($value, 'd-M-Y')
+        );
+    }
 
     public function returDetail()
     {

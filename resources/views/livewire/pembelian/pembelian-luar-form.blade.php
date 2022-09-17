@@ -1,4 +1,20 @@
 <div>
+    {{-- alert store --}}
+    @if(session()->has('storeMessage'))
+        <x-molecules.alert-danger>
+            {{ session('storeMessage') }}
+        </x-molecules.alert-danger>
+    @endif
+    {{-- alert validation --}}
+    @if($errors->all())
+        <x-molecules.alert-danger>
+            <ul>
+                @foreach($errors->all() as $messages)
+                    <li>{{$messages}}</li>
+                @endforeach
+            </ul>
+        </x-molecules.alert-danger>
+    @endif
     <div class="d-flex flex-column flex-lg-row">
         <!-- begin:table cards-->
         <div class="flex-lg-row-fluid mb-10 mb-lg-0 me-lg-7 me-xl-10">
@@ -6,36 +22,33 @@
                 <form>
                     <div class="row">
                         <div class="col-6 mb-5">
-                            <x-atoms.input.group-horizontal label="Supplier" name="supplier_id">
-                                <x-atoms.input.text wire:model.defer="supplier_nama" data-bs-toggle="modal" data-bs-target="#modal_supplier" readonly/>
+                            <x-atoms.input.group-horizontal label="Supplier" name="supplierNama">
+                                <x-atoms.input.text wire:model.defer="supplierNama" data-bs-toggle="modal" data-bs-target="#modal_supplier" readonly/>
                             </x-atoms.input.group-horizontal>
                         </div>
                         <div class="col-6 mb-5">
-                            <x-atoms.input.group-horizontal label="Tgl Nota" name="tgl_nota">
-                                <x-atoms.input.singledaterange wire:model.defer="tgl_nota" id="tgl_nota" readonly/>
-                            </x-atoms.input.group-horizontal>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-6 mb-5">
-                            <x-atoms.input.group-horizontal label="Surat Jalan" name="nomor_surat_jalan">
-                                <x-atoms.input.text wire:model.defer="nomor_surat_jalan" />
-                            </x-atoms.input.group-horizontal>
-                        </div>
-                        <div class="col-6 mb-5">
-                            <x-atoms.input.group-horizontal label="Nomor Nota" name="nomor_nota">
-                                <x-atoms.input.text wire:model.defer="nomor_nota" />
+                            <x-atoms.input.group-horizontal label="Tgl Nota" name="tglNota">
+                                <x-atoms.input.singledaterange wire:model.defer="tglNota" id="tglNota" readonly/>
                             </x-atoms.input.group-horizontal>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-6 mb-5">
-                            <x-atoms.input.group-horizontal label="Gudang" name="gudang_id">
-                                <x-atoms.input.select wire:model.defer="gudang_id">
-                                    <option>Dipilih</option>
-                                    @foreach($gudang_data as $item)
-                                        <option value="{{$item->id}}">{{$item->nama}}</option>
-                                    @endforeach
+                            <x-atoms.input.group-horizontal label="Surat Jalan" name="suratJalan">
+                                <x-atoms.input.text wire:model.defer="suratJalan" />
+                            </x-atoms.input.group-horizontal>
+                        </div>
+                        <div class="col-6 mb-5">
+                            <x-atoms.input.group-horizontal label="Nomor Nota" name="nomorNota">
+                                <x-atoms.input.text wire:model.defer="nomorNota" />
+                            </x-atoms.input.group-horizontal>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-5">
+                            <x-atoms.input.group-horizontal label="Gudang" name="gudangId">
+                                <x-atoms.input.select wire:model.defer="gudangId">
+                                    <x-molecules.select.gudang-list />
                                 </x-atoms.input.select>
                             </x-atoms.input.group-horizontal>
                         </div>
@@ -58,7 +71,7 @@
                             <x-atoms.table.td align="center" width="15%"></x-atoms.table.td>
                         </tr>
                     </x-slot>
-                    @forelse($data_detail as $index=> $row)
+                    @forelse($dataDetail as $index=> $row)
                         <tr>
                             <x-atoms.table.td align="center">
                                 {{$row['produk_kode_lokal']}}
@@ -105,10 +118,10 @@
                     <x-atoms.input.text class="text-end" wire:model.defer="produk_harga" readonly/>
                 </x-atoms.input.group>
                 <x-atoms.input.group label="Harga Beli" name="harga">
-                    <x-atoms.input.text class="text-end" wire:model.defer="harga" wire:keyup="setSubTotal" wire:key="harga"/>
+                    <x-atoms.input.text class="text-end" wire:model.defer="harga" wire:keyup="hitungSubTotal" wire:key="harga"/>
                 </x-atoms.input.group>
                 <x-atoms.input.group label="Jumlah" name="jumlah">
-                    <x-atoms.input.text class="text-end" wire:model.defer="jumlah" wire:keyup="setSubTotal" wire:key="jumlah"/>
+                    <x-atoms.input.text class="text-end" wire:model.defer="jumlah" wire:keyup="hitungSubTotal" wire:key="jumlah"/>
                 </x-atoms.input.group>
                 <x-atoms.input.group label="Sub Total" name="sub_total">
                     <x-atoms.input.text class="text-end" wire:model.defer="sub_total" />
@@ -168,10 +181,10 @@
             })
 
             $('#tgl_nota').on('change', function (e) {
-                let date = $(this).data("#tgl_nota");
+                let date = $(this).data("#tglNota");
                 // eval(date).set('tglLahir', $('#tglLahir').val())
-                console.log(e.target.value);
-                @this.tgl_nota = e.target.value;
+                console.log(e.target.tglNota);
+                @this.tglNota = e.target.value;
             })
         </script>
     @endpush
