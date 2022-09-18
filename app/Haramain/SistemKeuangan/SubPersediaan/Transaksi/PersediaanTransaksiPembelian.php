@@ -1,5 +1,7 @@
-<?php namespace App\Haramain\SistemKeuangan\SubPersediaan;
+<?php namespace App\Haramain\SistemKeuangan\SubPersediaan\Transaksi;
 
+use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanMasuk;
+use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanRollback;
 use App\Models\Purchase\Pembelian;
 
 class PersediaanTransaksiPembelian extends PersediaanTransaksiRepository

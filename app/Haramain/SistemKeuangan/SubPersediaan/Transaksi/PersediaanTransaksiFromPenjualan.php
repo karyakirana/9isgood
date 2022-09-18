@@ -1,5 +1,8 @@
-<?php namespace App\Haramain\SistemKeuangan\SubPersediaan;
+<?php namespace App\Haramain\SistemKeuangan\SubPersediaan\Transaksi;
 
+use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanKeluar;
+use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanKeluarUpdate;
+use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanRollback;
 use App\Models\Penjualan\Penjualan;
 
 class PersediaanTransaksiFromPenjualan extends PersediaanTransaksiRepository

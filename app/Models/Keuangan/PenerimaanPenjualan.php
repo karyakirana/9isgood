@@ -5,6 +5,7 @@ namespace App\Models\Keuangan;
 use App\Haramain\Service\SistemKeuangan\Jurnal\KasModelTrait;
 use App\Haramain\Traits\ModelTraits\CustomerTraits;
 use App\Haramain\Traits\ModelTraits\KodeTraits;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,6 +25,14 @@ class PenerimaanPenjualan extends Model
         'akun_piutang_id',
         'nominal_piutang',
     ];
+
+    public function tglPenerimaan():Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => tanggalan_format($value),
+            set: fn($value) => tanggalan_database_format($value, 'd-M-Y')
+        );
+    }
 
     public function penerimaanPenjualanDetail(): HasMany
     {

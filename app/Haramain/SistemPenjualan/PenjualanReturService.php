@@ -1,16 +1,9 @@
 <?php namespace App\Haramain\SistemPenjualan;
 
-use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiRepo;
 use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiServiceTrait;
 use App\Haramain\SistemKeuangan\SubKasir\PiutangPenjualanFromRetur;
-use App\Haramain\SistemKeuangan\SubKasir\PiutangPenjualanRepo;
-use App\Haramain\SistemKeuangan\SubNeraca\NeracaSaldoRepository;
-use App\Haramain\SistemKeuangan\SubOther\KonfigurasiJurnalRepository;
-use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanTransaksiFromPenjualanRetur;
-use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanTransaksiRepository;
+use App\Haramain\SistemKeuangan\SubPersediaan\Transaksi\PersediaanTransaksiFromPenjualanRetur;
 use App\Haramain\SistemStock\StockMasukPenjualanRetur;
-use App\Haramain\SistemStock\StockMasukRepository;
-use App\Models\KonfigurasiJurnal;
 use App\Models\Penjualan\PenjualanRetur;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 

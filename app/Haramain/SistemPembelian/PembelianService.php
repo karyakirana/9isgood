@@ -3,7 +3,7 @@
 use App\Haramain\ServiceInterface;
 use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiServiceTrait;
 use App\Haramain\SistemKeuangan\SubKasir\HutangPembelianFromPembelian;
-use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanTransaksiPembelian;
+use App\Haramain\SistemKeuangan\SubPersediaan\Transaksi\PersediaanTransaksiPembelian;
 use App\Haramain\SistemStock\StockMasukPembelian;
 use App\Models\Purchase\Pembelian;
 use DB;

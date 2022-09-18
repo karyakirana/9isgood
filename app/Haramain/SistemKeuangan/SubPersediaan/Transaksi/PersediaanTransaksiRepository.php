@@ -1,11 +1,9 @@
 <?php /** @noinspection PhpLackOfCohesionInspection */
 
-namespace App\Haramain\SistemKeuangan\SubPersediaan;
+namespace App\Haramain\SistemKeuangan\SubPersediaan\Transaksi;
 
+use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanRepository;
 use App\Models\Keuangan\PersediaanTransaksi;
-use App\Models\Keuangan\PersediaanTransaksiDetail;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 
 class PersediaanTransaksiRepository
 {
