@@ -3,11 +3,10 @@
 use App\Haramain\ServiceInterface;
 use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiServiceTrait;
 use App\Haramain\SistemKeuangan\SubKasir\PiutangPenjualanFromPenjualan;
-use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanTransaksiFromPenjualan;
+use App\Haramain\SistemKeuangan\SubPersediaan\Transaksi\PersediaanTransaksiFromPenjualan;
 use App\Haramain\SistemStock\StockKeluarPenjualan;
 use App\Models\Penjualan\Penjualan;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Database\RecordsNotFoundException;
 
 class PenjualanService implements ServiceInterface
 {

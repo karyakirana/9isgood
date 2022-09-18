@@ -1,5 +1,7 @@
-<?php namespace App\Haramain\SistemKeuangan\SubPersediaan;
+<?php namespace App\Haramain\SistemKeuangan\SubPersediaan\Transaksi;
 
+use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanMasukReturPenjualan;
+use App\Haramain\SistemKeuangan\SubPersediaan\PersediaanRollback;
 use App\Models\Penjualan\PenjualanRetur;
 
 class PersediaanTransaksiFromPenjualanRetur extends PersediaanTransaksiRepository
@@ -24,7 +26,6 @@ class PersediaanTransaksiFromPenjualanRetur extends PersediaanTransaksiRepositor
 
     /**
      * @return array
-     * @noinspection PhpMemberCanBePulledUpInspection
      */
     protected function detail():array
     {
@@ -51,7 +52,6 @@ class PersediaanTransaksiFromPenjualanRetur extends PersediaanTransaksiRepositor
         return $detail;
     }
 
-    /** @noinspection PhpMemberCanBePulledUpInspection */
     public function rollback()
     {
         // TODO rollback persediaan keluar

@@ -1,4 +1,4 @@
-<?php namespace App\Haramain\SistemKeuangan\SubPersediaan;
+<?php namespace App\Haramain\SistemKeuangan\SubPersediaan\Transaksi;
 
 use App\Models\Purchase\PembelianRetur;
 

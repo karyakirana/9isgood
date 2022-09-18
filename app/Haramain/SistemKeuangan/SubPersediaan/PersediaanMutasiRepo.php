@@ -1,7 +1,7 @@
 <?php namespace App\Haramain\SistemKeuangan\SubPersediaan;
 
+use App\Haramain\SistemKeuangan\SubPersediaan\Transaksi\PersediaanTransaksiRepository;
 use App\Models\Keuangan\PersediaanMutasi;
-use App\Models\Keuangan\PersediaanMutasiDetail;
 use App\Models\Stock\StockMutasi;
 use Str;
 
