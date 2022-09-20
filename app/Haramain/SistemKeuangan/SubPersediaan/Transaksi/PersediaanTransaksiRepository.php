@@ -56,16 +56,7 @@ class PersediaanTransaksiRepository
 
     public static function getKode()
     {
-        $query = PersediaanTransaksi::query()
-            ->where('active_cash', session('ClosedCash'))
-            ->latest();
-
-        if ($query->doesntExist()){
-            return '0001/PD/'.date('Y');
-        }
-
-        $num = (int)$query->first()->last_num_trans + 1 ;
-        return sprintf("%04s", $num)."/PD/".date('Y');
+        return self::kode();
     }
 
     public function store()

@@ -43,7 +43,7 @@ class PersediaanKeluarUpdate
         // increment stock_keluar
         $persediaan->increment('stock_keluar', $this->jumlah);
         $persediaan->decrement('stock_saldo', $this->jumlah);
-        return $persediaan;
+        return $persediaan->refresh();
     }
 
     /**

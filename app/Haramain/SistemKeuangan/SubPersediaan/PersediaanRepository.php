@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class PersediaanRepository
 {
-    protected function query($gudangId, $kondisi,$dataItem): Builder
+    protected function query($gudangId, $kondisi,$dataItem)
     {
         return Persediaan::query()
             ->where('active_cash', session('ClosedCash'))

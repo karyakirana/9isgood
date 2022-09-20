@@ -4,6 +4,7 @@ namespace App\Models\Stock;
 
 use App\Models\Keuangan\PersediaanOpname;
 use App\Haramain\Traits\ModelTraits\{GudangTraits, KodeTraits, PegawaiTraits, UserTraits};
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,6 +23,14 @@ class StockOpname extends Model
         'pegawai_id',
         'keterangan',
     ];
+
+    public function tglInput():Attribute
+    {
+        return Attribute::make(
+            get: fn($value)=>tanggalan_format($value),
+            set: fn($value)=>tanggalan_database_format($value, 'd-M-Y')
+        );
+    }
 
     public function scopeActive($query, $session)
     {

@@ -7,13 +7,18 @@ use Illuminate\Http\Request;
 
 class PersediaanController extends Controller
 {
+    Public function log()
+    {
+        return view('pages.Keuangan.persediaan-log-index');
+    }
+
     public function logTransaksi()
     {
         //
     }
 
-    Public function log()
+    public function logOpnamePrice()
     {
-        return view('pages.Keuangan.persediaan-log-index');
+        return view('pages.Keuangan.persediaan-log-opname-price');
     }
 }

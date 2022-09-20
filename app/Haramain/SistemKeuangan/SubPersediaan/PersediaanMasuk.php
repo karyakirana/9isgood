@@ -1,8 +1,6 @@
 <?php namespace App\Haramain\SistemKeuangan\SubPersediaan;
 
 use App\Models\Keuangan\Persediaan;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 
 class PersediaanMasuk extends PersediaanRepository
 {

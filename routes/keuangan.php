@@ -9,7 +9,10 @@ use App\Http\Livewire\Config\ConfigJurnalForm;
 use App\Http\Livewire\Keuangan\Jurnal\{JurnalTransaksiIndex, JurnalUmumForm, JurnalUmumIndex};
 use App\Http\Livewire\Keuangan\{JurnalSetPiutangReturForm, JurnalSetPiutangReturIndex };
 use App\Http\Livewire\Keuangan\Neraca\{NeracaSaldoAwalIndex, NeracaSaldoIndex};
-use App\Http\Livewire\Keuangan\Persediaan\{PersediaanIndex, PersediaanTransaksiIndex};
+use App\Http\Livewire\Keuangan\Persediaan\{GenerateOpnameFromStockOpname,
+    GenerateOpnamePrice,
+    PersediaanIndex,
+    PersediaanTransaksiIndex};
 use App\Http\Livewire\Keuangan\{GenerateReturToHutang,
     GenerateReturToPiutang,
     PersediaanOpnameForm,
@@ -18,7 +21,6 @@ use App\Http\Livewire\Keuangan\{GenerateReturToHutang,
     PiutangPenjualanLamaForm,
     PiutangPenjualanLamaIndex,
     SaldoPiutangIndex};
-use App\Http\Livewire\KonfigurasiJurnalIndex;
 use App\Http\Livewire\Keuangan\Kasir\{DaftarPiutangPenjualan,
     NeracaSaldoAwal,
     PenerimaanPenjualanForm,
@@ -205,8 +207,10 @@ Route::middleware('auth')->group(function (){
     // kasir piutang penjualan
     Route::get('kasir/jurnal/piutangpenjualan', DaftarPiutangPenjualan::class)->name('keuangan.jurnal.piutangpenjualan'); // daftar piutang by customer
 
-    // keuangan log
+    // keuangan persediaan log
     Route::get('persediaan/log')->name('persediaan.log');
     Route::get('persediaan/log/inventory', [PersediaanController::class, 'log'])->name('persediaan.log.transaksi');
+    Route::get('persediaan/log/opname', GenerateOpnameFromStockOpname::class)->name('persediaan.log.opname');
+    Route::get('persediaan/log/opnameprice', GenerateOpnamePrice::class)->name('persediaan.log.opname.price');
 
 });

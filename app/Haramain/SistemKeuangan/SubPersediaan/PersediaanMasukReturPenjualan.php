@@ -3,7 +3,6 @@
 use App\Models\Keuangan\HargaHppALL;
 use App\Models\Keuangan\Persediaan;
 use App\Models\Master\Produk;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PersediaanMasukReturPenjualan extends PersediaanMasuk
 {
