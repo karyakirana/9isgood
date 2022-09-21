@@ -54,7 +54,7 @@ class PenerimaanPenjualanService implements ServiceInterface
             // store penerimaan penjualan
             $penerimaanPenjualan = PenerimaanPenjualanRepository::buid($data)->updateOrCreate();
             // store jurnal kas
-            $jurnalKas = $this->jurnalKasRepository->store($data, 'debet', $penerimaanPenjualan::class, $penerimaanPenjualan->id);
+            $jurnalKas = JurnalKasRepository::build($penerimaanPenjualan)->store();
             // jurnal transaksi
             $this->jurnal($penerimaanPenjualan, $jurnalKas);
             \DB::commit();
@@ -76,13 +76,13 @@ class PenerimaanPenjualanService implements ServiceInterface
         \DB::beginTransaction();
         try {
             // initiate
-            $penerimaan = $this->penerimaanPenjualanRepo->getDataById($data->penerimaanId);
+            $penerimaan = PenerimaanPenjualanRepository::buid($data)->updateOrCreate();
             // rollback
-            $this->rollback($penerimaan);
+            JurnalKasRepository::rollback($penerimaan);
             // update penerimaan
-            $penerimaan = $this->penerimaanPenjualanRepo->update($data);
+            $penerimaan = JurnalKasRepository::build($penerimaan)->update();
             // update kas
-            $jurnalKas = $this->jurnalKasRepository->update($data, 'debet', $penerimaan::class, $penerimaan->id);
+            $jurnalKas = JurnalKasRepository::build($penerimaan)->store();
             // jurnal transaksi
             $this->jurnal($penerimaan, $jurnalKas);
             \DB::commit();

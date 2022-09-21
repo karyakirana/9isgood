@@ -5,32 +5,16 @@ use function PHPUnit\Framework\isNull;
 
 class SaldoKasRepository
 {
-    public function getById($akunKasId)
+    public static function update($akunKas, $saldo, $type)
     {
-        return SaldoKas::query()->findOrFail($akunKasId);
-    }
-
-    public function increment($akunKasId, $nominal)
-    {
-        $query = SaldoKas::query()->find($akunKasId);
-        if (isNull($query)){
-            return SaldoKas::query()->create([
-                'akun_kas_id'=>$akunKasId,
-                'saldo'=>$nominal
-            ]);
+        $type = ($type== 'increment') ? 'increment' : 'decrement';
+        $saldoKas = SaldoKas::query()->where('akun_kas_id', $akunKas);
+        if ($saldoKas->exists()){
+            return $saldoKas->{$type}('saldo', $saldo);
         }
-        return $query->increment('saldo', $nominal);
-    }
-
-    public function decrement($akunKasId, $nominal)
-    {
-        $query = SaldoKas::query()->find($akunKasId);
-        if (isNull($query)){
-            return SaldoKas::query()->create([
-                'akun_kas_id'=>$akunKasId,
-                'saldo'=>0 - $nominal
-            ]);
-        }
-        return $query->decrement('saldo', $nominal);
+        return SaldoKas::create([
+            'akun_kas_id' => $akunKas,
+            'saldo' => $saldo
+        ]);
     }
 }

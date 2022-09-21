@@ -2,7 +2,8 @@
 
 use App\Haramain\SistemKeuangan\SubNeraca\SaldoKasRepository;
 use App\Models\Keuangan\JurnalKas;
-use Exception;
+use App\Models\Keuangan\PenerimaanPenjualan;
+use App\Models\Keuangan\PengeluaranPembelian;
 
 class JurnalKasRepository
 {
@@ -15,9 +16,21 @@ class JurnalKasRepository
     protected $nominalDebet;
     protected $nominalKredit;
 
-    public function __construct()
+    public function __construct(PenerimaanPenjualan|PengeluaranPembelian $model)
     {
         $this->activeCash = session('ClosedCash');
+        $this->type = 'masuk';
+        $this->kode = $this->kode('masuk');
+        $this->cashableType = $model::class;
+        $this->cashableId = $model->id;
+        $this->akunId = $model->akun_kas_id;
+        $this->nominalDebet = $model->nominal_kas;
+        $this->nominalKredit = $model->nominal_piutang;
+    }
+
+    public static function build(...$params)
+    {
+        return new static(...$params);
     }
 
     public static function getKode($type)
@@ -48,75 +61,65 @@ class JurnalKasRepository
             ->first();
     }
 
-    public function store($data, $type, $cashableType, $cashableId)
+    public function store()
     {
-        $data = (object) $data;
-        if($type == 'debet'){
-            $field = 'nominal_debet';
-            // update saldo kas
-            $this->saldoKasRepository->increment($data->akunKasId, $data->totalTransaksiKas);
-        } else {
-            $field = 'nominal_kredit';
-            $this->saldoKasRepository->decrement($data->akunKasId, $data->totalTransaksiKas);
+        $type = 'increment';
+        $saldo = $this->nominalDebet;
+        if ($this->type == 'keluar'){
+            $type = 'decrement';
+            $saldo = $this->nominalKredit;
         }
-        return JurnalKas::query()
-            ->create([
-                'kode'=>$this->kode(),
-                'active_cash'=>session('ClosedCash'),
-                'type'=>$type,
-                'cash_type'=>$cashableType,
-                'cash_id'=>$cashableId,
-                'akun_id'=>$data->akunKasId,
-                $field=>$data->totalTransaksiKas
-            ]);
-    }
-
-    public function update($data, $type, $cashableType, $cashableId)
-    {
-        $data = (object) $data;
-        if($type == 'debet'){
-            $field = 'nominal_debet';
-            // update saldo kas
-            $this->saldoKasRepository->increment($data->akunKasId, $data->totalTransaksiKas);
-        } else {
-            $field = 'nominal_kredit';
-            $this->saldoKasRepository->decrement($data->akunKasId, $data->totalTransaksiKas);
-        }
-        $this->getDataById($cashableType, $cashableId)->update([
-            'type'=>$type,
-            'cash_type'=>$cashableType,
-            'cash_id'=>$cashableId,
-            'akun_id'=>$data->akunKasId,
-            $field=>$data->totalTransaksiKas
+        SaldoKasRepository::update($this->akunId, $saldo, $type);
+        return JurnalKas::create([
+            'kode'=>$this->kode,
+            'active_cash'=>$this->activeCash,
+            'type'=>$this->type,
+            'cash_type'=>$this->cashableType,
+            'cash_id'=>$this->cashableId,
+            'akun_id'=>$this->akunId,
+            'nominal_debet'=>$this->nominalDebet,
+            'nominal_kredit'=>$this->nominalKredit,
         ]);
-        return $this->getDataById($cashableType, $cashableId);
     }
 
-    /**
-     * @throws Exception
-     */
-    public function destroy($cashableType, $cashableId)
+    public function update()
     {
-        $this->rollback($cashableType, $cashableId);
-        return $this->getDataById($cashableType, $cashableId)->delete();
+        $jurnalkas = $this->getDataById();
+        if ($jurnalkas != null){
+            return $this->store();
+        }
+        $type = 'increment';
+        $saldo = $this->nominalDebet;
+        if ($this->type == 'keluar'){
+            $type = 'decrement';
+            $saldo = $this->nominalKredit;
+        }
+        SaldoKasRepository::update($this->akunId, $saldo, $type);
+        $jurnalkas->update([
+            'type'=>$this->type,
+            'cash_type'=>$this->cashableType,
+            'cash_id'=>$this->cashableId,
+            'akun_id'=>$this->akunId,
+            'nominal_debet'=>$this->nominalDebet,
+            'nominal_kredit'=>$this->nominalKredit,
+        ]);
+        return $jurnalkas->refresh();
     }
 
-    /**
-     * @throws Exception
-     */
-    public function rollback($cashableType, $cashableId): void
+    public static function rollback(PenerimaanPenjualan|PengeluaranPembelian $model)
     {
-        $jurnalKas = JurnalKas::query()
-            ->where('cash_type', $cashableType)
-            ->where('cash_id', $cashableId);
-        if ($jurnalKas == 0){
-            throw new Exception('Data Jurnal Kas Tidak ada');
+        $jenis = class_basename($model::class);
+        $type = 'increment';
+        $saldo = $model->nominal_kas;
+        if ($jenis == 'PenjualanRetur'){
+            $type = 'decrement';
+            $saldo = $model->nominal_piutang;
         }
-        $jurnalKas = $jurnalKas->first();
-        if($jurnalKas->type == 'masuk'){
-            $this->saldoKasRepository->decrement($jurnalKas->akun_id, $jurnalKas->nominal_debet);
-        } else {
-            $this->saldoKasRepository->increment($jurnalKas->akun_id, $jurnalKas->nominal_kredit);
-        }
+        return SaldoKasRepository::update($model->akun_kas_id, $saldo, $type);
+    }
+    public static function destroy(PenerimaanPenjualan|PengeluaranPembelian $model)
+    {
+        self::rollback($model);
+        return $model->delete();
     }
 }
