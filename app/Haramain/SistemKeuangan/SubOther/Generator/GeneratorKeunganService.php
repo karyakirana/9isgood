@@ -13,7 +13,6 @@ class GeneratorKeunganService
         // todo get data stock opname (persediaan price and persediaan opname done)
     }
 
-    // todo generate from pembelian until persediaan
     public function handleFromPembelianUntilPersediaan()
     {
         DB::beginTransaction();
@@ -33,7 +32,6 @@ class GeneratorKeunganService
         }
     }
 
-    // todo generate from mutasi stock until persediaan
     public function handleFromMutasiuntilPersediaan()
     {
         DB::beginTransaction();
@@ -53,7 +51,6 @@ class GeneratorKeunganService
         }
     }
 
-    // todo generate from penjualan until persediaan
     public function handleFromPenjualanUntilPersediaan()
     {
         DB::beginTransaction();
@@ -73,7 +70,6 @@ class GeneratorKeunganService
         }
     }
 
-    // todo generate from penjualan retur until persediaan
     public function handleFromPenjualanReturUntilPersediaan()
     {
         DB::beginTransaction();

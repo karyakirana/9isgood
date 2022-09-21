@@ -6,25 +6,46 @@ use Exception;
 
 class JurnalKasRepository
 {
-    protected $saldoKasRepository;
+    protected $kode;
+    protected $activeCash;
+    protected $type;
+    protected $cashableType;
+    protected $cashableId;
+    protected $akunId;
+    protected $nominalDebet;
+    protected $nominalKredit;
 
     public function __construct()
     {
-        $this->saldoKasRepository = new SaldoKasRepository();
+        $this->activeCash = session('ClosedCash');
     }
 
-    public function kode()
+    public static function getKode($type)
     {
-        // kode kas by akun id
-        return null;
+        $initial = ($type == 'masuk') ? 'KM' : 'KK';
+        $query = JurnalKas::query()
+            ->where('active_cash', session('ClosedCash'))
+            ->where('type', $type)
+            ->latest('kode');
+        // check last num
+        if ($query->doesntExist()) {
+            return '00001/' .$initial.'/'.date('Y');
+        }
+        $num = (int)$query->first()->last_num_char + 1 ;
+        return sprintf("%05s", $num) . "/".$initial."/" . date('Y');
     }
 
-    public function getDataById($cashableType, $cashableId)
+    public function kode($type)
+    {
+        return self::getKode($type);
+    }
+
+    protected function getDataById()
     {
         return JurnalKas::query()
-            ->where('cash_type', $cashableType)
-            ->where('cash_id', $cashableId)
-            ->firstOrFail();
+            ->where('cash_type', $this->cashableType)
+            ->where('cash_id', $this->cashableId)
+            ->first();
     }
 
     public function store($data, $type, $cashableType, $cashableId)

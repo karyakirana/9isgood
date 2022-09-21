@@ -28,6 +28,11 @@ class PersediaanOpnameKoreksiRepository
         $this->dataDetail = $stockOpnameKoreksi->stockOpnameKoreksiDetail;
     }
 
+    public static function build($stockOpnameKoreksi)
+    {
+        return new static($stockOpnameKoreksi);
+    }
+
     protected function getDataByStockOpnameKoreksiId()
     {
         return PersediaanOpnameKoreksi::where('stock_opname_koreksi_id', $this->stockOpnameKoreksiId)->first();

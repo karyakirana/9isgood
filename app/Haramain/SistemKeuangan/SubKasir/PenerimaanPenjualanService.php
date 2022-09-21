@@ -52,7 +52,7 @@ class PenerimaanPenjualanService implements ServiceInterface
         \DB::beginTransaction();
         try {
             // store penerimaan penjualan
-            $penerimaanPenjualan = $this->penerimaanPenjualanRepo->store($data);
+            $penerimaanPenjualan = PenerimaanPenjualanRepository::buid($data)->updateOrCreate();
             // store jurnal kas
             $jurnalKas = $this->jurnalKasRepository->store($data, 'debet', $penerimaanPenjualan::class, $penerimaanPenjualan->id);
             // jurnal transaksi

@@ -183,4 +183,15 @@ trait JurnalTransaksiServiceTrait
         $jurnalTransaksi->kredit($this->{'akunPersediaan'.$gudangAsalId.$kondisiKeluar}, $persediaanMutasi->total_harga);
         NeracaSaldoRepository::kredit($this->{'akunPersediaan'.$gudangAsalId.$kondisiKeluar}, $persediaanMutasi->total_harga);
     }
+
+    protected $akunModalAwal;
+
+    protected function akunStockOpnameKoreksiService()
+    {
+        $this->akunModalAwal = KonfigurasiJurnalRepository::build('prive_modal_awal')->getAkun();
+        $this->akunPersediaanKalimas = KonfigurasiJurnalRepository::build('persediaan_baik_kalimas')->getAkun();
+        $this->akunPersediaanKalimasRusak = KonfigurasiJurnalRepository::build('persediaan_rusak_kalimas')->getAkun();
+        $this->akunPersediaanPerak = KonfigurasiJurnalRepository::build('persediaan_baik_perak')->getAkun();
+        $this->akunPersediaanPerakRusak = KonfigurasiJurnalRepository::build('persediaan_rusak_perak')->getAkun();
+    }
 }

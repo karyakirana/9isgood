@@ -1,10 +1,15 @@
 <?php namespace App\Haramain\SistemStock;
 
 use App\Haramain\ServiceInterface;
+use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiServiceTrait;
+use App\Haramain\SistemKeuangan\SubPersediaan\Opname\PersediaanOpnameKoreksiRepository;
+use DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class StockOpnameKoreksiService implements ServiceInterface
 {
+    use JurnalTransaksiServiceTrait;
+
     protected $stockOpnameKoreksiRepository;
 
     public function __construct()
@@ -29,17 +34,18 @@ class StockOpnameKoreksiService implements ServiceInterface
 
     public function handleStore($data)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
-            $store = $this->stockOpnameKoreksiRepository->store($data);
+            $stockOpnameKoreksi = $this->stockOpnameKoreksiRepository->store($data);
+            $persediaanOpnameKoreksi = PersediaanOpnameKoreksiRepository::build($stockOpnameKoreksi)->store();
             //dd($store);
-            \DB::commit();
+            DB::commit();
             return (object)[
                 'status'=>true,
                 'keterangan'=>'Data berhasil Disimpan'
             ];
-        } catch (ModelNotFoundException|\Exception $e){
-            \DB::rollBack();
+        } catch (ModelNotFoundException $e){
+            DB::rollBack();
             return (object)[
                 'status'=>'false',
                 'keterangan'=>$e->getMessage()
@@ -49,17 +55,18 @@ class StockOpnameKoreksiService implements ServiceInterface
 
     public function handleUpdate($data)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             $this->stockOpnameKoreksiRepository->rollback($data['stockOpnameKoreksiId']);
-            $this->stockOpnameKoreksiRepository->update($data);
-            \DB::commit();
+            $stockOpnameKoreksi = $this->stockOpnameKoreksiRepository->update($data);
+            $persediaanOpnameKoreksi = PersediaanOpnameKoreksiRepository::build($stockOpnameKoreksi)->store();
+            DB::commit();
             return (object)[
                 'status'=>true,
                 'keterangan'=>'Data berhasil Disimpan'
             ];
-        } catch (ModelNotFoundException|\Exception $e){
-            \DB::rollBack();
+        } catch (ModelNotFoundException $e){
+            DB::rollBack();
             return (object)[
                 'status'=>'false',
                 'keterangan'=>$e->getMessage()
@@ -69,19 +76,26 @@ class StockOpnameKoreksiService implements ServiceInterface
 
     public function handleDestroy($id)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
-            \DB::commit();
+            DB::commit();
             $this->stockOpnameKoreksiRepository->delete($id);
             return (object)[
-                'status'=>true
+                'status'=>true,
+                'keterangan'=>'Data Berhasil dihapus'
             ];
-        } catch (ModelNotFoundException|\Exception $e){
-            \DB::rollBack();
+        } catch (ModelNotFoundException $e){
+            DB::rollBack();
             return (object)[
                 'status'=>'false',
                 'keterangan'=>$e->getMessage()
             ];
         }
+    }
+
+    protected function jurnalStockOpnameKoreksiService($persediaanStockOpnameKoreksi)
+    {
+        // persediaan debet
+        // modal awal kredit
     }
 }
