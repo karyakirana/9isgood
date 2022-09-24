@@ -1,60 +1,48 @@
-<?php
+<?php /** @noinspection PhpLackOfCohesionInspection */
 
 namespace App\Http\Livewire\Keuangan\Kasir;
 
+use App\Http\Livewire\Master\SetCustomerTrait;
 use App\Models\Keuangan\KasirPenjualan;
 use App\Models\Keuangan\PiutangPenjualan;
-use App\Models\Keuangan\SaldoPiutangPenjualan;
-use App\Models\KonfigurasiJurnal;
-use App\Models\Master\Customer;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class PenerimaanPenjualanForm extends Component
 {
+    use SetCustomerTrait, PaymentTransaksiTrait;
+
     protected $listeners = [
         'set_customer'=>'setCustomer',
-        'setPenjualan',
-        'setPenjualanRetur'
+        'setPiutangPenjualan',
+        'setPenjualanRetur',
+        'closeFormDetail'
     ];
 
     public $mode = 'create';
-    public $update = false;
 
-    // customer
-    public $customer_id, $customer_nama;
-
-    // saldo piutang
-    public $saldo_piutang;
-
-    // penerimaan penjualan
+    // penerimaan penjualan attribute
     public $penerimaan_penjualan_id;
     public $tgl_penerimaan;
-    public $akun_kas_id, $nominal_kas = 0;
-    public $akun_piutang_id, $nominal_piutang;
+    public $total_penerimaan, $total_penerimaan_rupiah;
+    public $keterangan;
 
-    // penerimaan penjualan detail
-    public $piutang_penjualan_id;
-    public $akun_biaya_lain, $nominal_biaya_lain;
-    public $akun_ppn, $nominal_ppn;
-    public $tagihan; // total_bayar penjualan atau retur penjualan
-    public $nominal_bayar; // yang akan dibayarkan
-    public $kurang_bayar; // sisa yang belum dibayarkan
+    // penerimaan penjualan detail attribute
+    public $piutang_penjualan_id, $kode_nota;
+    public $nominal_dibayar;
+    public $kurang_bayar, $kurang_bayar_sebelumnya;
+    public $kode_penjualan;
+    public $jenis_penjualan;
 
-    // piutang penjualan update
-    public $jenis; // retur or penjualan
-    public $status_bayar; // lunas, kurang, belum
+    // payment attribute
+    public $akun_id, $nominal;
 
-    // interface
+    public $dataDetail = [];
+    public $indexDetail;
+    public $updateDetail = false;
 
-    public $data_detail = [];
-    public $id_nota;
-    public $tgl_nota;
-    public $kode_nota;
+    public $data;
 
-    public function render(): Factory|View|Application
+    public function render()
     {
         return view('livewire.keuangan.kasir.penerimaan-penjualan-form')
             ->layout('layouts.metronics-811', ['minimize' => 'on']);
@@ -63,42 +51,15 @@ class PenerimaanPenjualanForm extends Component
     public function mount($penerimaan_penjualan_id = null): void
     {
         // load akun for akuntansi
-        $this->setAkun();
         if ($penerimaan_penjualan_id){
             $penerimaan_penjualan = KasirPenjualan::query()->find($penerimaan_penjualan_id);
         }
-    }
 
-    public function removeLine($index)
-    {
-        // remove line transaksi
-        unset($this->detail[$index]);
-        $this->detail = array_values($this->detail);
-    }
-
-    public function store()
-    {
-        //
-    }
-
-    public function update()
-    {
-        //
-    }
-
-    protected function setAkun()
-    {
-        $this->akun_piutang_id = KonfigurasiJurnal::query()->find('piutang_usaha')->akun_id;
-    }
-
-    public function setCustomer($customer_id)
-    {
-        $customer = Customer::query()->find($customer_id);
-        $this->customer_id = $customer->id;
-        $this->customer_nama = $customer->nama;
-
-        // saldo piutang
-        $this->saldo_piutang = SaldoPiutangPenjualan::query()->find($customer_id)->saldo;
+        // finitiate data payment
+        $this->dataPayment[] = [
+            'akun_id'=>'',
+            'nominal'=>0
+        ];
     }
 
     public function piutangPenjualanShow()
@@ -107,46 +68,84 @@ class PenerimaanPenjualanForm extends Component
         $this->emit('showPiutangPenjualanModal');
     }
 
-    public function setPiutangPenjualan($piutangPenjualanId)
+    public function updatedDataDetail()
     {
-        $piutangPenjualan = PiutangPenjualan::query()->find($piutangPenjualanId);
-        $piutangablePenjualan = $piutangPenjualan->piutangablePenjualan();
-        $this->kurang_bayar = $piutangablePenjualan->kurang_bayar;
-        $this->id_nota = $piutangablePenjualan->id_nota;
+        // listen after data detail changed
+        $this->total_penerimaan = array_sum(array_column($this->dataDetail, 'nominal_dibayar'));
     }
 
-    public function addLine()
+    public function setPiutangPenjualan(PiutangPenjualan $piutangPenjualan)
     {
-        $this->data_detail[] = [
+        $this->piutang_penjualan_id = $piutangPenjualan->id;
+        $this->kurang_bayar = $piutangPenjualan->kurang_bayar;
+        $this->kode_penjualan = $piutangPenjualan->piutangablePenjualan->kode;
+        $this->jenis_penjualan = class_basename($piutangPenjualan->penjualan_type);
+        $this->emit('showFormPiutangPenjualan');
+    }
+
+    public function closeFormDetail()
+    {
+        // listen for emit closeFormDetail
+        // todo reset detail and piutang penjualan attribute
+        $this->reset(['piutang_penjualan_id', 'kurang_bayar', 'nominal_dibayar']);
+    }
+
+    public function setDetail()
+    {
+        // todo set detail
+        $this->dataDetail[] = [
             'piutang_penjualan_id'=>$this->piutang_penjualan_id,
-            'status_bayar'=>$this->setStatusBayar(),
-            'kurang_bayar'=>$this->kurang_bayar,
-            'total_bayar'=>$this->nominal_bayar,
-            // for item detail
-            'id_nota'=>$this->id_nota,
-            'kode_nota'=>$this->kode_nota,
-            // for jurnal
-            'akun_biaya_lain'=>$this->akun_ppn,
-            'nominal_biaya_lain'=>$this->nominal_biaya_lain,
-            'akun_ppn'=>$this->akun_ppn,
-            'nominal_ppn'=>$this->nominal_ppn,
+            'nominal_dibayar'=>$this->nominal_dibayar,
+            'kurang_bayar_sebelumnya'=>$this->kurang_bayar_sebelumnya,
+            'kurang_bayar'=>$this->kurang_bayar_sebelumnya - $this->nominal_dibayar,
+            'kode_penjualan'=>$this->kode_penjualan,
+            'jenis_penjualan'=>$this->jenis_penjualan
         ];
-        $this->addNominalKas($this->nominal_bayar);
     }
 
-    protected function setStatusBayar()
+    public function editDetail($index)
     {
-        if ($this->status_bayar == 0){
-            return 'lunas';
-        } elseif ($this->status_bayar > 0 || $this->status_bayar < 0){
-            return 'kurang_bayar';
-        } else {
-            return null;
-        }
+        $this->indexDetail = $index;
+        $this->piutang_penjualan_id = $this->dataDetail[$index]['piutang_penjualan_id'];
+        $this->nominal_dibayar = $this->dataDetail[$index]['nominal_diabayar'];
+        $this->kurang_bayar_sebelumnya = $this->dataDetail[$index]['kurang_bayar_sebelumnya'];
+        $this->kurang_bayar = $this->dataDetail[$index]['kurang_bayar'];
+        $this->kode_penjualan = $this->dataDetail[$index]['kode_penjualan'];
+        $this->jenis_penjualan = $this->dataDetail[$index]['jenis_penjualan'];
+        $this->updateDetail = true;
+        $this->emit('showDetail');
     }
 
-    protected function addNominalKas($nominalKas)
+    public function updateDetail()
     {
-        $this->nominal_kas += $nominalKas;
+        $index = $this->indexDetail;
+        $this->dataDetail[$index]['nominal_dibayar'] = $this->nominal_dibayar;
+        $this->dataDetail[$index]['kurang_bayar_sebelumnya'] = $this->kurang_bayar_sebelumnya;
+        $this->dataDetail[$index]['kurang_bayar'] = $this->kurang_bayar_sebelumnya - $this->nominal_dibayar;
+        $this->updateDetail = false;
+        $this->emit('closeDetail');
+    }
+
+    public function removeDetail($index)
+    {
+        unset($this->dataDetail[$index]);
+        $this->dataDetail = array_values($this->dataDetail);
+    }
+
+    public function openPayment()
+    {
+        $this->data = $this->validate([
+            'penerimaan_penjualan_id'=>($this->mode == 'update') ? 'required' : 'nullable',
+            'tgl_penerimaan'=>'required',
+            'customer_id'=>'required',
+            'total_penerimaan'=>'required',
+            'keterangan'=>'nullable'
+        ]);
+    }
+
+    public function store()
+    {
+        $this->data['dataPayment'] = $this->dataPayment;
+        // todo store in service
     }
 }

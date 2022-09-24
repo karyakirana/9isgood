@@ -14,10 +14,7 @@
             piutangPenjualanModal.show();
         });
 
-        Livewire.on('setPenjualanRetur', function (){
-            piutangPenjualanModal.hide();
-        });
-        Livewire.on('setPenjualan', function (){
+        Livewire.on('setPiutangPenjualan', function (){
             piutangPenjualanModal.hide();
         });
 

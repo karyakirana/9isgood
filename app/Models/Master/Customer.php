@@ -3,6 +3,7 @@
 namespace App\Models\Master;
 
 use App\Haramain\Traits\ModelTraits\KodeTraits;
+use App\Models\Keuangan\SaldoPiutangPenjualan;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,4 +20,9 @@ class Customer extends Model
         'alamat',
         'keterangan',
     ];
+
+    public function saldoPiutangPenjualan()
+    {
+        return $this->hasOne(SaldoPiutangPenjualan::class, 'customer_id');
+    }
 }

@@ -13,17 +13,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PenerimaanPenjualan extends Model
 {
-    use HasFactory, CustomerTraits, KasModelTrait, KodeTraits;
+    use HasFactory, CustomerTraits, KodeTraits;
     protected $table = 'haramain_keuangan.penerimaan_penjualan';
     protected $fillable = [
         'active_cash',
         'kode',
         'tgl_penerimaan',
         'customer_id',
-        'akun_kas_id',
-        'nominal_kas',
-        'akun_piutang_id',
-        'nominal_piutang',
+        'user_id',
+        'total_penerimaan',
+        'keterangan'
     ];
 
     public function tglPenerimaan():Attribute
@@ -47,5 +46,15 @@ class PenerimaanPenjualan extends Model
     public function akun_piutang_id(): BelongsTo
     {
         return $this->belongsTo(Akun::class, 'akun_piutang_id');
+    }
+
+    public function paymentable()
+    {
+        return $this->morphMany(Payment::class, 'paymentable', 'paymentable_type', 'paymentable_id');
+    }
+
+    public function jurnalKas()
+    {
+        return $this->morphMany(JurnalKas::class, 'jurnalable_kas', 'cash_type', 'cash_id');
     }
 }

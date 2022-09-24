@@ -32,7 +32,7 @@ class PengeluaranPembelianService implements ServiceInterface
 
     public function __construct()
     {
-        $this->pengeluaranPembelianRepo = new PengeluaranPembelianRepo();
+        $this->pengeluaranPembelianRepo = new PengeluaranPembelianRepository();
         $this->jurnalKasRepoisitory = new JurnalKasRepository();
         $this->jurnalTransaksiRepo = new JurnalTransaksiRepo();
         $this->neracaSaldoRepo = new NeracaSaldoRepository();

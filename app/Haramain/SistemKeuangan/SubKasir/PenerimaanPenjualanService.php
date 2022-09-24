@@ -5,65 +5,45 @@ use App\Haramain\SistemKeuangan\SubJurnal\JurnalKasRepository;
 use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiRepo;
 use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiServiceTrait;
 use App\Haramain\SistemKeuangan\SubNeraca\NeracaSaldoRepository;
-use App\Models\KonfigurasiJurnal;
+use App\Haramain\SistemKeuangan\SubOther\KonfigurasiJurnalRepository;
+use App\Models\Keuangan\PenerimaanPenjualan;
+use DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PenerimaanPenjualanService implements ServiceInterface
 {
-    /**
-     * scenario
-     * menerima pembayaran atas piutang penjualan
-     *
-     * post condition :
-     * merubah piutang penjualan
-     * merubah penjualan
-     * merubah saldo piutang penjualan
-     * meembuat jurnal transaksi
-     * merubah neraca saldo
-     */
-
     use JurnalTransaksiServiceTrait;
-
-    protected $penerimaanPenjualanRepo;
-    protected $jurnalKasRepository;
-    protected $jurnalTransaksiRepo;
-    protected $neracaSaldoRepo;
 
     // akun piutang penjualan
     protected $akunPiutangPenjualan;
 
     public function __construct()
     {
-        $this->penerimaanPenjualanRepo = new PenerimaanPenjualanRepo();
-        $this->jurnalKasRepository = new JurnalKasRepository();
-        $this->jurnalTransaksiRepo = new JurnalTransaksiRepo();
-        $this->neracaSaldoRepo = new NeracaSaldoRepository();
-
-        $this->akunPiutangPenjualan = KonfigurasiJurnal::query()->firstWhere('config', 'piutang_usaha')->akun_id;
+         $this->akunPiutangPenjualan = KonfigurasiJurnalRepository::build('piutang_usaha')->getAkun();
     }
 
     public function handleGetData($id)
     {
-        return $this->penerimaanPenjualanRepo->getDataById($id);
+        return PenerimaanPenjualan::findOrFail($id);
     }
 
     public function handleStore($data)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             // store penerimaan penjualan
-            $penerimaanPenjualan = PenerimaanPenjualanRepository::buid($data)->updateOrCreate();
+            $penerimaanPenjualan = PenerimaanPenjualanRepository::store($data);
             // store jurnal kas
-            $jurnalKas = JurnalKasRepository::build($penerimaanPenjualan)->store();
+            JurnalKasRepository::storeForPenerimaanPenjualan($penerimaanPenjualan);
             // jurnal transaksi
-            $this->jurnal($penerimaanPenjualan, $jurnalKas);
-            \DB::commit();
+            $this->jurnal($penerimaanPenjualan);
+            DB::commit();
             return (object)[
                 'status'=>true,
                 'keterangan'=>'data sudah tersimpan'
             ];
         } catch (ModelNotFoundException $e){
-            \DB::rollBack();
+            DB::rollBack();
             return (object)[
                 'status'=>false,
                 'keterangan'=>$e
@@ -73,67 +53,69 @@ class PenerimaanPenjualanService implements ServiceInterface
 
     public function handleUpdate($data)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             // initiate
-            $penerimaan = PenerimaanPenjualanRepository::buid($data)->updateOrCreate();
+            $penerimaanPenjualan = PenerimaanPenjualan::find($data['penerimaanPenjualanId']);
             // rollback
-            JurnalKasRepository::rollback($penerimaan);
+            $this->rollback($penerimaanPenjualan);
             // update penerimaan
-            $penerimaan = JurnalKasRepository::build($penerimaan)->update();
+            $penerimaanPenjualan = PenerimaanPenjualanRepository::update($data);
             // update kas
-            $jurnalKas = JurnalKasRepository::build($penerimaan)->store();
+            JurnalKasRepository::storeForPenerimaanPenjualan($penerimaanPenjualan);
             // jurnal transaksi
-            $this->jurnal($penerimaan, $jurnalKas);
-            \DB::commit();
+            $this->jurnal($penerimaanPenjualan);
+            DB::commit();
             return (object)[
                 'status'=>true,
                 'keterangan'=>'data sudah tersimpan'
             ];
         } catch (ModelNotFoundException $e){
-            \DB::rollBack();
+            DB::rollBack();
             return (object)[
                 'status'=>false,
-                'keterangan'=>$e
+                'keterangan'=>$e->getMessage()
             ];
         }
     }
 
     public function handleDestroy($id)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
-            \DB::commit();
+            $penerimaanPenjualan = PenerimaanPenjualan::find($id);
+            $this->rollback($penerimaanPenjualan);
+            $penerimaanPenjualan->delete();
+            DB::commit();
             return (object)[
                 'status'=>true,
                 'keterangan'=>'data sudah tersimpan'
             ];
         } catch (ModelNotFoundException $e){
-            \DB::rollBack();
+            DB::rollBack();
             return (object)[
                 'status'=>false,
-                'keterangan'=>$e
+                'keterangan'=>$e->getMessage()
             ];
         }
     }
 
-    protected function jurnal($penerimaan, $jurnalKas)
+    protected function jurnal(PenerimaanPenjualan $penerimaanPenjualan)
     {
-        // jurnal transaksi
-        $this->jurnalTransaksiRepo->debet($penerimaan::class, $penerimaan->id, $jurnalKas->akun_id, $jurnalKas->nominal_debet);
-        $this->jurnalTransaksiRepo->kredit($penerimaan::class, $penerimaan->id, $this->akunPiutangPenjualan, $jurnalKas->nominal_debet);
-        // update neraca saldo
-        $this->neracaSaldoRepo->debet($jurnalKas->akun_id, $jurnalKas->nominal_debet);
-        $this->neracaSaldoRepo->kredit($this->akunPiutangPenjualan, $jurnalKas->nominal_debet);
+        $jurnalTransaksi = JurnalTransaksiRepo::build($penerimaanPenjualan);
+        // kas masuk
+        foreach ($penerimaanPenjualan->jurnalKas as $item) {
+            $jurnalTransaksi->debet($item->akun_id, $item->nominal_debet);
+            NeracaSaldoRepository::debet($item->akun_id, $item->nominal_debet);
+        }
+        $jurnalTransaksi->kredit($this->akunPiutangPenjualan, $penerimaanPenjualan->total_penerimaan);
+        NeracaSaldoRepository::kredit($this->akunPiutangPenjualan, $penerimaanPenjualan->total_penerimaan);
     }
 
-    /**
-     * @throws \Exception
-     */
-    protected function rollback($penerimaanPenjualan)
+    protected function rollback(PenerimaanPenjualan $penerimaanPenjualan)
     {
-        $this->penerimaanPenjualanRepo->rollback($penerimaanPenjualan->id);
-        $this->jurnalKasRepository->rollback($penerimaanPenjualan::class, $penerimaanPenjualan->id);
         $this->rollbackJurnalAndSaldo($penerimaanPenjualan);
+        JurnalKasRepository::rollbackForPenerimaanPenjualan($penerimaanPenjualan);
+        PenerimaanPenjualanRepository::rollback($penerimaanPenjualan->id);
     }
 }
