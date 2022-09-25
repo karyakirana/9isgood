@@ -14,7 +14,7 @@ class JurnalKas extends Model
     protected $fillable = [
         'kode',
         'active_cash',
-        'type',
+        'type', // debet or kredit (enum)
         'cash_type',
         'cash_id',
         'akun_id',
