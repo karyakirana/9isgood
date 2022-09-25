@@ -51,8 +51,13 @@ class PengeluaranPembelian extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function payementable()
+    public function paymentable()
     {
         return $this->morphMany(Payment::class, 'paymentable', 'paymentable_type', 'paymentable_id');
+    }
+
+    public function jurnalKas()
+    {
+        return $this->morphMany(JurnalKas::class, 'jurnalable_kas', 'cash_type', 'cash_id');
     }
 }

@@ -1,12 +1,22 @@
 <?php namespace App\Haramain\SistemKeuangan\SubKasir;
 
+use App\Models\Keuangan\HutangPembelian;
 use App\Models\Keuangan\PengeluaranPembelian;
 
 class PengeluaranPembelianRepository
 {
     public static function kode()
     {
-        return null;
+        $query = PengeluaranPembelian::query()
+            ->where('active_cash', session('ClosedCash'))
+            ->latest('kode');
+        $num = (int)$query->first()->last_num_char + 1 ;
+        return sprintf("%05s", $num) . "/KP/" . date('Y');
+    }
+
+    public static function getDataById($pengeluaranPembelianId)
+    {
+        return PengeluaranPembelian::find($pengeluaranPembelianId);
     }
 
     public static function store(array $data)
@@ -15,7 +25,8 @@ class PengeluaranPembelianRepository
         $data['active_cash'] = session('ClosedCash');
         $pengeluaranPembelian = PengeluaranPembelian::create($data);
         $pengeluaranPembelian->pengeluaranPembelianDetail()->createMany($data['dataDetail']);
-        $pengeluaranPembelian->payementable($data['dataPayment']);
+        $pengeluaranPembelian->paymentable()->createMany($data['dataPayment']);
+        return $pengeluaranPembelian;
     }
 
     public static function update(array $data)
@@ -23,21 +34,30 @@ class PengeluaranPembelianRepository
         $pengeluaranPembelian = PengeluaranPembelian::find($data['pengeluaran_pembelian_id']);
         $pengeluaranPembelian->update($data);
         $pengeluaranPembelian->pengeluaranPembelianDetail()->createMany($data['dataDetail']);
-        $pengeluaranPembelian->payementable($data['dataPayment']);
+        $pengeluaranPembelian->paymentable()->createMany($data['dataPayment']);
+        return $pengeluaranPembelian->refresh();
     }
 
     protected static function updateHutangPembelian(array $dataPengeluaranPembelianDetail)
     {
         foreach ($dataPengeluaranPembelianDetail as $item) {
             // todo update status hutang pembelian
-            // todo update
+            $hutangPembelian = HutangPembelian::find($item['hutang_pembelian_id']);
+            $statusBayar = ($item['kurang_bayar'] == 0) ? 'lunas' : 'kurang';
+            $hutangPembelian->update([
+                'status_bayar' => $statusBayar,
+                'kurang_bayar' => $item['kurang_bayar']
+            ]);
+            $hutangPembelian->hutangablePembelian()->update(['status_bayar'=>$statusBayar]);
         }
     }
 
-    public static function rollback(PengeluaranPembelian $pengeluaranPembelian)
+    public static function rollback($pengeluaranPembelianId)
     {
+        $pengeluaranPembelian = PengeluaranPembelian::find($pengeluaranPembelianId);
+        $pengeluaranPembelian->paymentable()->delete();
         foreach ($pengeluaranPembelian->pengeluaranPembelianDetail() as $item) {
-            // todo rollback hutang pembelian
+            HutangPembelianRollback::fromPengeluaranPembelian($item);
         }
         $pengeluaranPembelian->pengeluaranPembelianDetail()->delete();
         return $pengeluaranPembelian;

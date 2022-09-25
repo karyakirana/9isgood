@@ -5,21 +5,13 @@ use App\Haramain\SistemKeuangan\SubJurnal\JurnalKasRepository;
 use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiRepo;
 use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiServiceTrait;
 use App\Haramain\SistemKeuangan\SubNeraca\NeracaSaldoRepository;
-use App\Models\KonfigurasiJurnal;
+use App\Haramain\SistemKeuangan\SubOther\KonfigurasiJurnalRepository;
+use App\Models\Keuangan\PengeluaranPembelian;
+use DB;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PengeluaranPembelianService implements ServiceInterface
 {
-    /**
-     * scenario
-     * mengeluarkan pembayaran atas hutang pembelian
-     *
-     * merubah hutang pembelian
-     * merubah pembelian
-     * merubah saldo hutang pembelian
-     * membuat jurnal transaksi
-     * merubah neraca saldo
-     */
-
     use JurnalTransaksiServiceTrait;
 
     protected $pengeluaranPembelianRepo;
@@ -32,37 +24,32 @@ class PengeluaranPembelianService implements ServiceInterface
 
     public function __construct()
     {
-        $this->pengeluaranPembelianRepo = new PengeluaranPembelianRepository();
-        $this->jurnalKasRepoisitory = new JurnalKasRepository();
-        $this->jurnalTransaksiRepo = new JurnalTransaksiRepo();
-        $this->neracaSaldoRepo = new NeracaSaldoRepository();
-
-        $this->akunHutangPembelian = KonfigurasiJurnal::query()->firstWhere('config', 'hutang_dagang')->akun_id;
-        $this->akunHutangPembelianInternal = KonfigurasiJurnal::query()->firstWhere('config', 'hutang_dagang_internal')->akun_id;
+        $this->akunHutangPembelian = KonfigurasiJurnalRepository::build('hutang_dagang')->getAkun();
+        $this->akunHutangPembelianInternal = KonfigurasiJurnalRepository::build('hutang_dagang_internal')->getAkun();
     }
 
     public function handleGetData($id)
     {
-        return $this->pengeluaranPembelianRepo->getDataById($id);
+        return PengeluaranPembelianRepository::getDataById($id);
     }
 
     public function handleStore($data)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             // store pengeluaran pembelian
-            $pengeluaranPembelian = $this->pengeluaranPembelianRepo->store($data);
+            $pengeluaranPembelian = PengeluaranPembelianRepository::store($data);
             // jurnal kas
-            $jurnalKas = $this->jurnalKasRepoisitory->store($data, 'kredit', $pengeluaranPembelian::class, $pengeluaranPembelian->id);
+            JurnalKasRepository::storeForPengeluaranPembelian($pengeluaranPembelian);
             // jurnal
-            $this->jurnal($pengeluaranPembelian, $jurnalKas);
-            \DB::commit();
+            $this->jurnal($pengeluaranPembelian);
+            DB::commit();
             return (object)[
                 'status'=>true,
                 'keterangan'=>'Pengeluaran Pembelian Berhasil Disimpan'
             ];
-        } catch (\Exception $e){
-            \DB::rollBack();
+        } catch (ModelNotFoundException $e){
+            DB::rollBack();
             return (object)[
                 'status'=>false,
                 'keterangan'=>$e->getMessage()
@@ -72,24 +59,24 @@ class PengeluaranPembelianService implements ServiceInterface
 
     public function handleUpdate($data)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
-            $pengeluaranPembelian = $this->pengeluaranPembelianRepo->getDataById($data['pengeluaranPembelianId']);
+            $pengeluaranPembelian = PengeluaranPembelianRepository::getDataById($data['pengeluaran_pembelian_id']);
             // rollback
             $this->rollback($pengeluaranPembelian);
             // update pengeluaran
-            $pengeluaranPembelian = $this->pengeluaranPembelianRepo->update($data);
+            $pengeluaranPembelian = PengeluaranPembelianRepository::update($data);
             // kas
-            $jurnalKas = $this->jurnalKasRepoisitory->update($data, 'kredit', $pengeluaranPembelian::class, $pengeluaranPembelian->id);
+            JurnalKasRepository::storeForPengeluaranPembelian($pengeluaranPembelian);
             // jurnal
-            $this->jurnal($pengeluaranPembelian, $jurnalKas);
-            \DB::commit();
+            $this->jurnal($pengeluaranPembelian);
+            DB::commit();
             return (object)[
                 'status'=>true,
                 'keterangan'=>'Pengeluaran Pembelian Berhasil Disimpan'
             ];
-        } catch (\Exception $e){
-            \DB::rollBack();
+        } catch (ModelNotFoundException $e){
+            DB::rollBack();
             return (object)[
                 'status'=>false,
                 'keterangan'=>$e->getMessage()
@@ -99,15 +86,18 @@ class PengeluaranPembelianService implements ServiceInterface
 
     public function handleDestroy($id)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
-            \DB::commit();
+            $pengeluaranPembelian = PengeluaranPembelianRepository::getDataById($id);
+            $this->rollback($pengeluaranPembelian);
+            $pengeluaranPembelian->delete();
+            DB::commit();
             return (object)[
                 'status'=>true,
-                'keterangan'=>'Pengeluaran Pembelian Berhasil Disimpan'
+                'keterangan'=>'Pengeluaran Pembelian Berhasil dihapus'
             ];
-        } catch (\Exception $e){
-            \DB::rollBack();
+        } catch (ModelNotFoundException $e){
+            DB::rollBack();
             return (object)[
                 'status'=>false,
                 'keterangan'=>$e->getMessage()
@@ -115,24 +105,29 @@ class PengeluaranPembelianService implements ServiceInterface
         }
     }
 
-    protected function jurnal($pengeluaranPembelian, $jurnalKas)
+    protected function jurnal(PengeluaranPembelian $pengeluaranPembelian)
     {
         $jenis = $pengeluaranPembelian->jenis;
+        $jurnalTransaksi = JurnalTransaksiRepo::build($pengeluaranPembelian);
+        // Jurnal transaksi debet
         if ($jenis === 'BLU'){
-            $this->jurnalTransaksiRepo->debet($pengeluaranPembelian::class, $pengeluaranPembelian->id, $this->akunHutangPembelian, $jurnalKas->nominal_kredit);
-            $this->neracaSaldoRepo->debet($this->akunHutangPembelian, $jurnalKas->nominal_kredit);
+            $jurnalTransaksi->debet($this->akunHutangPembelian, $pengeluaranPembelian->total_pengeluaran);
+            NeracaSaldoRepository::debet($this->akunHutangPembelian, $pengeluaranPembelian->total_pengeluaran);
         } else {
-            $this->jurnalTransaksiRepo->debet($pengeluaranPembelian::class, $pengeluaranPembelian->id, $this->akunHutangPembelianInternal, $jurnalKas->nominal_kredit);
-            $this->neracaSaldoRepo->debet($this->akunHutangPembelianInternal, $jurnalKas->nominal_kredit);
+            $jurnalTransaksi->debet($this->akunHutangPembelianInternal, $pengeluaranPembelian->total_pengeluaran);
+            NeracaSaldoRepository::debet($this->akunHutangPembelianInternal, $pengeluaranPembelian->total_pengeluaran);
         }
-        $this->jurnalTransaksiRepo->debet($pengeluaranPembelian::class, $pengeluaranPembelian->id, $jurnalKas->akun_id, $jurnalKas->nominal_kredit);
-        $this->neracaSaldoRepo->kredit($jurnalKas->akun_id, $jurnalKas->nominal_kredit);
+        // jurnal transaksi kredit
+        foreach ($pengeluaranPembelian->paymentable as $payment) {
+            $jurnalTransaksi->kredit($payment->akun_id, $payment->nominal);
+            NeracaSaldoRepository::kredit($payment->akun_id, $payment->nominal);
+        }
     }
 
-    protected function rollback($pengeluaranPembelian)
+    protected function rollback(PengeluaranPembelian $pengeluaranPembelian)
     {
-        $this->pengeluaranPembelianRepo->rollback($pengeluaranPembelian->id);
-        $this->jurnalKasRepoisitory->rollback($pengeluaranPembelian::class, $pengeluaranPembelian->id);
+        PengeluaranPembelianRepository::rollback($pengeluaranPembelian->id);
+        JurnalKasRepository::rollbackForPengeluaranPembelian($pengeluaranPembelian);
         $this->rollbackJurnalAndSaldo($pengeluaranPembelian);
     }
 }

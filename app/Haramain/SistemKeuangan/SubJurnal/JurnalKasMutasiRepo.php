@@ -1,7 +1,6 @@
 <?php namespace App\Haramain\SistemKeuangan\SubJurnal;
 
 use App\Models\Keuangan\KasMutasi;
-use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class JurnalKasMutasiRepo

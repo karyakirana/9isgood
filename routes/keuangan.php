@@ -25,6 +25,8 @@ use App\Http\Livewire\Keuangan\Kasir\{DaftarPiutangPenjualan,
     NeracaSaldoAwal,
     PenerimaanPenjualanForm,
     PenerimaanPenjualanIndex,
+    PengeluaranPembelianForm,
+    PengeluaranPembelianIndex,
     PiutangPenjualanForm,
     PiutangPenjualanIndex,
     PiutangPenjualanReturIndex};
@@ -55,11 +57,13 @@ Route::middleware('auth')->group(function (){
         ->name('kasir.penerimaan.penjualan.print');
 
     // kasir - pengeluaran
-    Route::get('kasir/pengeluaran/pembelian')->name('kasir.pengeluaran.pembelian');
-    Route::get('kasir/pengeluaran/pembelian/form')->name('kasir.pengeluaran.pembelian.form');
+    Route::get('kasir/pengeluaran/pembelian', PengeluaranPembelianIndex::class)->name('kasir.pengeluaran.pembelian');
+    Route::get('kasir/pengeluaran/pembelian/form', PengeluaranPembelianForm::class)->name('kasir.pengeluaran.pembelian.form');
+    Route::get('kasir/pengeluaran/pembelian/form/{pengeluaran_pembelian_id}', PengeluaranPembelianForm::class)->name('kasir.pengeluaran.pembelian.form.edit');
     Route::get('kasir/pengeluaran/hutangpembelian/{supplier_id}')->name('kasir.pengeluaran.hutangpembelian.detail');
 
     // kasir - daftar mutasi rekening
+    Route::get('kasir/mutasi')->name('kasir.mutasi');
 
     // kasir - daftar piutang internal
     Route::get('kasir/piutanginternal')->name('kasir.piutang.internal');

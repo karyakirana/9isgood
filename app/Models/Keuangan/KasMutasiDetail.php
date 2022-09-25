@@ -17,6 +17,11 @@ class KasMutasiDetail extends Model
         'nominal_keluar',
     ];
 
+    public function kasMutasi()
+    {
+        return $this->belongsTo(KasMutasi::class, 'kas_mutasi_id');
+    }
+
     public function akunKas()
     {
         return $this->belongsTo(Akun::class, 'akun_kas_id');
