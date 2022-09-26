@@ -10,7 +10,7 @@ class PengeluaranPembelianDetail extends Model
     use HasFactory;
     protected $table = 'haramain_keuangan.pengeluaran_pembelian_detail';
     protected $fillable = [
-        'pengeluaran_pembeian_id',
+        'pengeluaran_pembelian_id',
         'hutang_pembelian_id',
         'nominal_dibayar',
         'kurang_bayar'

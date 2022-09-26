@@ -1,5 +1,5 @@
 @props(['size'=>null, 'title'=>null])
-<div tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" {{$attributes->class('modal fade')}}>
+<div tabindex="-1" data-bs-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true" {{$attributes->class('modal fade')}} >
     <div class="modal-dialog modal-dialog-centered modal-{{$size}}">
         <div class="modal-content">
             <div class="modal-header">

@@ -2,16 +2,17 @@
 
 namespace App\Http\Livewire\Keuangan\Kasir;
 
+use App\Haramain\SistemKeuangan\SubKasir\PengeluaranPembelianService;
 use App\Haramain\Traits\LivewireTraits\SetSupplierTraits;
-use App\Models\Keuangan\HutangPembelian;
 use Livewire\Component;
 
 class PengeluaranPembelianForm extends Component
 {
-    use SetSupplierTraits;
+    use SetSupplierTraits, PengeluaranPembelianHelperTrait;
 
     protected $listeners = [
-        'setHutangPembelian'
+        'setHutangPembelian',
+        'setSupplier'
     ];
 
     public $pengeluaran_pembelian_id;
@@ -20,24 +21,71 @@ class PengeluaranPembelianForm extends Component
     public $user_id;
     public $total_pengeluaran;
     public $keterangan;
+    public $data;
 
-    public $dataPayment = [];
-    public $dataDetail = [];
+    // attribute payment
+    public $mode = 'create';
 
     public function mount($pengeluaran_pembelian_id = null)
     {
         $this->user_id = auth()->id();
         $this->tgl_pengeluaran = tanggalan_format(now('ASIA/JAKARTA'));
+        $this->jenis = 'BLU';
+
+        if ($pengeluaran_pembelian_id)
+        {
+            $this->pengeluaran_pembelian_id = $pengeluaran_pembelian_id;
+        }
     }
 
-    public function setHutangPembelian(HutangPembelian $hutangPembelian)
+    public function hydrate()
     {
-        //
+        $this->resetErrorBag();
+        $this->resetValidation();
     }
 
-    public function addLine()
+    public function addHutang()
     {
-        //
+        $this->validate(['supplier_nama'=>'required']);
+        $this->emit('showModalHutangPembelian');
+    }
+
+    protected function formValidate()
+    {
+        $this->total_pengeluaran = array_sum(array_column($this->dataDetail, 'nominal_dibayar'));
+        return $this->validate([
+            'pengeluaran_pembelian_id'=>($this->mode == 'update') ? 'required' : 'nullable',
+            'tgl_pengeluaran'=>'required',
+            'jenis'=>'required',
+            'user_id'=>'required',
+            'total_pengeluaran'=>'required|integer',
+            'keterangan'=>'nullable',
+            'dataDetail'=>'required|array',
+        ]);
+    }
+
+    public function store()
+    {
+        $this->data['dataPayment'] = $this->dataPayment;
+
+        $store = (new PengeluaranPembelianService())->handleStore($this->data);
+        if ($store['status']){
+            return redirect()->to(route('kasir.pengeluaran.pembelian'));
+        }
+        session()->flash('message', $store['keterangan']);
+        return null;
+    }
+
+    public function update()
+    {
+        $this->data['dataPayment'] = $this->dataPayment;
+
+        $store = (new PengeluaranPembelianService())->handleUpdate($this->data);
+        if ($store['status']){
+            return redirect()->to(route('kasir.pengeluaran.pembelian'));
+        }
+        session()->flash('message', $store['keterangan']);
+        return null;
     }
 
     public function render()

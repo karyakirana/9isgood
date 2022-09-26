@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Model;
 class Pembelian extends Model
 {
     use HasFactory, KodeTraits, SupplierTraits, GudangTraits, UserTraits, StockMasukTraits, JurnalTransaksiTraits;
-    protected $table = 'pembelian';
+    protected $table = 'haramainv2.pembelian';
     protected $fillable = [
         'kode',
         'nomor_nota',
@@ -60,7 +60,7 @@ class Pembelian extends Model
 
     public function hutang_pembelian()
     {
-        return $this->morphOne(HutangPembelian::class, 'hutang_pembelian_morph', 'pembelian_type', 'pembelian_id');
+        return $this->morphOne(HutangPembelian::class, 'hutangablePembelian', 'pembelian_type', 'pembelian_id');
     }
 
 }

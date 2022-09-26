@@ -19,7 +19,7 @@
     {{$row->email}}
 </x-atoms.table.td>
 <x-atoms.table.td width="15%" align="center">
-    <x-atoms.button.btn-icon onclick="Livewire.emit('set_supplier', {{$row->id}})">
+    <x-atoms.button.btn-icon onclick="Livewire.emit('setSupplier', {{$row->id}})">
         set
     </x-atoms.button.btn-icon>
 </x-atoms.table.td>
