@@ -7,10 +7,12 @@ class PengeluaranPembelianRepository
 {
     public static function kode()
     {
-        $query = PengeluaranPembelian::query()
-            ->where('active_cash', session('ClosedCash'))
+        $query = PengeluaranPembelian::where('active_cash', session('ClosedCash'))
             ->latest('kode');
-        $num = (int)$query->first()->last_num_char + 1 ;
+        if ($query->doesntExist()) {
+            return '0001//KP/'. date('Y');
+        }
+        $num = (int)$query->first()->last_num_trans + 1 ?? 1;
         return sprintf("%05s", $num) . "/KP/" . date('Y');
     }
 

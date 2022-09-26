@@ -2,6 +2,8 @@
 
 namespace App\Models\Keuangan;
 
+use App\Haramain\Traits\ModelTraits\KodeTraits;
+use App\Haramain\Traits\ModelTraits\SupplierTraits;
 use App\Models\Master\Supplier;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -10,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PengeluaranPembelian extends Model
 {
-    use HasFactory;
+    use HasFactory, KodeTraits, SupplierTraits;
     protected $table = 'haramain_keuangan.pengeluaran_pembelian';
     protected $fillable = [
         'active_cash',

@@ -104,7 +104,7 @@ trait PengeluaranPembelianHelperTrait
     {
         $this->data = $this->formValidate();
         $this->dataPayment[] = [
-            'akun_id'=>'',
+            'akun_id'=>null,
             'nominal'=> 0
         ];
         $this->emit('showPayment');

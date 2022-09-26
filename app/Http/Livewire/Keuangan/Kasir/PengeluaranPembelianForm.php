@@ -57,6 +57,7 @@ class PengeluaranPembelianForm extends Component
             'pengeluaran_pembelian_id'=>($this->mode == 'update') ? 'required' : 'nullable',
             'tgl_pengeluaran'=>'required',
             'jenis'=>'required',
+            'supplier_id'=>'required',
             'user_id'=>'required',
             'total_pengeluaran'=>'required|integer',
             'keterangan'=>'nullable',
@@ -66,6 +67,11 @@ class PengeluaranPembelianForm extends Component
 
     public function store()
     {
+        //dd($this->dataPayment[0]['akun_id']);
+        $this->validate([
+            'dataPayment.*.akun_id'=>'required',
+            'dataPayment.*.nominal'=>'required|numeric|min:0|not_in:0'
+        ]);
         $this->data['dataPayment'] = $this->dataPayment;
 
         $store = (new PengeluaranPembelianService())->handleStore($this->data);
@@ -78,6 +84,10 @@ class PengeluaranPembelianForm extends Component
 
     public function update()
     {
+        $this->validate([
+            'dataPayment.*.akun_id'=>'required',
+            'dataPayment.*.nominal'=>'required|numeric|min:0|not_in:0'
+        ]);
         $this->data['dataPayment'] = $this->dataPayment;
 
         $store = (new PengeluaranPembelianService())->handleUpdate($this->data);

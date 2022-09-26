@@ -44,13 +44,13 @@ class PengeluaranPembelianService implements ServiceInterface
             // jurnal
             $this->jurnal($pengeluaranPembelian);
             DB::commit();
-            return (object)[
+            return [
                 'status'=>true,
                 'keterangan'=>'Pengeluaran Pembelian Berhasil Disimpan'
             ];
         } catch (ModelNotFoundException $e){
             DB::rollBack();
-            return (object)[
+            return [
                 'status'=>false,
                 'keterangan'=>$e->getMessage()
             ];
@@ -71,13 +71,13 @@ class PengeluaranPembelianService implements ServiceInterface
             // jurnal
             $this->jurnal($pengeluaranPembelian);
             DB::commit();
-            return (object)[
+            return [
                 'status'=>true,
                 'keterangan'=>'Pengeluaran Pembelian Berhasil Disimpan'
             ];
         } catch (ModelNotFoundException $e){
             DB::rollBack();
-            return (object)[
+            return [
                 'status'=>false,
                 'keterangan'=>$e->getMessage()
             ];
@@ -92,13 +92,13 @@ class PengeluaranPembelianService implements ServiceInterface
             $this->rollback($pengeluaranPembelian);
             $pengeluaranPembelian->delete();
             DB::commit();
-            return (object)[
+            return [
                 'status'=>true,
                 'keterangan'=>'Pengeluaran Pembelian Berhasil dihapus'
             ];
         } catch (ModelNotFoundException $e){
             DB::rollBack();
-            return (object)[
+            return [
                 'status'=>false,
                 'keterangan'=>$e->getMessage()
             ];

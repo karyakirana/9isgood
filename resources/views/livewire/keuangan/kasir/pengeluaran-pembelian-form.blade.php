@@ -114,28 +114,36 @@
         </div>
     </x-molecules.modal>
 
-    <x-molecules.modal title="Payment" size="xl" id="modalPayment">
-        <table>
+    <x-molecules.modal title="Payment" size="xl" id="modalPayment" wire:ignore.self>
+        <x-atoms.table>
             @foreach($dataPayment as $index => $row)
-                <tr>
-                    <td>
-                        <x-atoms.input.group label="Akun Kas" name="dataPayment.{{$index}}.akun_id" required="required">
-                            <x-atoms.input.select>
-                                <x-molecules.select.akun-kas-list wire:model.defer="dataPayment.{{$index}}.akun_id" />
+                <tr class="align-middle">
+                    <x-atoms.table.td>
+                        <x-atoms.input.group-horizontal label="Akun Kas" name="dataPayment.{{$index}}.akun_id" required="required">
+                            <x-atoms.input.select wire:model="dataPayment.{{$index}}.akun_id">
+                                <x-molecules.select.akun-kas-list2 />
                             </x-atoms.input.select>
-                        </x-atoms.input.group>
-                    </td>
-                    <td>
-                        <x-atoms.input.group label="Nominal" name="dataPayment.{{$index}}.nominal" required="required">
+                        </x-atoms.input.group-horizontal>
+                    </x-atoms.table.td>
+                    <x-atoms.table.td>
+                        <x-atoms.input.group-horizontal label="Nominal" name="dataPayment.{{$index}}.nominal" required="required">
                             <x-atoms.input.text wire:model.defer="dataPayment.{{$index}}.nominal" />
-                        </x-atoms.input.group>
-                    </td>
-                    <td>
-                        <x-atoms.button.btn-info>delete</x-atoms.button.btn-info>
-                    </td>
+                        </x-atoms.input.group-horizontal>
+                    </x-atoms.table.td>
+                    <x-atoms.table.td>
+                        <x-atoms.button.btn-info wire:click.prevent="deletePayment({{$index}})">delete</x-atoms.button.btn-info>
+                        <x-atoms.button.btn-primary wire:click.prevent="addPayment({{$index}})">add</x-atoms.button.btn-primary>
+                    </x-atoms.table.td>
                 </tr>
             @endforeach
-        </table>
+        </x-atoms.table>
+        <x-slot:footer>
+            @if($mode == 'create')
+                <x-atoms.button.btn-primary wire:click.prevent="store">Simpan Semua</x-atoms.button.btn-primary>
+            @else
+                <x-atoms.button.btn-primary wire:click.prevent="update">Update Semua</x-atoms.button.btn-primary>
+            @endif
+        </x-slot:footer>
     </x-molecules.modal>
 
     @push('custom-scripts')

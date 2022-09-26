@@ -14,9 +14,9 @@ class JurnalKasRepository
             JurnalKas::create([
                 'kode'=>$penerimaanPenjualan->kode,
                 'active_cash'=>$penerimaanPenjualan->active_cash,
-                'type'=>'masuk',
-                'cash_type'=>$penerimaanPenjualan::class,
-                'cash_id'=>$penerimaanPenjualan->id,
+                'type'=>'debet',
+                'jurnal_type'=>$penerimaanPenjualan::class,
+                'jurnal_id'=>$penerimaanPenjualan->id,
                 'akun_id'=>$payment->akun_id,
                 'nominal_debet'=>$payment->nominal,
                 'nominal_kredit'=>null,
@@ -41,7 +41,7 @@ class JurnalKasRepository
             JurnalKas::create([
                 'kode'=>$pengeluaranPembelian->kode,
                 'active_cash' => $pengeluaranPembelian->active_cash,
-                'type' => 'keluar',
+                'type' => 'kredit',
                 'cash_type' => $pengeluaranPembelian::class,
                 'cash_id' => $pengeluaranPembelian->id,
                 'akun_id' => $payment->akun_id,
