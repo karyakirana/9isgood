@@ -26,7 +26,7 @@ trait PengeluaranPembelianHelperTrait
         $this->kurang_bayar = $hutangPembelian->kurang_bayar;
         $this->kode_pembelian = $hutangPembelian->hutangablePembelian->kode;
         $this->jenis_pembelian = class_basename($hutangPembelian->pembelian_type);
-        $this->pembelian = class_basename($hutangPembelian->hutangablePembelian->jenis);
+        $this->pembelian = $hutangPembelian->hutangablePembelian->jenis;
         $this->emit('showFormHutangPembelian');
     }
 

@@ -60,6 +60,6 @@ class PengeluaranPembelian extends Model
 
     public function jurnalKas()
     {
-        return $this->morphMany(JurnalKas::class, 'jurnalable_kas', 'cash_type', 'cash_id');
+        return $this->morphMany(JurnalKas::class, 'jurnalable_kas', 'jurnal_type', 'jurnal_id');
     }
 }

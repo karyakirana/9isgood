@@ -15,6 +15,8 @@ use App\Http\Livewire\Keuangan\Persediaan\{GenerateOpnameFromStockOpname,
     PersediaanTransaksiIndex};
 use App\Http\Livewire\Keuangan\{GenerateReturToHutang,
     GenerateReturToPiutang,
+    PenerimaanLainForm,
+    PenerimaanLainIndex,
     PersediaanOpnameForm,
     PersediaanOpnameIndex,
     PersediaanTempIndex,
@@ -56,21 +58,25 @@ Route::middleware('auth')->group(function (){
     Route::get('kasir/penerimaan/penjualan/print/{penerimaan_id}')
         ->name('kasir.penerimaan.penjualan.print');
 
+    Route::get('kasir/penerimaan/lain', PenerimaanLainIndex::class)->name('kasir.penerimaan.lain');
+    Route::get('kasir/penerimaan/lain/form', PenerimaanLainForm::class)->name('kasir.penerimaan.lain.form');
+
     // kasir - pengeluaran
     Route::get('kasir/pengeluaran/pembelian', PengeluaranPembelianIndex::class)->name('kasir.pengeluaran.pembelian');
     Route::get('kasir/pengeluaran/pembelian/form', PengeluaranPembelianForm::class)->name('kasir.pengeluaran.pembelian.form');
     Route::get('kasir/pengeluaran/pembelian/form/{pengeluaran_pembelian_id}', PengeluaranPembelianForm::class)->name('kasir.pengeluaran.pembelian.form.edit');
     Route::get('kasir/pengeluaran/hutangpembelian/{supplier_id}')->name('kasir.pengeluaran.hutangpembelian.detail');
 
-    // kasir - daftar mutasi rekening
-    Route::get('kasir/mutasi')->name('kasir.mutasi');
+    Route::get('kasir/pengeluaran/lain');
+    Route::get('kasir/pengeluaran/lain/form');
 
-    // kasir - daftar piutang internal
-    Route::get('kasir/piutanginternal')->name('kasir.piutang.internal');
+    // kasir - daftar mutasi rekening
+    Route::get('kasir/mutasi', \App\Http\Livewire\Kasir\KasMutasiIndex::class)->name('kasir.mutasi');
+    Route::get('kasir/mutasi/form', \App\Http\Livewire\Kasir\KasMutasiForm::class)->name('kasir.mutasi.form');
+    Route::get('kasir/mutasi/form/{kas_mutasi_id}', \App\Http\Livewire\Kasir\KasMutasiForm::class)->name('kasir.mutasi.form.edit');
 
     // kasir - daftar hutang
     Route::get('kasir/hutang/pembelian');
-
 
     // payment pembelian
     Route::get('kasir/pembelian')->name('keuangan.kasir.pembelian');
@@ -79,11 +85,9 @@ Route::middleware('auth')->group(function (){
     Route::get('kasir/hutangpembelian')->name('keuangan.kasir.hutangpembelian'); // daftar hutang by supplier
 
     // hutang pegawai
-    Route::get('kasir/piutanginternal')->name('keuangan.kasir.piutanginternal');
-    Route::get('kasir/piutanginternal/pembayaran')->name('keuangan.kasir.piutanginternal.pembayaran');
-    Route::get('kasir/piutanginternal/pembayaran/{id}');
-    Route::get('kasir/piutanginternal/penerimaan')->name('keuangan.kasir.piutanginternal.penerimaan');
-    Route::get('kasir/piutanginternal/penerimaan/{id}');
+    Route::get('kasir/piutanginternal', \App\Http\Livewire\Keuangan\PiutangInternalIndex::class)->name('kasir.piutanginternal');
+    Route::get('kasir/piutanginternal/form', \App\Http\Livewire\Keuangan\PiutangInternalForm::class)->name('kasir.piutanginternal.form');
+    Route::get('kasir/piutanginternal/form/{piutang_internal_id}', \App\Http\Livewire\Keuangan\PiutangInternalForm::class)->name('kasir.piutanginternal.form.edit');
 
     // generate retur penjualan to piutang
     Route::get('kasir/generate/returtopiutang', GenerateReturToPiutang::class)->name('generate.returtopiutang');

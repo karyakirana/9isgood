@@ -14,6 +14,7 @@ class KasMutasi extends Model
     use HasFactory, KodeTraits, UserTraits, JurnalTransaksiTraits;
     protected $table = 'haramain_keuangan.kas_mutasi';
     protected $fillable = [
+        'active_cash',
         'kode',
         'tgl_mutasi',
         'user_id',
@@ -21,17 +22,17 @@ class KasMutasi extends Model
         'keterangan'
     ];
 
-    public function tglMutasi()
+    public function tglMutasi():Attribute
     {
         return Attribute::make(
             get: fn ($value) => tanggalan_format($value),
-            set: fn($value) => tanggalan_database_format($value, 'd-M-Y')
+            set: fn ($value) => tanggalan_database_format($value, 'd-M-Y')
         );
     }
 
     public function jurnalKas()
     {
-        return $this->morphMany(JurnalKas::class, 'jurnalable_kas', 'cash_type', 'cash_id');
+        return $this->morphMany(JurnalKas::class, 'jurnalable_kas', 'jurnal_type', 'jurnal_id');
     }
 
     public function kasMutasiDetail()

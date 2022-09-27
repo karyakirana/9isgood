@@ -2,8 +2,10 @@
 
 use App\Haramain\SistemKeuangan\SubNeraca\SaldoKasRepository;
 use App\Models\Keuangan\JurnalKas;
+use App\Models\Keuangan\PenerimaanLain;
 use App\Models\Keuangan\PenerimaanPenjualan;
 use App\Models\Keuangan\PengeluaranPembelian;
+use App\Models\Keuangan\PiutangInternal;
 
 class JurnalKasRepository
 {
@@ -59,5 +61,63 @@ class JurnalKasRepository
             SaldoKasRepository::rollback($jurnalKas->akun_id, $jurnalKas->nominal_kredit, 'increment');
         }
         return $pengeluaranPembelian->jurnalKas()->delete();
+    }
+
+    public static function storeForPiutangInternal(PiutangInternal $piutangInternal)
+    {
+        $getPayment = $piutangInternal->paymentable;
+        foreach ($getPayment as $payment) {
+            JurnalKas::create([
+                'kode'=>$piutangInternal->kode,
+                'active_cash'=>$piutangInternal->active_cash,
+                'type'=>($piutangInternal->jenis_piutang == 'penerimaan') ? 'debet' : 'kredit', // debet or kredit (enum)
+                'jurnal_type'=>$piutangInternal::class,
+                'jurnal_id'=>$piutangInternal->id,
+                'akun_id'=>$payment->akun_id,
+                'nominal_debet'=>($piutangInternal->jenis_piutang == 'penerimaan') ? $payment->nominal : null,
+                'nominal_kredit'=>($piutangInternal->jenis_piutang == 'penerimaan') ? null : $payment->nominal,
+            ]);
+            $type = ($piutangInternal->jenis_piutang == 'penerimaan') ? 'increment' : 'decrement';
+            SaldoKasRepository::update($payment->akun_id, $payment->nominal, $type);
+        }
+    }
+
+    public static function rollbackForPiutangInternal(PiutangInternal $piutangInternal)
+    {
+        // rollback saldo kas
+        foreach ($piutangInternal->jurnalKas as $jurnalKas) {
+            if ($piutangInternal->jenis_piutang == 'penerimaan'){
+                SaldoKasRepository::rollback($jurnalKas->akun_id, $jurnalKas->nominal_debet, 'decrement');
+            }
+            if ($piutangInternal->jenis_piutang == 'pengeluaran'){
+                SaldoKasRepository::rollback($jurnalKas->akun_id, $jurnalKas->nominal_kredit, 'increment');
+            }
+        }
+        return $piutangInternal->jurnalKas()->delete();
+    }
+
+    public static function storeForPenerimaanLain(PenerimaanLain $penerimaanLain)
+    {
+        $getPayment = $penerimaanLain->paymentable;
+        foreach ($getPayment as $payment){
+            JurnalKas::create([
+                'kode'=>$penerimaanLain->kode,
+                'active_cash' => $penerimaanLain->active_cash,
+                'type' => 'debet',
+                'jurnal_type' => $penerimaanLain::class,
+                'jurnal_id' => $penerimaanLain->id,
+                'akun_id' => $payment->akun_id,
+                'nominal_debet' => $payment->nominal
+            ]);
+            SaldoKasRepository::update($payment->akun_id, $payment->nominal, 'increment');
+        }
+    }
+
+    public static function rollbackForPenerimaanLain(PenerimaanLain $penerimaanLain)
+    {
+        foreach ($penerimaanLain->jurnalKas as $jurnalKas){
+            SaldoKasRepository::rollback($jurnalKas->akun_id, $jurnalKas->nominal_debet, 'decrement');
+        }
+        return $penerimaanLain->jurnalKas()->delete();
     }
 }

@@ -74,6 +74,8 @@ Route::middleware('auth')->group(function (){
 
     Route::get('/master/pegawai', PegawaiIndex::class)->name('pegawai');
     Route::get('/master/pegawai/user', PegawaiUserIndex::class)->name('pegawai.user');
+
+    Route::get('/master/pihakketiga', \App\Http\Livewire\Master\PersonRelationIndex::class)->name('pihakketiga');
 });
 
 Route::middleware('auth')->group(function (){
@@ -81,7 +83,7 @@ Route::middleware('auth')->group(function (){
     // closed cash
     Route::get('closedcash', CloseCashIndex::class)->name('closedcash');
 
-    // config hpp
+    // config hpp\
     Route::get('keuangan/config/hpp', ConfigHpp::class)->name('config.hpp');
 
     // config jurnal

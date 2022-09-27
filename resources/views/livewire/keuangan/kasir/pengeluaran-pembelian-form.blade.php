@@ -115,6 +115,9 @@
     </x-molecules.modal>
 
     <x-molecules.modal title="Payment" size="xl" id="modalPayment" wire:ignore.self>
+        <x-atoms.input.group-horizontal label="Total Tagihan">
+            <x-atoms.input.plaintext><span class="fw-bolder">{{rupiah_format($total_dibayar)}}</span></x-atoms.input.plaintext>
+        </x-atoms.input.group-horizontal>
         <x-atoms.table>
             @foreach($dataPayment as $index => $row)
                 <tr class="align-middle">

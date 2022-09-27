@@ -5,6 +5,6 @@
 <x-atoms.table.td>{{$row->users->name}}</x-atoms.table.td>
 <x-atoms.table.td>{{$row->total_pengeluaran}}</x-atoms.table.td>
 <x-atoms.table.td>
-    <x-atoms.button.btn-icon-link href="{{route('kasir.pengeluaran.pembelian.form', $row->id)}}">edit</x-atoms.button.btn-icon-link>
+    <x-atoms.button.btn-icon-link href="{{route('kasir.pengeluaran.pembelian.form.edit', $row->id)}}">edit</x-atoms.button.btn-icon-link>
     <x-atoms.button.btn-icon>delete</x-atoms.button.btn-icon>
 </x-atoms.table.td>

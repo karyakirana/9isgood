@@ -10,6 +10,7 @@ class SaldoPegawai extends Model
 {
     use HasFactory;
     protected $table = 'haramain_keuangan.saldo_pegawai';
+    protected $primaryKey = 'pegawai_id';
     protected $fillable = [
         'pegawai_id',
         'saldo'

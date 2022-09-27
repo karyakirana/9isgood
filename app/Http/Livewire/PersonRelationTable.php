@@ -1,22 +1,26 @@
 <?php
 
-namespace App\Http\Livewire\Datatables;
+namespace App\Http\Livewire;
 
 use App\Haramain\Traits\LivewireTraits\DatatablesTraits;
-use App\Models\Master\Pegawai;
+use App\Models\Master\PersonRelation;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
-class PegawaiSetTable extends DataTableComponent
+class PersonRelationTable extends DataTableComponent
 {
     use DatatablesTraits;
 
     public function columns(): array
     {
         return [
-            Column::make('ID', 'kode'),
-            Column::make('Nama'),
+            Column::make('ID', 'Kode'),
+            Column::make('Nama')
+                ->searchable(),
+            Column::make('Telepon'),
+            Column::make('Alamat')
+                ->searchable(),
             Column::make('Keterangan'),
             Column::make('')
         ];
@@ -24,11 +28,11 @@ class PegawaiSetTable extends DataTableComponent
 
     public function query(): Builder
     {
-        return Pegawai::query();
+        return PersonRelation::query();
     }
 
     public function rowView(): string
     {
-        return 'livewire-tables.rows.pegawai_set_table';
+        return 'livewire-tables.rows.person_relation_table';
     }
 }

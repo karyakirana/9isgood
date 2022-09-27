@@ -3,12 +3,12 @@
 namespace App\Http\Livewire\Datatables;
 
 use App\Haramain\Traits\LivewireTraits\DatatablesTraits;
-use App\Models\Master\Pegawai;
+use App\Models\Keuangan\PiutangInternal;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
-class PegawaiSetTable extends DataTableComponent
+class PiutangInternalTable extends DataTableComponent
 {
     use DatatablesTraits;
 
@@ -16,19 +16,21 @@ class PegawaiSetTable extends DataTableComponent
     {
         return [
             Column::make('ID', 'kode'),
-            Column::make('Nama'),
-            Column::make('Keterangan'),
+            Column::make('Pegawai', 'saldoPegawai.pegawai.nama'),
+            Column::make('Jenis', 'jenis_piutang'),
+            Column::make('nominal'),
+            Column::make('keterangan'),
             Column::make('')
         ];
     }
 
     public function query(): Builder
     {
-        return Pegawai::query();
+        return PiutangInternal::query();
     }
 
     public function rowView(): string
     {
-        return 'livewire-tables.rows.pegawai_set_table';
+        return 'livewire-tables.rows.piutang_internal_table';
     }
 }

@@ -24,6 +24,7 @@ class KonfigurasiSeeder extends Seeder
             ['config'=>'biaya_penjualan', 'kategori'=>'penjualan'],
             ['config'=>'piutang_usaha', 'kategori'=>'penjualan'],
             ['config'=>'ppn_penjualan', 'kategori'=>'penjualan'],
+            ['config'=>'modal_piutang_awal', 'kategori'=>'penjualan'],
             ['config'=>'persediaan_baik_kalimas', 'kategori'=>'persediaan'],
             ['config'=>'persediaan_baik_perak', 'kategori'=>'persediaan'],
             ['config'=>'persediaan_rusak_kalimas', 'kategori'=>'persediaan'],
@@ -34,6 +35,7 @@ class KonfigurasiSeeder extends Seeder
             ['config'=>'hpp_internal', 'kategori'=>'hpp'],
             ['config'=>'hpp_buku_luar', 'kategori'=>'hpp'],
             ['config'=>'modal_piutang_awal', 'kategori'=>'penjualan'],
+            ['config'=>'piutang_internal', 'kategori'=>'piutang_internal'],
         ]);
     }
 }

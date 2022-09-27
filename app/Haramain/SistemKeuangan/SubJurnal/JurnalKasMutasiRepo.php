@@ -27,12 +27,12 @@ class JurnalKasMutasiRepo
             $data['kode'] = $kasMutasi->kode;
             $data['active_cash'] = session('ClosedCash');
             $data['akun_id'] = $item['akun_kas_id'];
-            if ($item->jenis == 'keluar'){
+            if ($item['jenis'] == 'keluar'){
                 $data['type'] = 'kredit';
                 $data['nominal_kredit'] = $item['nominal_keluar'];
                 $kasMutasi->jurnalKas()->create($data);
             }
-            if ($item->jenis == 'masuk'){
+            if ($item['jenis'] == 'masuk'){
                 $data['type'] = 'debet';
                 $data['nominal_debet'] = $item['nominal_masuk'];
                 $kasMutasi->jurnalKas()->create($data);
@@ -43,6 +43,7 @@ class JurnalKasMutasiRepo
     public static function store(array $data)
     {
         $data['kode'] = self::kode(); // add kode
+        $data['active_cash'] = session('ClosedCash'); // add active_cash
         $kasMutasi = KasMutasi::query()->create($data);
         $kasMutasi->kasMutasiDetail()->createMany($data['dataDetail']);
         self::jurnalKasStore($kasMutasi->refresh(), $data['dataDetail']);

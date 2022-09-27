@@ -5,12 +5,13 @@ use App\Models\Keuangan\PengeluaranPembelian;
 
 class PengeluaranPembelianRepository
 {
+    /** @noinspection PhpUndefinedFieldInspection */
     public static function kode()
     {
         $query = PengeluaranPembelian::where('active_cash', session('ClosedCash'))
             ->latest('kode');
         if ($query->doesntExist()) {
-            return '0001//KP/'. date('Y');
+            return '00001/KP/'. date('Y');
         }
         $num = (int)$query->first()->last_num_trans + 1 ?? 1;
         return sprintf("%05s", $num) . "/KP/" . date('Y');
@@ -43,7 +44,7 @@ class PengeluaranPembelianRepository
     protected static function updateHutangPembelian(array $dataPengeluaranPembelianDetail)
     {
         foreach ($dataPengeluaranPembelianDetail as $item) {
-            // todo update status hutang pembelian
+            // update status hutang pembelian
             $hutangPembelian = HutangPembelian::find($item['hutang_pembelian_id']);
             $statusBayar = ($item['kurang_bayar'] == 0) ? 'lunas' : 'kurang';
             $hutangPembelian->update([
@@ -58,7 +59,7 @@ class PengeluaranPembelianRepository
     {
         $pengeluaranPembelian = PengeluaranPembelian::find($pengeluaranPembelianId);
         $pengeluaranPembelian->paymentable()->delete();
-        foreach ($pengeluaranPembelian->pengeluaranPembelianDetail() as $item) {
+        foreach ($pengeluaranPembelian->pengeluaranPembelianDetail as $item) {
             HutangPembelianRollback::fromPengeluaranPembelian($item);
         }
         $pengeluaranPembelian->pengeluaranPembelianDetail()->delete();
