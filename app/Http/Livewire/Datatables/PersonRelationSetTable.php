@@ -3,33 +3,32 @@
 namespace App\Http\Livewire\Datatables;
 
 use App\Haramain\Traits\LivewireTraits\DatatablesTraits;
-use App\Models\Keuangan\PenerimaanLain;
+use App\Models\Master\PersonRelation;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
-class PenerimaanLainTable extends DataTableComponent
+class PersonRelationSetTable extends DataTableComponent
 {
     use DatatablesTraits;
     public function columns(): array
     {
         return [
             Column::make('ID', 'kode'),
-            Column::make('Tanggal', 'tgl_penerimaan'),
-            Column::make('Asal'),
-            Column::make('Penerima', 'users.name'),
-            Column::make('Nominal'),
+            Column::make('Nama'),
+            Column::make('Telepon'),
+            Column::make('Alamat'),
             Column::make('')
         ];
     }
 
     public function query(): Builder
     {
-        return PenerimaanLain::query();
+        return PersonRelation::query();
     }
 
     public function rowView(): string
     {
-        return 'livewire-tables.rows.penerimaan_lain_table';
+        return 'livewire-tables.rows.person_relation_set_table';
     }
 }

@@ -60,6 +60,7 @@ Route::middleware('auth')->group(function (){
 
     Route::get('kasir/penerimaan/lain', PenerimaanLainIndex::class)->name('kasir.penerimaan.lain');
     Route::get('kasir/penerimaan/lain/form', PenerimaanLainForm::class)->name('kasir.penerimaan.lain.form');
+    Route::get('kasir/penerimaan/lain/form/{penerimaan_lain_id}', PenerimaanLainForm::class)->name('kasir.penerimaan.lain.form.edit');
 
     // kasir - pengeluaran
     Route::get('kasir/pengeluaran/pembelian', PengeluaranPembelianIndex::class)->name('kasir.pengeluaran.pembelian');

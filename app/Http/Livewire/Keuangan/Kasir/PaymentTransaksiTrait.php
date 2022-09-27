@@ -2,7 +2,17 @@
 
 trait PaymentTransaksiTrait
 {
-    public $dataPayment = [];
+    public $dataPayment = [
+        [
+        'akun_id'=>'',
+        'nominal'=>0
+        ]
+    ];
+
+    public function payment()
+    {
+        $this->emit('showPayment');
+    }
 
     public function addPayment()
     {
