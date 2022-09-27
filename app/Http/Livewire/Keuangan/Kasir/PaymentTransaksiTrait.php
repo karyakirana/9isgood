@@ -22,6 +22,14 @@ trait PaymentTransaksiTrait
         ];
     }
 
+    public $total_dibayar;
+
+    public function setTotalDibayar()
+    {
+        $this->total_dibayar = array_sum(array_column($this->dataDetail, 'nominal_dibayar'));
+        $this->customer_saldo = $this->customer_saldo - $this->total_dibayar;
+    }
+
     public function deletePayment($index)
     {
         unset($this->dataPayment[$index]);

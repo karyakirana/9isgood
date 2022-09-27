@@ -7,7 +7,7 @@ trait SetCustomerTrait
 {
     public $customer_id, $customer_nama;
     public $customer_diskon;
-    public $customer_hutang;
+    public $customer_saldo;
     public $customer_telepon;
 
     public function setCustomer(Customer $customer)
@@ -17,6 +17,7 @@ trait SetCustomerTrait
         $this->customer_diskon = $customer->diskon;
         $this->customer_telepon = $customer->telepon;
         $saldoHutang = SaldoPiutangPenjualan::find($customer->id);
-        $this->customer_hutang = ($saldoHutang) ? $saldoHutang->saldo : 0;
+        $this->customer_saldo = ($saldoHutang) ? $saldoHutang->saldo : 0;
+        $this->emit('hideModalCustomer');
     }
 }
