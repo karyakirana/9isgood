@@ -50,6 +50,7 @@ class PenerimaanPenjualanForm extends Component
 
     public function mount($penerimaan_penjualan_id = null): void
     {
+
         // load akun for akuntansi
         if ($penerimaan_penjualan_id){
             $penerimaan_penjualan = KasirPenjualan::query()->find($penerimaan_penjualan_id);
@@ -67,6 +68,21 @@ class PenerimaanPenjualanForm extends Component
         $this->validate(['customer_nama'=>'required']);
         $this->emit('showPiutangPenjualanModal');
     }
+
+//    protected function formValidate()
+//    {
+//        $this->total_penerimaan = array_sum(array_column($this->dataDetail, 'nominal_dibayar'));
+//        return $this->validate([
+//            'pengeluaran_pembelian_id'=>($this->mode == 'update') ? 'required' : 'nullable',
+//            'tgl_pengeluaran'=>'required',
+//            'jenis'=>'required',
+//            'customer_id'=>'required',
+//            'user_id'=>'required',
+//            'total_pengeluaran'=>'required|integer',
+//            'keterangan'=>'nullable',
+//            'dataDetail'=>'required|array',
+//        ]);
+//    }
 
     public function updatedDataDetail()
     {

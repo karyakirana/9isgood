@@ -7,7 +7,7 @@
         let customer_modal = document.getElementById('customer_modal');
         let customerModal = new bootstrap.Modal(customer_modal);
 
-        Livewire.on('set_customer', function (){
+        Livewire.on('hideModalCustomer', function (){
             customerModal.hide();
         })
     </script>
