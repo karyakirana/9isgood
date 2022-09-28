@@ -13,7 +13,7 @@ class PengeluaranPembelianRepository
         if ($query->doesntExist()) {
             return '00001/KP/'. date('Y');
         }
-        $num = (int)$query->first()->last_num_trans + 1 ?? 1;
+        $num = (int)$query->first()->last_num_char + 1 ?? 1;
         return sprintf("%05s", $num) . "/KP/" . date('Y');
     }
 

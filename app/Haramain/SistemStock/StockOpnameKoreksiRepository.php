@@ -5,11 +5,9 @@ use App\Models\Stock\StockOpnameKoreksiDetail;
 
 class StockOpnameKoreksiRepository
 {
-    protected $stockInventoryRepository;
-
     public function __construct()
     {
-        $this->stockInventoryRepository = new StockInventoryRepository();
+        //
     }
 
     public function getById($stockOpnameKoreksiId)
@@ -76,13 +74,7 @@ class StockOpnameKoreksiRepository
                 'produk_id'=>$detail->produk_id,
                 'jumlah'=>$detail->jumlah,
             ]);
-            if ($data->jenis == 'tambah'){
-                // update stock inventory
-                $this->stockInventoryRepository->update($data->kondisi, $data->gudangId, 'stock_opname', $detail);
-            } else {
-                // update stock decrement
-                $this->stockInventoryRepository->updateDecrement($data->kondisi, $data->gudangId, 'stock_opname', $detail);
-            }
+            StockInventoryStaticRepo::stockOpnameChange($data->jenis,  $data->kondisi, $data->gudangId, $detail->produk_id, $detail->jumlah);
         }
     }
 
@@ -91,13 +83,7 @@ class StockOpnameKoreksiRepository
         $stockOpnameKoreksi = $this->getById($stockOpnameKoreksiId);
         $stockOpnameKoreksiDetail = $stockOpnameKoreksi->stockOpnameKoreksiDetail;
         foreach ($stockOpnameKoreksiDetail as $item) {
-            if ($stockOpnameKoreksi->jenis == 'tambah'){
-                // update stock inventory
-                $this->stockInventoryRepository->rollback($stockOpnameKoreksi->kondisi, $stockOpnameKoreksi->gudangId, 'stock_opname', $item);
-            } else {
-                // update stock decrement
-                $this->stockInventoryRepository->rollbackDecrement($stockOpnameKoreksi->kondisi, $stockOpnameKoreksi->gudangId, 'stock_opname', $item);
-            }
+            StockInventoryStaticRepo::stockOpnameChangeRollback($stockOpnameKoreksi->jenis, $stockOpnameKoreksi->kondisi, $stockOpnameKoreksi->gudangId, $item->produk_id, $item->jumlah);
         }
         return $stockOpnameKoreksi->stockOpnameKoreksiDetail()->delete();
     }

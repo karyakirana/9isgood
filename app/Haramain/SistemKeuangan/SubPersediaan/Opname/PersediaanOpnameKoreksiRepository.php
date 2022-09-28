@@ -62,6 +62,7 @@ class PersediaanOpnameKoreksiRepository
     {
         return [
             'active_cash'=>$this->activeCash,
+            'stock_opname_koreksi_id'=>$this->stockOpnameKoreksiId,
             'jenis'=>$this->jenis, // tambah or kurang
             'kondisi'=>$this->kondisi,
             'gudang_id'=>$this->gudangId,

@@ -12,6 +12,9 @@ class PenerimaanPenjualanRepository
         $query = PenerimaanPenjualan::query()
             ->where('active_cash', session('ClosedCash'))
             ->latest('kode');
+        if ($query->doesntExist()) {
+            return '00001/PP/'. date('Y');
+        }
         $num = (int)$query->first()->last_num_char + 1 ;
         return sprintf("%05s", $num) . "/PP/" . date('Y');
     }

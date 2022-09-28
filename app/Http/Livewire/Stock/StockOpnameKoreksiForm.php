@@ -11,6 +11,7 @@ class StockOpnameKoreksiForm extends Component
     protected $listeners = [
         'set_produk'
     ];
+
     protected $stockOpanameKoreksiService;
 
     // attribute

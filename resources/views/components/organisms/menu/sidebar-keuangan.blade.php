@@ -444,6 +444,32 @@
                 <!--begin:Menu item-->
                 <div class="menu-item">
                     <!--begin:Menu link-->
+                    <a class="menu-link {{request()->is('kasir/penerimaan/lain') ? 'active' : ''}}"
+                       href="{{route('kasir.penerimaan.lain')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                        <span class="menu-title">Penerimaan Lain</span>
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+                <!--begin:Menu item-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{request()->is('kasir/penerimaan/lain/form') ? 'active' : ''}}"
+                       href="{{route('kasir.penerimaan.lain.form')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                        <span class="menu-title">Penerimaan Lain Form</span>
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+                <!--begin:Menu item-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
                     <a class="menu-link {{request()->is('kasir/penerimaan/piutangpenjualan*') ? 'active' : ''}}"
                        href="{{route('kasir.piutang.penjualan')}}">
                                         <span class="menu-bullet">
@@ -463,7 +489,7 @@
     <div class="menu-sub menu-sub-accordion menu-active-bg">
         <!--begin:Menu item-->
         <div data-kt-menu-trigger="click"
-             class="menu-item {{request()->is('kasir/penerimaan/*') ? 'here show' : ''}} menu-accordion">
+             class="menu-item {{request()->is('kasir/pengeluaran/*') ? 'here show' : ''}} menu-accordion">
             <!--begin:Menu link-->
             <span class="menu-link">
                                 <span class="menu-bullet">
@@ -478,8 +504,8 @@
                 <!--begin:Menu item-->
                 <div class="menu-item">
                     <!--begin:Menu link-->
-                    <a class="menu-link {{request()->is('kasir/penerimaan/penjualan') ? 'active' : ''}}"
-                       href="{{route('kasir.penerimaan.penjualan')}}">
+                    <a class="menu-link {{request()->is('kasir/pengeluaran/pembelian') ? 'active' : ''}}"
+                       href="{{route('kasir.pengeluaran.pembelian')}}">
                                         <span class="menu-bullet">
                                             <span class="bullet bullet-dot"></span>
                                         </span>
@@ -487,12 +513,30 @@
                     </a>
                     <!--end:Menu link-->
                     <!--begin:Menu link-->
-                    <a class="menu-link {{request()->is('kasir/penerimaan/penjualan') ? 'active' : ''}}"
-                       href="{{route('kasir.penerimaan.penjualan')}}">
+                    <a class="menu-link {{request()->is('kasir/pengeluaran/pembelian/form') ? 'active' : ''}}"
+                       href="{{route('kasir.pengeluaran.pembelian.form')}}">
                                         <span class="menu-bullet">
                                             <span class="bullet bullet-dot"></span>
                                         </span>
                         <span class="menu-title">Pengeluaran Pembelian Form</span>
+                    </a>
+                    <!--end:Menu link-->
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{request()->is('kasir/pengeluaran/lain') ? 'active' : ''}}"
+                       href="{{route('pengeluaran.lain')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                        <span class="menu-title">Pengeluaran Lain</span>
+                    </a>
+                    <!--end:Menu link-->
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{request()->is('kasir/pengeluaran/lain/form') ? 'active' : ''}}"
+                       href="{{route('pengeluaran.lain.form')}}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                        <span class="menu-title">Pengeluaran Lain Form</span>
                     </a>
                     <!--end:Menu link-->
                     <!--begin:Menu link-->

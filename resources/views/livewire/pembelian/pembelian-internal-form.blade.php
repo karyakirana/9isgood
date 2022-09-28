@@ -155,7 +155,7 @@
             let supplierModal = new bootstrap.Modal(document.getElementById('modal_supplier'));
             let produkModal = new bootstrap.Modal(document.getElementById('modal_produk'));
 
-            Livewire.on('set_supplier', function (){
+            Livewire.on('setSupplier', function (){
                 supplierModal.hide();
             })
 

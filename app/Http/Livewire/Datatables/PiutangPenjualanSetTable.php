@@ -10,15 +10,12 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class PiutangPenjualanSetTable extends DataTableComponent
 {
-    /**
-     * use case :
-     *
-     */
     use DatatablesTraits;
 
     protected $listeners = [
         'refreshDatatable' => '$refresh',
         'set_customer',
+        'refresh_customer'=>'set_customer',
         'unset_customer'
     ];
 
@@ -51,7 +48,8 @@ class PiutangPenjualanSetTable extends DataTableComponent
 
     public function query(): Builder
     {
-        $query = PiutangPenjualan::query();
+        $query = PiutangPenjualan::query()
+            ->where('status_bayar', '!=', 'lunas');
         if ($this->customer_id){
             return $query->where('saldo_piutang_penjualan_id', $this->customer_id);
         }

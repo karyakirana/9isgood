@@ -12,7 +12,7 @@ abstract class PembelianLivewire extends Component
     use SetMasterTrait;
 
     protected $listeners = [
-        'set_supplier'=>'setSupplier',
+        'setSupplier',
         'set_produk'=>'setProduk'
     ];
 

@@ -11,10 +11,23 @@
     <div class="row">
         <div class="col-8">
             <x-molecules.card>
+                <div class="row mb-5">
+                    <div class="col-6">
+                        <x-atoms.input.group-horizontal label="Tanggal" name="tgl_penerimaan">
+                            <x-atoms.input.singledaterange id="tgl_penerimaan" />
+                        </x-atoms.input.group-horizontal>
+                    </div>
+                    <div class="col-6">
+                        <x-atoms.input.group-horizontal label="Keterangan" name="keterangan">
+                            <x-atoms.input.text wire:model.defer="keterangan" />
+                        </x-atoms.input.group-horizontal>
+                    </div>
+                </div>
                 <x-atoms.table>
                     <x-slot:head>
                         <tr>
                             <th>ID</th>
+                            <th>Status</th>
                             <th>Jenis</th>
                             <th>Dibayar</th>
                             <th>Kurang Bayar</th>
@@ -23,13 +36,11 @@
                     </x-slot:head>
                     @forelse($dataDetail as $index => $detail)
                         <tr>
-                            @php
-                                $selisih_kurang_bayar = $detail['kurang_bayar'] - $detail['nominal_dibayar'];
-                            @endphp
-                            <x-atoms.table.td>{{$detail['kode_pembelian']}}</x-atoms.table.td>
-                            <x-atoms.table.td>{{$detail['jenis_pembelian']}} {{$detail['pembelian']}}</x-atoms.table.td>
+                            <x-atoms.table.td>{{$detail['kode_penjualan']}}</x-atoms.table.td>
+                            <x-atoms.table.td>{{$detail['status_bayar']}}</x-atoms.table.td>
+                            <x-atoms.table.td>{{$detail['jenis_penjualan']}}</x-atoms.table.td>
                             <x-atoms.table.td>{{rupiah_format($detail['nominal_dibayar'])}}</x-atoms.table.td>
-                            <x-atoms.table.td>{{rupiah_format($selisih_kurang_bayar)}}</x-atoms.table.td>
+                            <x-atoms.table.td>{{rupiah_format($detail['kurang_bayar'])}}</x-atoms.table.td>
                             <x-atoms.table.td>
                                 <x-atoms.button.btn-icon wire:click="editLine({{$index}})"><i class="fa fa-pen"></i></x-atoms.button.btn-icon>
                                 <x-atoms.button.btn-icon wire:click="destroyLine({{$index}})"><i class="fa fa-trash"></i></x-atoms.button.btn-icon>
@@ -61,20 +72,15 @@
                         <x-atoms.input.plaintext>{{rupiah_format($total_dibayar)}}</x-atoms.input.plaintext>
                     </x-atoms.input.group-horizontal>
                 </div>
-                <div class="mb-5">
-                    <x-atoms.input.group-horizontal label="Keterangan" name="keterangan">
-                        <x-atoms.input.textarea wire:model.defer="keterangan"/>
-                    </x-atoms.input.group-horizontal>
-                </div>
                 <div class="row mb-5">
                     <div class="col-6 text-center">
                         <x-atoms.button.btn-primary data-bs-toggle="modal" data-bs-target="#customer_modal">Add Customer</x-atoms.button.btn-primary>
                     </div>
                     <div class="col-6 text-center">
-                        <x-atoms.button.btn-primary color="info" wire:click.prevent="piutangPenjualanShow">Add Hutang</x-atoms.button.btn-primary>
+                        <x-atoms.button.btn-primary color="info" wire:click.prevent="piutangPenjualanShow">Add Piutang</x-atoms.button.btn-primary>
                     </div>
                 </div>
-                <x-atoms.button.btn-primary class="w-100" wire:click.prevent="openPayment">SIMPAN</x-atoms.button.btn-primary>
+                <x-atoms.button.btn-primary class="w-100" wire:click.prevent="openPayment">PAYMENT</x-atoms.button.btn-primary>
             </x-molecules.card>
         </div>
     </div>
@@ -83,9 +89,9 @@
 
     <x-organisms.modals.daftar-piutang-penjualan />
 
-    <livewire:purchase.pembelian-detail-view />
+    <livewire:penjualan.penjualan-detail-view />
 
-    <livewire:purchase.pembelian-retur-detail-view />
+    <livewire:penjualan.penjualan-retur-detail-view />
 
     <x-molecules.modal id="modalFormPiutangPenjualan" title="Form Piutang Penjualan" size="xl" wire:ignore.self>
         <div class="mb-5">
@@ -95,7 +101,7 @@
         </div>
         <div class="mb-5">
             <x-atoms.input.group-horizontal label="Kurang Bayar">
-                <x-atoms.input.plaintext>{{rupiah_format($kurang_bayar)}}</x-atoms.input.plaintext>
+                <x-atoms.input.plaintext>{{rupiah_format($kurang_bayar_sebelumnya)}}</x-atoms.input.plaintext>
             </x-atoms.input.group-horizontal>
         </div>
         <div class="mb-5">
@@ -105,16 +111,19 @@
         </div>
         <div class="text-center pb-4 pt-5">
             <x-atoms.button.btn-modal color="danger" data-bs-dismiss="modal">Cancel</x-atoms.button.btn-modal>
-{{--            @if($update)--}}
+            @if($update)
                 <button type="button" class="btn btn-primary" wire:click="updateLine">update Data</button>
-{{--            @else--}}
+            @else
                 <button type="button" class="btn btn-primary" wire:click="addLine">Save Data</button>
-{{--            @endif--}}
+            @endif
 
         </div>
     </x-molecules.modal>
 
     <x-molecules.modal title="Payment" size="xl" id="modalPayment" wire:ignore.self>
+        <x-atoms.input.group-horizontal label="Total Dibayar">
+            <x-atoms.input.plaintext><span class="fw-bolder">{{rupiah_format($total_penerimaan)}}</span></x-atoms.input.plaintext>
+        </x-atoms.input.group-horizontal>
         <x-atoms.table>
             @foreach($dataPayment as $index => $row)
                 <tr class="align-middle">
@@ -157,20 +166,20 @@
                 modalFormPiutangPenjualanInstance.show();
             })
 
-            Livewire.on('showPembelianDetail', function (){
-                modalDaftarHutangPembelianInstance.hide();
+            Livewire.on('hideFormPiutangPenjualan', function (){
+                modalFormPiutangPenjualanInstance.hide();
             })
 
-            Livewire.on('hideFormHutangPembelian', function (){
-                modalFormHutangPembelianInstance.hide();
+            Livewire.on('showPenjualanDetail', function (){
+                modalFormPiutangPenjualanInstance.hide();
             })
 
-            modalPembelianReturDetail.addEventListener('hidden.bs.modal', function (event) {
-                modalDaftarHutangPembelianInstance.show()
+            modal_penjualan_retur_detail.addEventListener('hidden.bs.modal', function (event) {
+                modalFormPiutangPenjualanInstance.show()
             })
 
             modal_penjualan_detail.addEventListener('hidden.bs.modal', function (event) {
-                modalDaftarHutangPembelianInstance.show();
+                modalFormPiutangPenjualanInstance.show();
             })
 
             let modalPayment = document.getElementById('modalPayment');
@@ -178,6 +187,13 @@
 
             Livewire.on('showPayment', function (){
                 modalPaymenInstance.show();
+            })
+
+            $('#tgl_penerimaan').on('change', function (e) {
+                let date = $(this).data("#tgl_penerimaan");
+                // eval(date).set('tglLahir', $('#tglLahir').val())
+                console.log(e.target.value);
+                @this.tgl_penerimaan = e.target.value;
             })
 
         </script>

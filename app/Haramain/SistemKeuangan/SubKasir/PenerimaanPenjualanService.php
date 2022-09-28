@@ -38,13 +38,13 @@ class PenerimaanPenjualanService implements ServiceInterface
             // jurnal transaksi
             $this->jurnal($penerimaanPenjualan);
             DB::commit();
-            return (object)[
+            return [
                 'status'=>true,
                 'keterangan'=>'data sudah tersimpan'
             ];
         } catch (ModelNotFoundException $e){
             DB::rollBack();
-            return (object)[
+            return [
                 'status'=>false,
                 'keterangan'=>$e
             ];
@@ -56,7 +56,7 @@ class PenerimaanPenjualanService implements ServiceInterface
         DB::beginTransaction();
         try {
             // initiate
-            $penerimaanPenjualan = PenerimaanPenjualan::find($data['penerimaanPenjualanId']);
+            $penerimaanPenjualan = PenerimaanPenjualan::find($data['penerimaan_penjualan_id']);
             // rollback
             $this->rollback($penerimaanPenjualan);
             // update penerimaan
@@ -66,13 +66,13 @@ class PenerimaanPenjualanService implements ServiceInterface
             // jurnal transaksi
             $this->jurnal($penerimaanPenjualan);
             DB::commit();
-            return (object)[
+            return [
                 'status'=>true,
                 'keterangan'=>'data sudah tersimpan'
             ];
         } catch (ModelNotFoundException $e){
             DB::rollBack();
-            return (object)[
+            return [
                 'status'=>false,
                 'keterangan'=>$e->getMessage()
             ];
@@ -87,13 +87,13 @@ class PenerimaanPenjualanService implements ServiceInterface
             $this->rollback($penerimaanPenjualan);
             $penerimaanPenjualan->delete();
             DB::commit();
-            return (object)[
+            return [
                 'status'=>true,
                 'keterangan'=>'data sudah tersimpan'
             ];
         } catch (ModelNotFoundException $e){
             DB::rollBack();
-            return (object)[
+            return [
                 'status'=>false,
                 'keterangan'=>$e->getMessage()
             ];

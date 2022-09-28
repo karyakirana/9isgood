@@ -21,6 +21,7 @@ class KonfigurasiSeeder extends Seeder
             ['config'=>'hutang_dagang', 'kategori'=>'pembelian'],
             ['config'=>'hutang_dagang_internal', 'kategori'=>'pembelian'],
             ['config'=>'ppn_pembelian', 'kategori'=>'pembelian'],
+            ['config'=>'penjualan', 'kategori'=>'penjualan'],
             ['config'=>'biaya_penjualan', 'kategori'=>'penjualan'],
             ['config'=>'piutang_usaha', 'kategori'=>'penjualan'],
             ['config'=>'ppn_penjualan', 'kategori'=>'penjualan'],
