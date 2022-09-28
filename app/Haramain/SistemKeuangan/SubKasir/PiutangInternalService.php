@@ -119,6 +119,7 @@ class PiutangInternalService implements ServiceInterface
 
     protected function rollback(PiutangInternal $piutangInternal)
     {
+        JurnalKasRepository::rollbackForPiutangInternal($piutangInternal);
         PiutangInternalRepository::rollback($piutangInternal->id);
         $this->rollbackJurnalAndSaldo($piutangInternal);
     }

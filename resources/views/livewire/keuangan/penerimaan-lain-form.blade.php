@@ -1,4 +1,13 @@
 <div>
+    @if($errors->any())
+        <x-molecules.alert-danger>
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{$error}}</li>
+                @endforeach
+            </ul>
+        </x-molecules.alert-danger>
+    @endif
     <div class="row">
         <div class="col-4">
             <x-molecules.card>
@@ -14,9 +23,9 @@
                 </div>
                 <div class="mb-5">
                     @if($update)
-                        <x-atoms.button.btn-primary class="w-100" wire:click.prevent="addLine">Update Akun</x-atoms.button.btn-primary>
+                        <x-atoms.button.btn-primary class="w-100" wire:click.prevent="updateLine">Update Akun</x-atoms.button.btn-primary>
                     @else
-                        <x-atoms.button.btn-primary class="w-100" wire:click.prevent="updateLine">Add Akun</x-atoms.button.btn-primary>
+                        <x-atoms.button.btn-primary class="w-100" wire:click.prevent="addLine">Add Akun</x-atoms.button.btn-primary>
                     @endif
                 </div>
                 <div class="mb-5">
@@ -33,7 +42,7 @@
                         </x-atoms.input.group-horizontal>
                     </div>
                     <div class="col-6">
-                        <x-atoms.input.group-horizontal label="Pihak 3">
+                        <x-atoms.input.group-horizontal label="Pihak 3" name="person_relation_id">
                             <x-atoms.input.text wire:model.defer="person_relation_nama" wire:click.prevent="$emit('showModalPerson')" readonly/>
                         </x-atoms.input.group-horizontal>
                     </div>
@@ -50,13 +59,36 @@
                         </x-atoms.input.group-horizontal>
                     </div>
                 </div>
+                <x-atoms.table>
+                    <tr>
+                        <th>Kode</th>
+                        <th>Akun</th>
+                        <th>Nominal</th>
+                        <th></th>
+                    </tr>
+                    @forelse($dataDetail as $indexDetail => $row)
+                        <tr>
+                            <x-atoms.table.td>{{$row['akun_kode']}}</x-atoms.table.td>
+                            <x-atoms.table.td>{{$row['akun_nama']}}</x-atoms.table.td>
+                            <x-atoms.table.td>{{rupiah_format($row['nominal'])}}</x-atoms.table.td>
+                            <x-atoms.table.td>
+                                <x-atoms.button.btn-icon wire:click.prevent="editLine({{$indexDetail}})"><i class="fa fa-edit"></i></x-atoms.button.btn-icon>
+                                <x-atoms.button.btn-icon wire:click.prevent="destroyLine({{$indexDetail}})"><i class="fa fa-trash"></i></x-atoms.button.btn-icon>
+                            </x-atoms.table.td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <x-atoms.table.td colspan="4" align="center">Data Tidak Ada</x-atoms.table.td>
+                        </tr>
+                    @endforelse
+                </x-atoms.table>
             </x-molecules.card>
         </div>
     </div>
     <x-organisms.modals.daftar-akun />
     <x-organisms.modals.daftar-person-relation />
     <x-molecules.modal title="Payment" id="modalPayment" size="xl" wire:ignore.self>
-        <x-atoms.input.group-horizontal label="Total Dibayar">
+        <x-atoms.input.group-horizontal label="Total Diterima">
             <x-atoms.input.plaintext><span class="fw-bolder">{{rupiah_format($nominal)}}</span></x-atoms.input.plaintext>
         </x-atoms.input.group-horizontal>
         <x-atoms.table>
@@ -81,6 +113,13 @@
                 </tr>
             @endforeach
         </x-atoms.table>
+        <x-slot:footer>
+            @if($mode=='create')
+                <x-atoms.button.btn-primary wire:click.prevent="store">SIMPAN</x-atoms.button.btn-primary>
+            @else
+                <x-atoms.button.btn-primary wire:click.prevent="update">UPDATE</x-atoms.button.btn-primary>
+            @endif
+        </x-slot:footer>
     </x-molecules.modal>
 
     @push('custom-scripts')
@@ -90,6 +129,13 @@
 
             Livewire.on('showPayment', function (){
                 modalPaymenInstance.show()
+            })
+
+            $('#tgl_penerimaan').on('change', function (e) {
+                let date = $(this).data("#tgl_penerimaan");
+                // eval(date).set('tglLahir', $('#tgl_penerimaan').val())
+                console.log(e.target.value);
+                @this.tgl_penerimaan = e.target.value;
             })
         </script>
     @endpush

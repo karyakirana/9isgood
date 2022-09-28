@@ -68,8 +68,9 @@ Route::middleware('auth')->group(function (){
     Route::get('kasir/pengeluaran/pembelian/form/{pengeluaran_pembelian_id}', PengeluaranPembelianForm::class)->name('kasir.pengeluaran.pembelian.form.edit');
     Route::get('kasir/pengeluaran/hutangpembelian/{supplier_id}')->name('kasir.pengeluaran.hutangpembelian.detail');
 
-    Route::get('kasir/pengeluaran/lain');
-    Route::get('kasir/pengeluaran/lain/form');
+    Route::get('kasir/pengeluaran/lain', \App\Http\Livewire\Keuangan\PengeluaranLainIndex::class)->name('pengeluaran.lain');
+    Route::get('kasir/pengeluaran/lain/form', \App\Http\Livewire\Keuangan\PengeluaranLainForm::class)->name('pengeluaran.lain.form');
+    Route::get('kasir/pengeluaran/lain/form/{pengeluaran_lain_id}', \App\Http\Livewire\Keuangan\PengeluaranLainForm::class)->name('pengeluaran.lain.form.edit');
 
     // kasir - daftar mutasi rekening
     Route::get('kasir/mutasi', \App\Http\Livewire\Kasir\KasMutasiIndex::class)->name('kasir.mutasi');

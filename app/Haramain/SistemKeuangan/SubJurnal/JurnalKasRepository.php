@@ -4,6 +4,7 @@ use App\Haramain\SistemKeuangan\SubNeraca\SaldoKasRepository;
 use App\Models\Keuangan\JurnalKas;
 use App\Models\Keuangan\PenerimaanLain;
 use App\Models\Keuangan\PenerimaanPenjualan;
+use App\Models\Keuangan\PengeluaranLain;
 use App\Models\Keuangan\PengeluaranPembelian;
 use App\Models\Keuangan\PiutangInternal;
 
@@ -119,5 +120,30 @@ class JurnalKasRepository
             SaldoKasRepository::rollback($jurnalKas->akun_id, $jurnalKas->nominal_debet, 'decrement');
         }
         return $penerimaanLain->jurnalKas()->delete();
+    }
+
+    public static function storeForPengeluaranLain(PengeluaranLain $pengeluaranLain)
+    {
+        $getPayment = $pengeluaranLain->paymentable;
+        foreach ($getPayment as $payment){
+            JurnalKas::create([
+                'kode' => $pengeluaranLain->kode,
+                'active_cash' => $pengeluaranLain->active_cash,
+                'type' => 'kredit',
+                'jurnal_type' => $pengeluaranLain::class,
+                'jurnal_id' => $pengeluaranLain->id,
+                'akun_id' => $payment->akun_id,
+                'nominal_kredit' => $payment->nominal
+            ]);
+        }
+        SaldoKasRepository::update($payment->akun_id, $payment->nominal, 'decrement');
+    }
+
+    public static function rollbackForPengeluaranLain(PengeluaranLain $pengeluaranLain)
+    {
+        foreach ($pengeluaranLain->jurnalKas as $jurnalKas){
+            SaldoKasRepository::rollback($jurnalKas->akun_id, $jurnalKas->nominal_kredit, 'increment');
+        }
+        return $pengeluaranLain->jurnalKas()->delete();
     }
 }

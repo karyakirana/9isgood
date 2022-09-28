@@ -18,7 +18,7 @@ class PenerimaanLainService implements ServiceInterface
 
     public function handleGetData($id)
     {
-        // TODO: Implement handleGetData() method.
+        return PenerimaanLainRepository::getById($id);
     }
 
     public function handleStore($data)
@@ -83,7 +83,6 @@ class PenerimaanLainService implements ServiceInterface
     {
         $jurnalTransaksi = JurnalTransaksiRepo::build($penerimaanLain);
 
-        // todo kredit from detail
         foreach ($penerimaanLain->paymentable as $payment)
         {
             // debet

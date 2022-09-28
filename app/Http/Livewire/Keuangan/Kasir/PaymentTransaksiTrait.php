@@ -9,11 +9,6 @@ trait PaymentTransaksiTrait
         ]
     ];
 
-    public function payment()
-    {
-        $this->emit('showPayment');
-    }
-
     public function addPayment()
     {
         $this->dataPayment[] = [

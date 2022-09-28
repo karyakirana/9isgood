@@ -4,13 +4,14 @@ namespace App\Http\Livewire\Keuangan;
 
 use App\Haramain\SistemKeuangan\SubKasir\PenerimaanLainService;
 use App\Http\Livewire\Keuangan\Kasir\PaymentTransaksiTrait;
-use App\Models\Keuangan\Akun;
-use App\Models\Master\PersonRelation;
 use Livewire\Component;
 
 class PenerimaanLainForm extends Component
 {
     use PaymentTransaksiTrait;
+    use SetAkunTrait;
+    use SetPersonTrait;
+    use PenerimaanPengeluaranTrait;
 
     protected $listeners = [
         'set_akun'=>'setAkun'
@@ -18,95 +19,65 @@ class PenerimaanLainForm extends Component
 
     public $penerimaan_lain_id;
     public $tgl_penerimaan;
-    public $person_relation_id, $person_relation_nama;
+
     public $asal;
     public $user_id;
     public $nominal;
     public $keterangan;
 
-    public $akun_id, $akun_nama, $akun_kode;
-    public $nominal_detail;
-
-    public $dataDetail = [];
-    //public $dataPayment = [];
     public $data;
 
     public $mode = 'create';
-    public $update = false;
-    public $index;
 
     public function mount($penerimaan_lain_id = null)
     {
+        $this->user_id = auth()->id();
+        $this->tgl_penerimaan = tanggalan_format(now('ASIA/JAKARTA'));
         if ($penerimaan_lain_id){
+            $this->mode = 'update';
             $this->penerimaan_lain_id = $penerimaan_lain_id;
+            $penerimaanLain = (new PenerimaanLainService())->handleGetData($penerimaan_lain_id);
+            $this->tgl_penerimaan = $penerimaanLain->tgl_penerimaan;
+            $this->person_relation_id = $penerimaanLain->person_relation_id;
+            $this->person_relation_nama = $penerimaanLain->personRelation->nama ?? null;
+            $this->asal = $penerimaanLain->asal;
+            $this->nominal = $penerimaanLain->nominal;
+            $this->keterangan = $penerimaanLain->keterangan;
+
+            foreach ($penerimaanLain->penerimaanLainDetail as $penerimaanLainDetail) {
+                $this->dataDetail[] = [
+                    'akun_id'=>$penerimaanLainDetail->akun_id,
+                    'akun_nama'=>$penerimaanLainDetail->akun->nama,
+                    'akun_kode'=>$penerimaanLainDetail->akun->kode,
+                    'nominal'=>$penerimaanLainDetail->nominal
+                ];
+            }
         }
     }
 
-    public function setAkun(Akun $akun)
+    public function payment()
     {
-        $this->akun_id = $akun->id;
-        $this->akun_nama = $akun->deskripsi;
-        $this->emit('hideModalAkun');
-    }
+        $this->data = $this->validate([
+            'penerimaan_lain_id'=>($this->mode == 'update') ? 'required' : 'nullable',
+            'tgl_penerimaan'=>'required',
+            'person_relation_id'=>'nullable',
+            'asal'=>'nullable',
+            'user_id'=>'required',
+            'nominal'=>'required',
+            'keterangan'=>'nullable',
 
-    public function setPerson(PersonRelation $personRelation)
-    {
-        $this->person_relation_id = $personRelation->id;
-        $this->person_relation_nama = $personRelation->nama;
-    }
-
-    protected function resetFormDetail()
-    {
-        $this->reset(['akun_id', 'akun_nama', 'akun_kode', 'nominal_detail']);
-    }
-
-    protected function setNominal()
-    {
-        $this->nominal = array_sum(array_column($this->dataDetail, 'nominal'));
-    }
-
-    public function addLine()
-    {
-        $this->dataDetail[] = [
-            'akun_id'=>$this->akun_id,
-            'akun_nama'=>$this->akun_nama,
-            'akun_kode'=>$this->akun_kode,
-            'nominal'=>$this->nominal_detail
-        ];
-        $this->setNominal();
-        $this->resetFormDetail();
-    }
-
-    public function editLine($index)
-    {
-        $this->index = $index;
-        $this->akun_id = $this->dataDetail[$index]['akun_id'];
-        $this->akun_nama = $this->dataDetail[$index]['akun_nama'];
-        $this->akun_kode = $this->dataDetail[$index]['akun_kode'];
-        $this->nominal_detail = $this->dataDetail[$index]['nominal'];
-        $this->update = true;
-    }
-
-    public function updateLine()
-    {
-        $index = $this->index;
-        $this->dataDetail[$index]['akun_id'] = $this->akun_id;
-        $this->dataDetail[$index]['akun_nama'] = $this->akun_nama;
-        $this->dataDetail[$index]['akun_kode'] = $this->akun_kode;
-        $this->dataDetail[$index]['nominal'] = $this->nominal_detail;
-        $this->update = false;
-        $this->setNominal();
-        $this->resetFormDetail();
-    }
-
-    public function destroyLine($index)
-    {
-        unset($this->dataDetail[$index]);
-        $this->dataDetail = array_values($this->dataDetail);
+            'dataDetail'=>'required|array'
+        ]);
+        $this->emit('showPayment');
     }
 
     public function store()
     {
+        $this->validate([
+            'dataPayment.*.akun_id'=>'required',
+            'dataPayment.*.nominal'=>'required|gt:0'
+        ]);
+        $this->data['dataPayment'] = $this->dataPayment;
         $store = (new PenerimaanLainService())->handleStore($this->data);
         if ($store['status']){
             return redirect()->to(route('kasir.penerimaan.lain'));
@@ -117,6 +88,11 @@ class PenerimaanLainForm extends Component
 
     public function update()
     {
+        $this->validate([
+            'dataPayment.*.akun_id'=>'required',
+            'dataPayment.*.nominal'=>'required|gt:0'
+        ]);
+        $this->data['dataPayment'] = $this->dataPayment;
         $update = (new PenerimaanLainService())->handleUpdate($this->data);
         if ($update['status']){
             return redirect()->to(route('kasir.penerimaan.lain'));
