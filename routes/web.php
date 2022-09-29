@@ -58,6 +58,8 @@ Route::get('/dashboard', function () {
 //Route::get('/metronics', function (){
 //    return view('pages.dashboard.index');
 //});
+Route::get('/test/kasir/penerimaan/{id}', [\App\Http\Controllers\Pdf\ReportController::class, 'PenerimaanPenjualanPrintOut']);
+Route::get('/test/kasir/pengeluaran/{id}', [\App\Http\Controllers\Pdf\ReportPengeluaranController::class, 'PengeluaranPembelianPrintOut']);
 
 /**
  * Master Routing
