@@ -4,52 +4,6 @@ use App\Models\Penjualan\Penjualan;
 
 class PenjualanRepository
 {
-    protected $penjualanId;
-
-    protected $kode;
-    protected $activeCash;
-    protected $customerId;
-    protected $gudangId;
-    protected $userId;
-    protected $tglNota;
-    protected $tglTempo;
-    protected $jenisBayar;
-    protected $statusBayar;
-    protected $totalBarang;
-    protected $ppn;
-    protected $biayaLain;
-    protected $totalBayar;
-    protected $keterangan;
-    protected $print;
-
-    protected $dataDetail;
-
-    public function __construct($data)
-    {
-        $this->penjualanId = $data['penjualanId'];
-
-        $this->activeCash = session('ClosedCash');
-        $this->kode = $this->kode();
-        $this->customerId = $data['customerId'];
-        $this->gudangId = $data['gudangId'];
-        $this->userId = auth()->id();
-        $this->tglNota = $data['tglNota'];
-        $this->jenisBayar = $data['jenisBayar'];
-        $this->tglTempo = ($data['jenisBayar'] == 'tempo') ? $data['tglTempo'] : null;
-        $this->statusBayar = 'belum';
-        $this->ppn = $data['ppn'];
-        $this->biayaLain = $data['biayaLain'];
-        $this->totalBayar = $data['totalBayar'];
-        $this->keterangan = $data['keterangan'];
-
-        $this->dataDetail = $data['dataDetail'];
-    }
-
-    public static function build($data)
-    {
-        return new static($data);
-    }
-
     public static function getKode()
     {
         $query = Penjualan::query()
@@ -70,89 +24,38 @@ class PenjualanRepository
         return self::getKode();
     }
 
-    public function getDataById()
+    public static function getDataById($penjualan_id)
     {
-        return Penjualan::find($this->penjualanId);
+        return Penjualan::find($penjualan_id);
     }
 
-    public function getDataAll(bool $closedCash = true)
+    public static function store(array $data)
     {
-        $query = Penjualan::query();
-        if ($closedCash){
-            $query = $query->where('active_cash', session('ClosedCash'));
-        }
-        return $query;
+        $data['kode'] = self::getKode();
+        $data['active_cash'] = session('ClosedCash');
+        $penjualan = Penjualan::create($data);
+        $penjualan->penjualanDetail()->createMany($data['dataDetail']);
+        return $penjualan->refresh();
     }
 
-    // todo static store
-
-    /**
-     * Simpan data penjualan
-     * simpan data detail
-     * return nilai penjualan
-     */
-    public function store()
+    public static function update(array $data)
     {
-        $detail = $this->storeDetail();
-        $penjualan = Penjualan::query()
-            ->create([
-                'kode'=>$this->kode,
-                'active_cash'=>$this->activeCash,
-                'customer_id'=>$this->customerId,
-                'gudang_id'=>$this->gudangId,
-                'user_id'=>$this->userId,
-                'tgl_nota'=>$this->tglNota,
-                'tgl_tempo'=>$this->tglTempo,
-                'jenis_bayar'=>$this->jenisBayar,
-                'status_bayar'=>$this->statusBayar,
-                'total_barang'=>$this->totalBarang,
-                'ppn'=>$this->ppn,
-                'biaya_lain'=>$this->biayaLain,
-                'total_bayar'=>$this->totalBayar,
-                'keterangan'=>$this->keterangan,
-                'print'=>1,
-            ]);
-        $penjualan->penjualanDetail()->createMany($detail);
-        return $penjualan;
+        $penjualan = self::getDataById($data['penjualan_id']);
+        $penjualan->update($data);
+        $penjualan->penjualanDetail()->createMany($data['dataDetail']);
+        return $penjualan->refresh();
     }
 
-    public function update()
+    public static function rollback($penjualan_id)
     {
-        $detail = $this->storeDetail();
-        $penjualan = $this->getDataById();
-        $penjualan->update([
-            'customer_id'=>$this->customerId,
-            'gudang_id'=>$this->gudangId,
-            'user_id'=>$this->userId,
-            'tgl_nota'=>$this->tglNota,
-            'tgl_tempo'=>$this->tglTempo,
-            'jenis_bayar'=>$this->jenisBayar,
-            'status_bayar'=>$this->statusBayar,
-            'total_barang'=>$this->totalBarang,
-            'ppn'=>$this->ppn,
-            'biaya_lain'=>$this->biayaLain,
-            'total_bayar'=>$this->totalBayar,
-            'keterangan'=>$this->keterangan,
-        ]);
-        $penjualan->increment('print');
-        $penjualan->refresh();
-        $penjualan->penjualanDetail()->createMany($detail);
-        return $penjualan;
+        // delete penjualan_detail
+        $penjualan = self::getDataById($penjualan_id);
+        $penjualan->penjualanDetail()->delete();
+        return $penjualan->refresh();
     }
 
-    protected function storeDetail()
+    public static function destroy($penjualan_id)
     {
-        $detail = [];
-        foreach ($this->dataDetail as $item) {
-            $detail[] = [
-                'produk_id'=>$item['produk_id'],
-                'harga'=>$item['harga'],
-                'jumlah'=>$item['jumlah'],
-                'diskon'=>$item['diskon'],
-                'sub_total'=>$item['sub_total'],
-            ];
-        }
-        $this->totalBarang = array_sum(array_column($detail, 'jumlah'));
-        return $detail;
+        return self::rollback($penjualan_id)->delete();
     }
 }

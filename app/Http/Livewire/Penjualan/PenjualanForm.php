@@ -3,17 +3,16 @@
 namespace App\Http\Livewire\Penjualan;
 
 use App\Haramain\SistemPenjualan\PenjualanService;
-use App\Models\KonfigurasiJurnal;
-use App\Models\Master\Produk;
-use App\Models\Penjualan\Penjualan;
-use App\Models\Penjualan\PenjualanRetur;
-use Carbon\Carbon;
+use App\Http\Livewire\Master\LivewireProdukTrait;
+use App\Http\Livewire\Master\SetCustomerTrait;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class PenjualanForm extends Component
 {
     // trait
+    use SetCustomerTrait;
+    use LivewireProdukTrait;
     use LivewirePenjualanTrait;
 
     protected $listeners = [
@@ -21,236 +20,92 @@ class PenjualanForm extends Component
         'set_customer'=>'setCustomer'
     ];
 
+    public $mode = 'create'; // default create
+
+    protected $penjualanService;
+
     // penjualan attribute
     public $penjualan_id;
-    public $customer_id;
+    // customer in customer trait
     public $gudang_id;
     public $user_id;
     public $tgl_nota, $tgl_tempo;
     public $jenis_bayar;
-    public $status_bayar;
+    public $status_bayar = 'belum';
     public $total_barang;
     public $ppn;
     public $biaya_lain;
-    public $total_bayar;
+    public $total_bayar, $total_bayar_rupiah;
     public $keterangan;
     public $print;
 
-    // penjualan detail attribute
-    public $produk_id;
-    public $harga;
-    public $jumlah;
-    public $diskon;
-    public $sub_total;
-
-    // initiate
-    protected $penjualanService;
-
-    // initiation attributes
-    protected $customer;
-    protected $produk;
-    protected $penjualan;
-    protected $penjualanRetur;
-    protected $konfigAkun;
-    protected $jenisTransaksi; // penjualan, retur baik, retur rusak
-    public $mode = 'create'; // default create dan bisa update
-
-    // general attributes
-    public $userId;
-
-    // penjualan attributes
-    public $penjualanId;
-    public $gudangId;
-    public $tglNota;
-    public $tglTempo;
-    public $jenisBayar;
-    public $statusBayar = 'belum';
-    public $totalBarang;
-   // public $ppn, $biayaLain;
-    public $totalPenjualan, $totalPenjualanRupiah; // total penjualan = pendapatan
-    public $totalBayar, $totalBayarRupiah; // total bayar = piutang
-    // public $keterangan;
-    // public $print;
-
-    // stock keluar
-    public $kondisi = 'baik';
-    public $tglKeluar;
-
-    // persediaan
-    public $tglInput;
-    public $jenisPersediaan = 'keluar';
-
-    // detail attributes
-    public $dataDetail = [];
-    public $update = false;
-    public $index;
-    // public $jumlah;
-    public $pendapatan;
+    // penjualan attribute ada di traits
 
     public function __construct($id = null)
     {
         parent::__construct($id);
         $this->penjualanService = new PenjualanService();
-        // initaite
-        $this->produk = new Produk();
-        $this->penjualan = new Penjualan();
-        $this->penjualanRetur = new PenjualanRetur();
-        $this->konfigAkun = new KonfigurasiJurnal();
         // initiate default date
         $this->tglNota = tanggalan_format(now('ASIA/JAKARTA'));
-        $this->tglTempo = tanggalan_format(now('ASIA/JAKARTA')->addMonth(2));
+        $this->tglTempo = tanggalan_format(now('ASIA/JAKARTA')->addMonths(2));
     }
 
-    public function mount($jenisTransaksi = 'penjualan', $penjualanId = null)
+    public function mount($penjualan_id = null)
     {
-        $this->userId = \Auth::id();
-        $this->jenisTransaksi = $jenisTransaksi;
-        if ($penjualanId){
-            $this->penjualanId = $penjualanId;
-            $this->editData($penjualanId);
+        $this->user_id = auth()->id();
+        if ($penjualan_id){
+            $this->mode = 'update';
+            $penjualan = $this->penjualanService->handleGetData($penjualan_id);
+            $this->penjualan_id = $penjualan->id;
+            $this->setCustomer($penjualan->customer); // set customer
+            $this->gudang_id = $penjualan->gudang_id;
+            $this->tgl_nota = $penjualan->tgl_nota;
+            $this->jenis_bayar = $penjualan->jenis_bayar;
+            $this->tgl_tempo = ($penjualan->tgl_tempo) ?: $this->tgl_tempo;
+            $this->total_barang = $penjualan->total_barang;
+            $this->ppn = $penjualan->ppn;
+            $this->biaya_lain = $penjualan->biaya_lain;
+            $this->total_bayar = $penjualan->total_bayar;
+            $this->keterangan = $penjualan->keterangan;
+
+            // penjualan_detail
+            $this->setDataDetail($penjualan->penjualanDetail);
+
+            // helper atteribute
+            $this->total_penjualan = (int) $this->total_bayar - (int) $this->ppn - (int) $this->biaya_lain;
+            $this->total_penjualan_rupiah = rupiah_format($this->total_penjualan);
+            $this->total_bayar_rupiah = rupiah_format($this->total_bayar);
         }
     }
 
-    protected function editData($penjualanId)
+    public function updatedPpn()
     {
-        $penjualan = $this->penjualanService->handleGetData($penjualanId);
-        $this->mode = 'update';
-        // data penjualan
-        $this->customerId = $penjualan->customer_id;
-        $this->customerNama = $penjualan->customer->nama;
-        $this->customerDiskon = $penjualan->customer->diskon;
-        $this->userId = auth()->id();
-        $this->gudangId = $penjualan->gudang_id;
-        $this->tglNota = tanggalan_format($penjualan->tgl_nota);
-        $tglNota = new Carbon($penjualan->tgl_nota);
-        $this->tglTempo = ($penjualan->tgl_tempo != null) ? tanggalan_format($penjualan->tgl_tempo) : tanggalan_format($tglNota->addMonth(2));
-        //dd($this->tglTempo);
-        $this->jenisBayar = $penjualan->jenis_bayar;
-        $this->totalBarang = $penjualan->total_barang;
-        $this->ppn = $penjualan->ppn;
-        $this->biayaLain = $penjualan->biaya_lain;
-        $this->totalBayar = $penjualan->total_bayar;
-        $this->totalBayarRupiah = rupiah_format($this->totalBayar);
-        $this->totalPenjualan = (int)$this->totalBayar - (int)$this->ppn - (int)$this->biayaLain;
-        $this->totalPenjualanRupiah = rupiah_format($this->totalPenjualan);
-        $this->keterangan = $penjualan->keterangan;
-        foreach ($penjualan->penjualanDetail as $item) {
-            $this->dataDetail[] = [
-                'produk_id'=>$item->produk_id,
-                'produk_nama'=>$item->produk->nama."\n".$item->produk->kode_lokal."\n".$item->produk->kategoriHarga->deskripsi."\n".$item->produk->cover,
-                'produk_kode_lokal'=>$item->produk->kode_lokal,
-                'produk_kategori'=>$item->produk->kategori->nama,
-                'produk_kategori_harga'=>$item->produk->kategoriHarga->deskripsi,
-                'harga'=>$item->harga,
-                'harga_rupiah'=>rupiah_format($item->harga),
-                'diskon'=>$item->diskon,
-                'jumlah'=>$item->jumlah,
-                'sub_total'=>$item->sub_total
-            ];
-        }
-        $this->pendapatan = $this->totalPenjualan;
+        $this->setTotalForm();
     }
 
-    public function setProduk($produkId)
+    public function updatedBiayaLain()
     {
-        $produk = $this->produk->newQuery()->find($produkId);
-        $this->setDetailFromProduk($produk); // from trait
-        $this->setSubTotal(); // from trait
-        $this->update = false;
-    }
-
-    public function addLine()
-    {
-        $this->validateFormDetail();
-        $this->setDataDetail(); // from trait
-        $this->setTotalItem();
-        $this->resetFormDetail();
-    }
-
-    public function editLine($index)
-    {
-        //dd( $this->dataDetail[$index]);
-        $this->update = true;
-        $this->index = $index;
-        $this->getDataDetail($index); // from trait
-        $this->setSubTotal();
-    }
-
-    public function updateLine()
-    {
-        $this->validateFormDetail();
-        $index = $this->index;
-        $this->updateDataDetail($index); // from trait
-        $this->setTotalItem();
-        $this->update = false;
-        $this->resetFormDetail();
-    }
-
-    public function setRemoveLineIndex($index)
-    {
-        $this->index = $index;
-        $this->emit('showConfirmation');
-        $this->setTotalItem();
-    }
-
-    public function removeLine($index)
-    {
-        unset($this->dataDetail[$index]);
-        $this->dataDetail = array_values($this->dataDetail);
-        $this->emit('hideConfirmation');
-    }
-
-    public function setTotalItem()
-    {
-        // jumlah total barang
-        $this->totalBarang = array_sum(array_column($this->dataDetail, 'jumlah'));
-        // jumlah total dari sub_total
-        $this->totalPenjualan = array_sum(array_column($this->dataDetail, 'sub_total'));
-        $this->totalPenjualanRupiah = rupiah_format($this->totalPenjualan);
-        $this->pendapatan = $this->totalPenjualan;
-        // jumlah total bayar
-        $this->totalBayar = (int)$this->totalPenjualan + (int)$this->biayaLain + (int)$this->ppn;
-        $this->totalBayarRupiah = rupiah_format($this->totalBayar);
-    }
-
-    protected function resetFormDetail()
-    {
-        $this->reset([
-            'index',
-            'produkId', 'produkNama', 'produkKodeLokal', 'produkKategori', 'produkKategoriHarga', 'produkCover',
-            'harga', 'diskon', 'jumlah', 'subTotal',
-            // gimmick interface
-            'hargaRupiah', 'hargaDiskon', 'hargaDiskonRupiah', 'subTotalRupiah'
-        ]);
+        $this->setTotalForm();
     }
 
     protected function validateData()
     {
-        $this->tglInput = $this->tglNota;
         return $this->validate([
-            'penjualanId'=>($this->mode == 'update' && $this->jenisTransaksi == 'penjualan') ? 'required' : 'nullable',
-            'customerId'=>'required',
-            'customerNama'=>'required',
-            'userId'=>'required',
-            'gudangId'=>'required',
-            'tglNota'=>'required',
-            'tglTempo'=>($this->jenisBayar == 'tempo') ? 'required' : 'nullable',
-            'jenisBayar'=>'required',
-            'statusBayar'=>'nullable',
-            'totalBarang'=>'required',
-            'totalPenjualan'=>'required',
-            'totalBayar'=>'required',
+            'penjualan_id'=>($this->mode == 'update') ? 'required' : 'nullable',
+            'customer_id'=>'required',
+            'customer_nama'=>'required',
+            'user_id'=>'required',
+            'gudang_id'=>'required',
+            'tgl_nota'=>'required',
+            'tgl_tempo'=>($this->jenis_bayar == 'tempo') ? 'required' : 'nullable',
+            'jenis_bayar'=>'required',
+            'status_bayar'=>'nullable',
+            'total_barang'=>'required',
+            'total_penjualan'=>'required',
+            'total_bayar'=>'required',
             'dataDetail'=>'required',
             'keterangan'=>'nullable',
-            // stock
-            'kondisi'=>'required',
-            // persediaan
-            'jenisPersediaan'=>'required',
-            'tglInput'=>'required',
-
-            // akuntansi
-            'pendapatan'=>'required',
-            'biayaLain'=>( (int)$this->biayaLain > 0) ?'required' : 'nullable',
+            'biaya_lain'=>( (int)$this->biaya_lain > 0) ?'required' : 'nullable',
             'ppn'=>( (int)$this->ppn > 0) ?'required' : 'nullable',
         ]);
     }

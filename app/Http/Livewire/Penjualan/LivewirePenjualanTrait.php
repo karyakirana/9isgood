@@ -4,109 +4,124 @@ use App\Models\Master\Customer;
 
 trait LivewirePenjualanTrait
 {
-    public $customerId, $customerNama, $customerDiskon;
-
-    public function setCustomer($customerId)
-    {
-        $customer = Customer::query()->find($customerId);
-        $this->customerId = $customerId;
-        $this->customerNama = $customer->nama;
-        $this->customerDiskon = $customer->diskon;
-    }
-
-    public $produkId;
-    public $produkNama, $produkKodeLokal, $produkKategori, $produkKategoriHarga, $produkCover;
-    public $harga, $hargaRupiah;
+    // detail attributes
     public $diskon;
+    public $jumlah;
+    public $sub_total, $sub_total_rupiah;
 
-    protected function setDetailFromProduk($produk)
+    public $dataDetail = [];
+    public $update = false;
+    public $index;
+
+    protected function setDataDetail($dataDetail)
     {
-        $this->produkId = $produk->id;
-        $this->produkNama = $produk->nama."\n".$produk->kode_lokal."\n".$produk->kategoriHarga->deskripsi."\n".$produk->cover;
-        $this->produkKodeLokal = $produk->kode_lokal;
-        $this->produkKategori = $produk->kategori->nama;
-        $this->produkKategoriHarga = $produk->kategoriHarga->deskripsi;
-        $this->harga = $produk->harga;
-        $this->hargaRupiah = rupiah_format((int)$this->harga);
-        $this->diskon = $this->customerDiskon ?? 0;
+        foreach ($dataDetail as $item) {
+            $this->dataDetail[] = [
+                'produk_id'=>$item->produk_id,
+                'kode_lokal'=>$item->produk->kode_lokal,
+                'produk_nama'=>$item->produk->nama."\n"
+                    .$item->produk->kode_lokal."\n"
+                    .$item->produk->kategoriHarga->deskripsi."\n"
+                    .$item->produk->cover,
+                'harga'=>$item->harga,
+                'diskon'=>$item->diskon,
+                'jumlah'=>$item->jumlah,
+                'sub_total'=>$item->sub_total
+            ];
+        }
     }
 
-    public $hargaDiskon, $hargaDiskonRupiah;
-
-    protected function setDiskon(): void
+    public function setSubTotal()
     {
-        $this->hargaDiskon = (int)$this->harga - ((int)$this->harga * (float)$this->diskon/100);
-        $this->hargaDiskonRupiah = rupiah_format((int)$this->hargaDiskon);
+        $this->sub_total = (int) $this->harga_setelah_diskon * (int) $this->jumlah;
+        $this->sub_total_rupiah = rupiah_format($this->sub_total);
     }
 
-    public $subTotal, $subTotalRupiah;
-
-    public function setSubTotal():void
+    public function updatedJumlah()
     {
-        $this->setDiskon();
-        $this->subTotal = $this->hargaDiskon * (int)$this->jumlah;
-        $this->subTotalRupiah = rupiah_format($this->subTotal);
+        $this->setSubTotal();
     }
 
-    /**
-     * validate form detail
-     * @return void
-     */
-    protected function validateFormDetail():void
+    public function updatedDiskon($value)
     {
-        $this->validate([
-            'produkNama'=>'required',
-            'jumlah'=>'required|integer',
-            'diskon'=>'required',
+        $this->setSubTotal();
+        $this->harga_setelah_diskon = (float)$this->harga - (float) ($this->harga * ((float)$this->diskon / 100));
+    }
+
+    public function addLine()
+    {
+        $this->dataDetail[] = [
+            'produk_id'=>$this->produk_id,
+            'kode_lokal'=>$this->kode_lokal,
+            'produk_nama'=>$this->produk_nama,
+            'harga'=>$this->harga,
+            'diskon'=>$this->diskon,
+            'jumlah'=>$this->jumlah,
+            'sub_total'=>$this->sub_total
+        ];
+        $this->setTotalForm();
+        $this->resetFormValidation();
+        $this->resetFormDetailAttribute();
+    }
+
+    public function editLine($index)
+    {
+        $this->resetFormDetailAttribute();
+        $this->update = true;
+        $this->index = $index;
+        $this->produk_id = $this->dataDetail[$index]['produk_id'];
+        $this->kode_lokal = $this->dataDetail[$index]['kode_lokal'];
+        $this->produk_nama = $this->dataDetail[$index]['produk_nama'];
+        $this->harga = $this->dataDetail[$index]['harga'];
+        $this->harga_rupiah = rupiah_format($this->harga);
+        $this->jumlah = $this->dataDetail[$index]['jumlah'];
+        $this->sub_total = $this->dataDetail[$index]['sub_total'];
+        $this->subTotalRupiah = $this->sub_total;
+    }
+
+    public function updateLine()
+    {
+        $index = $this->index;
+        $this->dataDetail[$index]['produk_id'] = $this->produk_id;
+        $this->dataDetail[$index]['kode_lokal'] = $this->kode_lokal;
+        $this->dataDetail[$index]['produk_nama'] = $this->produk_nama;
+        $this->dataDetail[$index]['harga'] = $this->harga;
+        $this->dataDetail[$index]['jumlah'] = $this->jumlah;
+        $this->dataDetail[$index]['sub_total'] = $this->sub_total;
+        $this->update = false;
+        $this->setTotalForm();
+        $this->resetFormDetailAttribute();
+    }
+
+    public function destroyLine($index)
+    {
+        unset($this->dataDetail[$index]);
+        $this->dataDetail = array_values($this->dataDetail);
+    }
+
+    protected function setTotalForm()
+    {
+        $this->total_barang = array_sum(array_column($this->dataDetail, 'jumlah'));
+        $this->total_penjualan = array_sum(array_column($this->dataDetail, 'sub_total'));
+        $this->total_penjualan_rupiah = $this->total_penjualan;
+        $this->total_bayar = (int) $this->total_penjualan + (float) $this->ppn + (int) $this->biaya_lain;
+        $this->total_bayar_rupiah = rupiah_format($this->total_bayar);
+    }
+
+    protected function resetFormDetailAttribute()
+    {
+        $this->resetFormValidation();
+        $this->reset([
+            'index',
+            'produk_id', 'kode_lokal', 'produk_nama', 'harga', 'diskon',
+            'harga_rupiah',
+            'harga_setelah_diskon',
+            'jumlah',
+            'sub_total', 'sub_total_rupiah'
         ]);
     }
 
-    protected function setDataDetail():void
-    {
-        $this->dataDetail[] = [
-            'produk_id'=>$this->produkId,
-            'produk_nama'=>$this->produkNama,
-            'produk_kode_lokal'=>$this->produkKodeLokal,
-            'produk_kategori'=>$this->produkKategori,
-            'produk_kategori_harga'=>$this->produkKategoriHarga,
-            'harga'=>$this->harga,
-            'harga_rupiah'=>$this->hargaRupiah,
-            'diskon'=>$this->diskon,
-            'jumlah'=>$this->jumlah,
-            'sub_total'=>$this->subTotal
-        ];
-    }
-
-    protected function getDataDetail($index):void
-    {
-        $this->produkId = $this->dataDetail[$index]['produk_id'];
-        $this->produkNama = $this->dataDetail[$index]['produk_nama'];
-        $this->produkKodeLokal = $this->dataDetail[$index]['produk_kode_lokal'];
-        $this->produkKategori = $this->dataDetail[$index]['produk_kategori'];
-        $this->produkKategoriHarga = $this->dataDetail[$index]['produk_kategori_harga'];
-        $this->harga = $this->dataDetail[$index]['harga'];
-        $this->hargaRupiah = $this->dataDetail[$index]['harga_rupiah'];
-        $this->diskon = $this->dataDetail[$index]['diskon'];
-        $this->jumlah = $this->dataDetail[$index]['jumlah'];
-        $this->subTotal = $this->dataDetail[$index]['sub_total'];
-    }
-
-    protected function updateDataDetail($index)
-    {
-        $this->dataDetail[$index]['produk_id'] = $this->produkId;
-        $this->dataDetail[$index]['produk_nama'] = $this->produkNama;
-        $this->dataDetail[$index]['produk_kode_lokal'] = $this->produkKodeLokal;
-        $this->dataDetail[$index]['produk_kategori'] = $this->produkKategori;
-        $this->dataDetail[$index]['produk_kategori_harga'] = $this->produkKategoriHarga;
-        $this->dataDetail[$index]['produk_cover'] = $this->produkCover;
-        $this->dataDetail[$index]['harga'] = $this->harga;
-        $this->dataDetail[$index]['diskon'] = $this->diskon;
-        $this->dataDetail[$index]['jumlah'] = $this->jumlah;
-        $this->dataDetail[$index]['sub_total'] = $this->subTotal;
-    }
-
-    /** reset form validation */
-    protected function resetForm()
+    protected function resetFormValidation()
     {
         $this->resetErrorBag();
         $this->resetValidation();

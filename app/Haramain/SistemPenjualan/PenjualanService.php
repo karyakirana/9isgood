@@ -27,7 +27,7 @@ class PenjualanService implements ServiceInterface
 
     public function handleGetData($id)
     {
-        return Penjualan::find($id);
+        return PenjualanRepository::getDataById($id);
     }
 
     /**
@@ -43,7 +43,7 @@ class PenjualanService implements ServiceInterface
         \DB::beginTransaction();
         try {
             // store penjualan
-            $penjualan = PenjualanRepository::build($data)->store();
+            $penjualan = PenjualanRepository::store($data);
             // store stock keluar dan stock inventory
             $stockKeluar = StockKeluarPenjualan::build($penjualan)->store();
             // store persediaan transaksi
@@ -70,11 +70,11 @@ class PenjualanService implements ServiceInterface
         \DB::beginTransaction();
         try {
             // initiate
-            $penjualan = Penjualan::query()->find($data['penjualanId']);
+            $penjualan = $this->handleGetData($data['penjualan_id']);
             // rollback
             $this->rollback($penjualan);
             // update penjualan
-            $penjualan = PenjualanRepository::build($data)->update();
+            $penjualan = PenjualanRepository::update($data);
             // update stock keluar
             StockKeluarPenjualan::build($penjualan)->update();
             // update persediaan transaksi

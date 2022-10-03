@@ -104,7 +104,7 @@ Route::middleware('auth')->group(function (){
     // penjualan
     Route::get('penjualan', PenjualanIndex::class)->name('penjualan');
     Route::get('penjualan/trans', PenjualanForm::class)->name('penjualan.trans');
-    Route::get('penjualan/trans/{penjualanId}', PenjualanForm::class);
+    Route::get('penjualan/trans/{penjualan_id}', PenjualanForm::class);
 
     // testing stock mutasi
     Route::get('testing/stockmutasi', [TestingStockMutasi::class, 'testingstockMutasi']);
