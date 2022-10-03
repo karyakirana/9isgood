@@ -1,10 +1,6 @@
 <?php namespace App\Haramain\SistemPenjualan;
 
 use App\Models\Penjualan\Penjualan;
-use App\Models\Penjualan\PenjualanDetail;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
 class PenjualanRepository
 {
@@ -54,7 +50,7 @@ class PenjualanRepository
         return new static($data);
     }
 
-    protected function kode()
+    public static function getKode()
     {
         $query = Penjualan::query()
             ->where('active_cash', session('ClosedCash'))
@@ -69,9 +65,14 @@ class PenjualanRepository
         return sprintf("%04s", $num)."/PJ/".date('Y');
     }
 
+    protected function kode()
+    {
+        return self::getKode();
+    }
+
     public function getDataById()
     {
-        return Penjualan::query()->findOrFail($this->penjualanId);
+        return Penjualan::find($this->penjualanId);
     }
 
     public function getDataAll(bool $closedCash = true)
@@ -82,6 +83,8 @@ class PenjualanRepository
         }
         return $query;
     }
+
+    // todo static store
 
     /**
      * Simpan data penjualan

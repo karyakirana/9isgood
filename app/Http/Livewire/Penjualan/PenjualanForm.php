@@ -21,6 +21,28 @@ class PenjualanForm extends Component
         'set_customer'=>'setCustomer'
     ];
 
+    // penjualan attribute
+    public $penjualan_id;
+    public $customer_id;
+    public $gudang_id;
+    public $user_id;
+    public $tgl_nota, $tgl_tempo;
+    public $jenis_bayar;
+    public $status_bayar;
+    public $total_barang;
+    public $ppn;
+    public $biaya_lain;
+    public $total_bayar;
+    public $keterangan;
+    public $print;
+
+    // penjualan detail attribute
+    public $produk_id;
+    public $harga;
+    public $jumlah;
+    public $diskon;
+    public $sub_total;
+
     // initiate
     protected $penjualanService;
 
@@ -44,11 +66,11 @@ class PenjualanForm extends Component
     public $jenisBayar;
     public $statusBayar = 'belum';
     public $totalBarang;
-    public $ppn, $biayaLain;
+   // public $ppn, $biayaLain;
     public $totalPenjualan, $totalPenjualanRupiah; // total penjualan = pendapatan
     public $totalBayar, $totalBayarRupiah; // total bayar = piutang
-    public $keterangan;
-    public $print;
+    // public $keterangan;
+    // public $print;
 
     // stock keluar
     public $kondisi = 'baik';
@@ -62,7 +84,7 @@ class PenjualanForm extends Component
     public $dataDetail = [];
     public $update = false;
     public $index;
-    public $jumlah;
+    // public $jumlah;
     public $pendapatan;
 
     public function __construct($id = null)
