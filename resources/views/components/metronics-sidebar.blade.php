@@ -99,6 +99,7 @@
                 </div>
                 <!--end:Menu item-->
                 <!--begin:Menu item-->
+                @can(['Sales', 'Stock', 'SuperAdmin'])
                 <div data-kt-menu-trigger="click"
                      class="menu-item {{request()->is('master*') ? 'here show' : ''}} menu-accordion">
                     <!--begin:Menu link-->
@@ -238,6 +239,7 @@
                     </div>
                     <!--end:Menu sub-->
                 </div>
+                @endcan
                 <!--end:Menu item-->
                 <!--begin:Menu item-->
                 <div data-kt-menu-trigger="click"
@@ -415,6 +417,7 @@
                 </div>
                 <!--end:Menu item-->
                 <!--begin:Menu item-->
+                @can('Keuangan')
                 <div data-kt-menu-trigger="click"
                      class="menu-item {{request()->is('pembelian*') ? 'here show' : ''}} menu-accordion">
                     <!--begin:Menu link-->
@@ -520,6 +523,7 @@
                     </div>
                     <!--end:Menu sub-->
                 </div>
+                @endcan
                 <!--end:Menu item-->
                 <!--begin:Menu item-->
                 <div class="menu-item pt-5">
@@ -570,7 +574,9 @@
                     <!--end:Menu content-->
                 </div>
                 <!--end:Menu item-->
+                @can('Keuangan')
                 <x-organisms.menu.sidebar-keuangan />
+                @endcan
                 <!--begin:Menu item-->
                 <div data-kt-menu-trigger="click"
                      class="menu-item {{request()->is('generator/*') ? 'here show' : ''}} menu-accordion">
