@@ -26,7 +26,7 @@ class SaldoHutangPembelianRepo
     {
         $query = $this->getDataById();
         //dd($query->exists());
-        if ($query->exists()){
+        if ($query){
             return $query->increment('saldo', $this->saldo);
         }
         return $this->create();
