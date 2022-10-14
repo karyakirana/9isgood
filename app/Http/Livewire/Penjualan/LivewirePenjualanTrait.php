@@ -45,7 +45,7 @@ trait LivewirePenjualanTrait
     public function updatedDiskon($value)
     {
         $this->setSubTotal();
-        $this->harga_setelah_diskon = (int)$this->harga - (int) ($this->harga * ((float)$this->diskon / 100));
+        $this->harga_setelah_diskon = (int)$this->harga -  ((int) $this->harga * ((float)$this->diskon / 100));
     }
 
     public function addLine()
