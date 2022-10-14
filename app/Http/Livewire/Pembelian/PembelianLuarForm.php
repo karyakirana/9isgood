@@ -6,8 +6,6 @@ namespace App\Http\Livewire\Pembelian;
 class PembelianLuarForm extends PembelianLivewire
 {
     //use PembelianFormTraits;
-
-
     // var master
     public $jenis = 'BLU', $kondisi='baik';
 
