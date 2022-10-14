@@ -180,7 +180,7 @@
                 produkModal.hide();
             })
 
-            $('#tgl_nota').on('change', function (e) {
+            $('#tglNota').on('change', function (e) {
                 let date = $(this).data("#tglNota");
                 // eval(date).set('tglLahir', $('#tglLahir').val())
                 console.log(e.target.tglNota);
