@@ -46,8 +46,8 @@ class PenjualanForm extends Component
         parent::__construct($id);
         $this->penjualanService = new PenjualanService();
         // initiate default date
-        $this->tglNota = tanggalan_format(now('ASIA/JAKARTA'));
-        $this->tglTempo = tanggalan_format(now('ASIA/JAKARTA')->addMonths(2));
+        $this->tgl_nota = tanggalan_format(now('ASIA/JAKARTA'));
+        $this->tgl_tempo = tanggalan_format(now('ASIA/JAKARTA')->addMonths(2));
     }
 
     public function mount($penjualan_id = null)
