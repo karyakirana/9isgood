@@ -99,7 +99,7 @@
                 </div>
                 <!--end:Menu item-->
                 <!--begin:Menu item-->
-                @can(['Sales', 'Stock', 'SuperAdmin'])
+                @canany(['Sales', 'Stock'])
                 <div data-kt-menu-trigger="click"
                      class="menu-item {{request()->is('master*') ? 'here show' : ''}} menu-accordion">
                     <!--begin:Menu link-->
@@ -239,7 +239,7 @@
                     </div>
                     <!--end:Menu sub-->
                 </div>
-                @endcan
+                @endcanany
                 <!--end:Menu item-->
                 <!--begin:Menu item-->
                 <div data-kt-menu-trigger="click"

@@ -47,10 +47,10 @@ class PenjualanService implements ServiceInterface
             // store stock keluar dan stock inventory
             $stockKeluar = StockKeluarPenjualan::build($penjualan)->store();
             // store persediaan transaksi
-            $persediaanTransaksi = PersediaanTransaksiFromPenjualan::build($penjualan)->store();
+            // $persediaanTransaksi = PersediaanTransaksiFromPenjualan::build($penjualan)->store();
             // store piutang penjualan
             PiutangPenjualanFromPenjualan::build($penjualan)->store();
-            $this->jurnalPenjualanService($penjualan, $persediaanTransaksi);
+            $this->jurnalPenjualanService($penjualan);
             \DB::commit();
             return (object)[
                 'status'=>true,
@@ -78,10 +78,10 @@ class PenjualanService implements ServiceInterface
             // update stock keluar
             StockKeluarPenjualan::build($penjualan)->update();
             // update persediaan transaksi
-            $persediaanTransaksi = PersediaanTransaksiFromPenjualan::build($penjualan)->update();
+            // $persediaanTransaksi = PersediaanTransaksiFromPenjualan::build($penjualan)->update();
             // update piutang penjualan
             PiutangPenjualanFromPenjualan::build($penjualan)->update();
-            $this->jurnalPenjualanService($penjualan, $persediaanTransaksi);
+            $this->jurnalPenjualanService($penjualan);
             \DB::commit();
             return (object)[
                 'status'=>true,
