@@ -44,6 +44,14 @@ class PenjualanRetur extends Model
         );
     }
 
+    public function tglTempo():Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => tanggalan_format($value),
+            set: fn ($value) => tanggalan_database_format($value, 'd-M-Y')
+        );
+    }
+
     public function returDetail()
     {
         return $this->hasMany(PenjualanReturDetail::class, 'penjualan_retur_id');

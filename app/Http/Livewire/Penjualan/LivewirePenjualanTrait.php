@@ -72,6 +72,7 @@ trait LivewirePenjualanTrait
         $this->produk_id = $this->dataDetail[$index]['produk_id'];
         $this->kode_lokal = $this->dataDetail[$index]['kode_lokal'];
         $this->produk_nama = $this->dataDetail[$index]['produk_nama'];
+        $this->diskon = $this->dataDetail[$index]['diskon'];
         $this->harga = $this->dataDetail[$index]['harga'];
         $this->harga_rupiah = rupiah_format($this->harga);
         $this->jumlah = $this->dataDetail[$index]['jumlah'];
@@ -85,6 +86,7 @@ trait LivewirePenjualanTrait
         $this->dataDetail[$index]['produk_id'] = $this->produk_id;
         $this->dataDetail[$index]['kode_lokal'] = $this->kode_lokal;
         $this->dataDetail[$index]['produk_nama'] = $this->produk_nama;
+        $this->dataDetail[$index]['diskon'] = $this->diskon;
         $this->dataDetail[$index]['harga'] = $this->harga;
         $this->dataDetail[$index]['jumlah'] = $this->jumlah;
         $this->dataDetail[$index]['sub_total'] = $this->sub_total;

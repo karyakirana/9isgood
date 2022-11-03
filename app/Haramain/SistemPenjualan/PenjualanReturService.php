@@ -2,9 +2,9 @@
 
 use App\Haramain\SistemKeuangan\SubJurnal\JurnalTransaksiServiceTrait;
 use App\Haramain\SistemKeuangan\SubKasir\PiutangPenjualanFromRetur;
-use App\Haramain\SistemKeuangan\SubPersediaan\Transaksi\PersediaanTransaksiFromPenjualanRetur;
 use App\Haramain\SistemStock\StockMasukPenjualanRetur;
 use App\Models\Penjualan\PenjualanRetur;
+use DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PenjualanReturService
@@ -36,20 +36,20 @@ class PenjualanReturService
      */
     public function handleStore($data)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
-            $penjualanRetur = PenjualanReturRepository::build($data)->store();
-            $stockMasuk = StockMasukPenjualanRetur::build($penjualanRetur)->store();
+            $penjualanRetur = PenjualanReturRepository::store($data);
+            StockMasukPenjualanRetur::build($penjualanRetur)->store();
             PiutangPenjualanFromRetur::build($penjualanRetur)->store();
-            $persediaanTransaksi = PersediaanTransaksiFromPenjualanRetur::build($penjualanRetur)->store();
-            $this->jurnalPenjualanReturService($penjualanRetur, $persediaanTransaksi);
-            \DB::commit();
+            // $persediaanTransaksi = PersediaanTransaksiFromPenjualanRetur::build($penjualanRetur)->store();
+            $this->jurnalPenjualanReturService($penjualanRetur);
+            DB::commit();
             return (object)[
                 'status'=>true,
                 'keterangan'=>$penjualanRetur
             ];
         } catch (ModelNotFoundException $e){
-            \DB::rollBack();
+            DB::rollBack();
             return (object)[
                 'status'=>false,
                 'keterangan'=>$e->getMessage()
@@ -59,22 +59,22 @@ class PenjualanReturService
 
     public function handleUpdate($data)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
-            $penjualanRetur = $this->handleGetData($data['penjualanReturId']);
+            $penjualanRetur = $this->handleGetData($data['penjualan_retur_id']);
             $this->rollback($penjualanRetur);
-            $penjualanRetur = PenjualanReturRepository::build($data)->update();
-            $stockMasuk = StockMasukPenjualanRetur::build($penjualanRetur)->update();
+            $penjualanRetur = PenjualanReturRepository::update($data);
+            StockMasukPenjualanRetur::build($penjualanRetur)->update();
             PiutangPenjualanFromRetur::build($penjualanRetur)->update();
-            $persediaanTransaksi = PersediaanTransaksiFromPenjualanRetur::build($penjualanRetur)->update();
-            $this->jurnalPenjualanReturService($penjualanRetur, $persediaanTransaksi);
-            \DB::commit();
+            // $persediaanTransaksi = PersediaanTransaksiFromPenjualanRetur::build($penjualanRetur)->update();
+            $this->jurnalPenjualanReturService($penjualanRetur);
+            DB::commit();
             return (object)[
                 'status'=>true,
                 'keterangan'=>$penjualanRetur
             ];
         } catch (ModelNotFoundException $e){
-            \DB::rollBack();
+            DB::rollBack();
             return (object)[
                 'status'=>false,
                 'keterangan'=>$e->getMessage()
@@ -84,11 +84,11 @@ class PenjualanReturService
 
     public function handleDestroy($penjualanReturId)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
-            \DB::commit();
+            DB::commit();
         } catch (ModelNotFoundException $e){
-            \DB::rollBack();
+            DB::rollBack();
         }
     }
 
@@ -97,9 +97,9 @@ class PenjualanReturService
         // stock masuk
         StockMasukPenjualanRetur::build($penjualanRetur)->rollback();
         // persediaan transaksi
-        PersediaanTransaksiFromPenjualanRetur::build($penjualanRetur)->rollback();
+        // PersediaanTransaksiFromPenjualanRetur::build($penjualanRetur)->rollback();
         // penjualan retur
-        $penjualanRetur->returDetail()->delete();
+        PenjualanReturRepository::rollback($penjualanRetur->id);
         // jurnal rollback
         $this->rollbackJurnalAndSaldo($penjualanRetur);
     }

@@ -88,7 +88,7 @@ trait JurnalTransaksiServiceTrait
         $this->akunPersediaanRusakPerak = KonfigurasiJurnalRepository::build('persediaan_rusak_perak')->getAkun();
     }
 
-    protected function jurnalPenjualanReturService($penjualanRetur, $persediaanTransaksi)
+    protected function jurnalPenjualanReturService($penjualanRetur)
     {
         $jurnalTransaksiRepo = JurnalTransaksiRepo::build($penjualanRetur);
         $totalPenjualan = $penjualanRetur->total_bayar - (int) $penjualanRetur->ppn - (int) $penjualanRetur->biaya_lain;
@@ -109,11 +109,11 @@ trait JurnalTransaksiServiceTrait
         $jurnalTransaksiRepo->kredit($this->akunPiutangPenjualan, $penjualanRetur->total_bayar);
         NeracaSaldoRepository::kredit($this->akunBiayaLainPenjualan, $penjualanRetur->total_bayar);
         // persediaan debet
-        $jurnalTransaksiRepo->debet($this->akunPiutangPenjualan, $persediaanTransaksi->debet);
-        NeracaSaldoRepository::debet($this->akunBiayaLainPenjualan, $persediaanTransaksi->debet);
+        // $jurnalTransaksiRepo->debet($this->akunPiutangPenjualan, $persediaanTransaksi->debet);
+        // NeracaSaldoRepository::debet($this->akunBiayaLainPenjualan, $persediaanTransaksi->debet);
         // hpp kredit
-        $jurnalTransaksiRepo->kredit($this->akunPiutangPenjualan, $persediaanTransaksi->debet);
-        NeracaSaldoRepository::kredit($this->akunBiayaLainPenjualan, $persediaanTransaksi->debet);
+        // $jurnalTransaksiRepo->kredit($this->akunPiutangPenjualan, $persediaanTransaksi->debet);
+        // NeracaSaldoRepository::kredit($this->akunBiayaLainPenjualan, $persediaanTransaksi->debet);
     }
 
     protected $akunHutangPembelian;
