@@ -91,7 +91,7 @@ class PenjualanService implements ServiceInterface
             \DB::rollBack();
             return (object) [
                 'status'=>false,
-                'keterangan'=>'error'
+                'keterangan'=>$e
             ];
         }
     }
@@ -103,7 +103,7 @@ class PenjualanService implements ServiceInterface
             // initiate
             $penjualan = $this->penjualanRepository->getDataById($id);
             // destroy stock keluar
-            $this->stockKeluarRepository->destory($penjualan::class, $penjualan->id);
+            $this->stockKeluarRepository->destroy($penjualan::class, $penjualan->id);
             // destroy persediaan transaksi
             $this->persediaanTransaksiRepo->destroyKeluar($penjualan::class, $penjualan->id);
             // destroy piutang penjualan
@@ -129,7 +129,7 @@ class PenjualanService implements ServiceInterface
         // stock keluar
         StockKeluarPenjualan::build($penjualan)->rollback();
         // persediaan transaksi
-        PersediaanTransaksiFromPenjualan::build($penjualan)->rollback();
+        // PersediaanTransaksiFromPenjualan::build($penjualan)->rollback();
         // piutang penjualan
         PiutangPenjualanFromPenjualan::build($penjualan)->rollback();
         // penjualan
